@@ -11,7 +11,9 @@ passport.use(
     },
     async function (tokenPayload, cb) {
       try {
-        const user = await User.findOne({ email: tokenPayload.email })
+        const user = await User.findOne({
+          email: tokenPayload.usuario.email,
+        })
         if (!user) return cb('Usuario no encontrado', false)
 
         return cb(null, user)

@@ -1,15 +1,22 @@
 const Model = require('./model')
 
-async function getUserDB(filterUser, des, limit) {
-  return await Model.find(
-    filterUser
-  )
-    .skip(des)
-    .limit(limit)
-    .exec()
+function getUserDB(filterUser, des, limit) {
+  return new Promise((resolve, reject) => {
+    Model.find(filterUser)
+    .populate('direccion', 'direccion lat lon')
+      .skip(des)
+      .limit(limit)
+      .exec((err, users) => {
+        if (err) return reject(err)
+        Model.countDocuments({ status: true }, (err, count) => {
+          if (err) return reject(err)
+          resolve({ users, count })
+        })
+      })
+  })
 }
-async function findUserDB(data){
-    return await Model.find({nombre_comp: data})
+async function findUserDB(data) {
+  return await Model.find({ nombre_comp: data })
 }
 async function addUserDB(user) {
   const myUser = new Model(user)
@@ -22,12 +29,16 @@ async function updateUserDB(newUser, id) {
   })
 }
 async function deleteUserDB(id) {
-  return await Model.findByIdAndUpdate(id,{status:false},{new: true})
+  return await Model.findByIdAndUpdate(
+    id,
+    { status: false },
+    { new: true }
+  )
 }
 module.exports = {
   getUserDB,
   addUserDB,
   updateUserDB,
   deleteUserDB,
-  findUserDB
+  findUserDB,
 }

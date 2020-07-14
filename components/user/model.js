@@ -7,7 +7,10 @@ const roleValidator = {
 }
 const Schema = mongoose.Schema
 const userSchema = new Schema({
-  nombre_comp: { type: String, required: [true, 'El nombre completo es necesario'] },
+  nombre_comp: {
+    type: String,
+    required: [true, 'El nombre completo es necesario'],
+  },
   email: {
     type: String,
     unique: true,
@@ -19,20 +22,23 @@ const userSchema = new Schema({
   },
   phone: {
     type: Number,
-    required: [true, 'El número de celular en necesario'],
+    unique: true,
+    // required: [true, 'El número de celular en necesario'],
   },
-  direccion: { type: String, require: false },
+  direccion: [
+    { type: Schema.Types.ObjectId, ref: 'Direccion', require: false },
+  ],
   img: { type: String, require: false },
   role: { type: String, default: 'CLIENT-ROLE', enum: roleValidator },
   google: { type: Boolean, default: false },
   facebook: { type: Boolean, default: false },
   status: { type: Boolean, default: true },
 })
-userSchema.methods.toJSON = function(){
-    const user = this
-    const userObject = user.toObject()
-    delete userObject.password
-    return userObject
+userSchema.methods.toJSON = function () {
+  const user = this
+  const userObject = user.toObject()
+  delete userObject.password
+  return userObject
 }
 
 userSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })

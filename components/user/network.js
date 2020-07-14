@@ -54,20 +54,16 @@ router.patch(
     let body = {}
     if (req.user.role === 'ADMIN-ROLE') {
       body = _.pick(req.body, [
-        'nombre',
-        'apellido',
+        'nombre_comp',
         'status',
         'password',
-        'direccion',
         'img',
         'role',
       ])
     } else {
       body = _.pick(req.body, [
-        'nombre',
-        'apellido',
+        'nombre_comp',
         'password',
-        'direccion',
         'img',
       ])
     }
