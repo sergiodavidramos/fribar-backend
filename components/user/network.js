@@ -82,7 +82,7 @@ router.delete(
     controller
       .deleteUser(id)
       .then((user) =>
-        response.success(req, res, ` ${user.id} eliminado`, 200)
+        response.success(req, res, ` ${user.id} Eliminado`, 200)
       )
       .catch((err) => response.error(req, res, err.message, 500))
   }

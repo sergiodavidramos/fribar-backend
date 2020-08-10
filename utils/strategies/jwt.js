@@ -12,7 +12,7 @@ passport.use(
     async function (tokenPayload, cb) {
       try {
         const user = await User.findOne({
-          email: tokenPayload.usuario.email,
+          email: tokenPayload.email,
         })
         if (!user) return cb('Usuario no encontrado', false)
 
