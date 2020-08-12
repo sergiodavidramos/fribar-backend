@@ -7,17 +7,13 @@ require('../../utils/strategies/jwt')
 
 const router = express.Router()
 
-router.get(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    const id = req.query.id || null
-    controller
-      .getFilterIdAndPaginateProduct(id, req.query.desde, req.query.limite)
-      .then((product) => response.success(req, res, product, 200))
-      .catch((err) => response.error(req, res, err, 500))
-  }
-)
+router.get('/', (req, res) => {
+  const id = req.query.id || null
+  controller
+    .getFilterIdAndPaginateProduct(id, req.query.desde, req.query.limite)
+    .then((product) => response.success(req, res, product, 200))
+    .catch((err) => response.error(req, res, err, 500))
+})
 
 router.get(
   '/all',
@@ -26,19 +22,21 @@ router.get(
     controller
       .getAllProduct()
       .then((products) => response.success(req, res, products, 200))
-      .catch((error) => response(req, res, error, 500))
+      .catch((error) => response.error(req, res, error, 500))
   }
 )
-router.get(
-  '/buscar/:termino',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    controller
-      .findProduct(req.params.termino)
-      .then((product) => response.success(req, res, product, 200))
-      .catch((error) => success(req, res, error, 500))
-  }
-)
+router.get('/buscar/:termino', (req, res) => {
+  controller
+    .findProduct(req.params.termino)
+    .then((product) => response.success(req, res, product, 200))
+    .catch((error) => response.error(req, res, error, 500))
+})
+router.get('/:categoria', (req, res) => {
+  controller
+    .findCategoriaProduct(req.params.categoria)
+    .then((product) => response.success(req, res, product, 200))
+    .catch((error) => response.error(req, res, error, 500))
+})
 
 router.post(
   '/',

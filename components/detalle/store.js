@@ -16,7 +16,7 @@ function addDetalleDB(detalle) {
     newDetalle
       .save()
       .then((det) =>
-        resolve(det.populate('detalle.producto', 'name').execPopulate())
+        resolve(det.populate('detalle.producto', 'name precioVenta').execPopulate())
       )
       .catch((err) => reject(err))
   })

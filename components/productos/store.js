@@ -22,6 +22,9 @@ function getFilterIdAndPaginateProductDB(filter, des, limit) {
 async function findProductDB(data) {
   return Product.find({ name: data })
 }
+async function findCategoriaProductDB(categoria) {
+  return Product.find({ category: categoria })
+}
 async function addProductDB(product) {
   const myProduct = new Product(product)
   return myProduct.save()
@@ -30,7 +33,7 @@ async function updateProductDB(newProduct, id) {
   return Product.findByIdAndUpdate(id, newProduct, {
     new: true,
     runValidators: true,
-    context: 'query'
+    context: 'query',
   })
 }
 async function deleteProductDB(id) {
@@ -44,4 +47,5 @@ module.exports = {
   addProductDB,
   updateProductDB,
   deleteProductDB,
+  findCategoriaProductDB,
 }

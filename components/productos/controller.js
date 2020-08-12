@@ -5,6 +5,7 @@ const {
   deleteProductDB,
   updateProductDB,
   findProductDB,
+  findCategoriaProductDB
 } = require('./store')
 
 function getFilterIdAndPaginateProduct(id, des, limit) {
@@ -21,6 +22,9 @@ function getAllProduct() {
 function findProduct(ter) {
   const termino = new RegExp(ter, 'i')
   return findProductDB(termino)
+}
+function findCategoriaProduct(categoria){
+  return findCategoriaProductDB(categoria)
 }
 function addProduct(product) {
   const {
@@ -69,6 +73,7 @@ module.exports = {
   getFilterIdAndPaginateProduct,
   getAllProduct,
   findProduct,
+  findCategoriaProduct,
   addProduct,
   updateProduct,
   deleteProduct,
