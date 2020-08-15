@@ -5,6 +5,7 @@ const productos = require('../components/productos/network')
 const categoria = require('../components/categoria/network')
 const detalle = require('../components/detalle/network')
 const pedido = require('../components/pedidos/network')
+const venta = require('../components/ventas/network')
 const upload = require('../components/upload/network')
 const router = (server) => {
   server.use('/login', auth)
@@ -14,6 +15,7 @@ const router = (server) => {
   server.use('/categoria', categoria)
   server.use('/detalle', detalle)
   server.use('/pedido', pedido)
+  server.use('/venta', venta)
   server.use('/upload', upload)
 }
 module.exports = router

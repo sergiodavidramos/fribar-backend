@@ -1,11 +1,20 @@
-const Pedido = require('./model')
+const Venta = require('./model')
 
+function getVentaIdDB(id) {
+  return Venta.findById(id)
+}
+function getVentaFechaDB(start, end) {
+  return Venta.find({
+    fecha: { $gte: new Date(start), $lt: new Date(end) },
+  })
+}
 function addVentaDB(venta) {
-  const newVenta = new Pedido(venta)
+  const newVenta = new Venta(venta)
   return newVenta.save()
 }
 // function addPedidoDB() {}
-// function addPedidoDB() {}
 module.exports = {
-    addVentaDB,
+  addVentaDB,
+  getVentaIdDB,
+  getVentaFechaDB,
 }
