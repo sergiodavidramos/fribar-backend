@@ -5,7 +5,7 @@ const {
   deleteProductDB,
   updateProductDB,
   findProductDB,
-  findCategoriaProductDB
+  findCategoriaProductDB,
 } = require('./store')
 
 function getFilterIdAndPaginateProduct(id, des, limit) {
@@ -23,7 +23,7 @@ function findProduct(ter) {
   const termino = new RegExp(ter, 'i')
   return findProductDB(termino)
 }
-function findCategoriaProduct(categoria){
+function findCategoriaProduct(categoria) {
   return findCategoriaProductDB(categoria)
 }
 function addProduct(product) {
@@ -41,7 +41,8 @@ function addProduct(product) {
     precioPromo,
     fechaPromo,
   } = product
-  if (!name) return Promise.reject('El nombre es necesario')
+  if (!name || !stock || !precioCompra || !precioVenta)
+    return Promise.reject({ message: 'Todos los datos son necesarios' })
   const productDB = {
     name: name.replace(/\b\w/g, (l) => l.toUpperCase()),
     detail,

@@ -11,7 +11,7 @@ passport.use(
         return cb('Usuario no encontrado', false)
       }
       if (!(await bcrypt.compare(password, user.password))) {
-        return cb('Usuario no encontrado[password]', false)
+        return cb('Usuario no encontrado', false)
       }
 
       return cb(null, user)

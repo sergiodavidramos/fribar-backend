@@ -11,7 +11,6 @@ passport.use(
       profileFields: ['id', 'displayName', 'photos', 'email'],
     },
     async function (accessToken, refreshToken, { _json: profile }, done) {
-
       if (!profile.email) {
         return done('No se pudo obtener el email', false)
       }

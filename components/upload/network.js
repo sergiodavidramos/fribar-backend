@@ -14,7 +14,7 @@ router.put(
     controller
       .subirFoto(req)
       .then((data) => response.success(req, res, data, 200))
-      .catch((error) => response.error(req, res, error, 500))
+      .catch((error) => response.error(req, res, error.message, 500))
   }
 )
 

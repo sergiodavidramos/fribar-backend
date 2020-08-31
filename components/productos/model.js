@@ -29,12 +29,12 @@ const productSchema = new Schema({
   fechaPromo: { type: Date },
   category: [
     {
-        required: [true, 'La Categoria es necesaria'],
+      required: [true, 'La Categoria es necesaria'],
       type: Schema.Types.ObjectId,
       ref: 'Categoria',
     },
   ],
-  img: { type: String, require: true },
+  img: [{ type: String, require: true }],
   status: { type: Boolean, default: true },
   vence: {
     type: Date,

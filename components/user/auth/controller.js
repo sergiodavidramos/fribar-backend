@@ -2,6 +2,7 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const { OAuth2Client } = require('google-auth-library')
 const User = require('../model')
+const fetch = require('node-fetch')
 require('dotenv').config()
 require('../../../utils/strategies/basic')
 const client = new OAuth2Client(process.env.CLIENT_ID)
@@ -9,11 +10,13 @@ function login(req, res, next) {
   return new Promise((resolve, reject) => {
     passport.authenticate('basic', function (err, user) {
       if (err || !user) {
-        return reject('Los campos son obligatorios')
+        return reject({
+          message: 'Datos incorrectos por favor intentelo nuevamente',
+        })
       }
       req.login(user, { session: false }, function (error) {
         if (error) {
-          return reject(error)
+          return reject({ message: error })
         }
         const token = generaToken(user)
         return resolve({
@@ -52,16 +55,18 @@ function loginGoogle(tokenGoogle) {
   return new Promise(async (resolve, reject) => {
     try {
       const googleUser = await verify(tokenGoogle).catch((e) => {
-        reject(e)
+        return reject({ message: e })
       })
       const usuario = await User.findOne({ email: googleUser.email })
 
       if (usuario) {
         if (usuario.google === false)
-          reject('Debe de usar su autenticacion normal')
+          return reject({
+            message: 'Debe de usar su autenticacion normal',
+          })
         else {
           const token = generaToken(usuario)
-          resolve({ usuario, token })
+          return resolve({ usuario, token })
         }
       } else {
         const usuario = new User({
@@ -73,44 +78,64 @@ function loginGoogle(tokenGoogle) {
         })
 
         usuario.save((err, usuario) => {
-          if (err) reject(err)
+          if (err) return reject({ message: err })
           const token = generaToken(usuario)
-          resolve({ usuario, token })
+          return resolve({ usuario, token })
         })
       }
     } catch (e) {
-      reject(e)
+      reject({ message: e })
     }
   })
 }
 
-function loginFacebook(user) {
+async function verifyFacebook(userID, accessToken) {
+  try {
+    let urlGraphFacebook = `https://graph.facebook.com/v2.11/${userID}/?fields=id,name,email,picture&access_token=${accessToken}`
+    const response = await fetch(urlGraphFacebook, { method: 'GET' })
+    const userFacebook = response.json()
+    return userFacebook
+  } catch (error) {
+    return false
+  }
+}
+function loginFacebook({ userID, accessToken }) {
   return new Promise(async (resolve, reject) => {
     try {
-      const usuario = await User.findOne({ email: user.email })
-      if (usuario) {
-        if (usuario.facebook === false)
-          reject('Debe de usar su autenticacion normal')
-        else {
-          const token = generaToken(usuario)
-          resolve({ usuario, token })
-        }
-      } else {
-        const userFacebook = new User({
-          nombre_comp: user.nombre_comp,
-          email: user.email,
-          img: user.img,
-          facebook: true,
-          password: user.password,
-        })
-        userFacebook.save((err, usuarioDB) => {
-          if (err) reject(err)
-          const token = generaToken(usuarioDB)
-          resolve({ usuarioDB, token })
+      const userFacebook = await verifyFacebook(userID, accessToken)
+      if (!userFacebook || !userFacebook.email) {
+        return reject({
+          message:
+            'lo siento, puede que su cuenta o su email con Facebook sea privada no pudimos autenticar',
         })
       }
-    } catch (e) {
-      reject(e)
+      const usuario = await User.findOne({ email: userFacebook.email })
+      if (usuario !== null) {
+        if (usuario.facebook === false)
+          return reject({
+            message: 'Debe de usar su autenticacion normal',
+          })
+        else {
+          const token = generaToken(usuario)
+          return resolve({ usuario, token })
+        }
+      } else {
+        const userFa = new User()
+        ;(userFa.nombre_comp = userFacebook.name),
+          (userFa.email = userFacebook.email),
+          (userFa.img = userFacebook.picture.data.url),
+          (userFa.facebook = true),
+          (userFa.password = userFacebook.id),
+          userFa.save((err, usuarioDB) => {
+            if (err) {
+              return reject({ message: err })
+            }
+            const token = generaToken(usuarioDB)
+            return resolve({ usuarioDB, token })
+          })
+      }
+    } catch (err) {
+      return reject({ message: err.message })
     }
   })
 }

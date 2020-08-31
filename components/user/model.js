@@ -22,7 +22,7 @@ const userSchema = new Schema({
   },
   phone: {
     type: Number,
-    unique: true,
+    unique: false,
     // required: [true, 'El número de celular en necesario'],
   },
   direccion: [
