@@ -4,26 +4,17 @@ async function getAllProductDB() {
   return Product.find()
 }
 function getFilterIdAndPaginateProductDB(filter, des, limit) {
-  return new Promise((resolve, reject) => {
-    Product.find(filter)
-      .populate('category')
-      .skip(des)
-      .limit(limit)
-      .exec((err, products) => {
-        err
-          ? reject(err)
-          : Product.countDocuments({ status: true }, (err, count) => {
-              err ? reject(err) : resolve({ products, count })
-            })
-      })
-  })
+  return Promise.all([
+    Product.find(filter).limit(limit).skip(des).populate('category'),
+    Product.countDocuments({ status: true }),
+  ])
 }
 
 async function findProductDB(data) {
-  return Product.find({ name: data })
+  return Product.find({ name: data }).populate('category')
 }
 async function findCategoriaProductDB(categoria) {
-  return Product.find({ category: categoria })
+  return Product.find({ category: categoria }).populate('category')
 }
 async function addProductDB(product) {
   const myProduct = new Product(product)

@@ -2,7 +2,9 @@ const Model = require('./model')
 
 function getUserDB(filterUser, des, limit) {
   return new Promise((resolve, reject) => {
-    Model.find(filterUser)
+    Model.find(
+      Object.keys(filterUser).length === 0 ? { status: true } : filterUser
+    )
       .populate('direccion', 'direccion lat lon')
       .skip(des)
       .limit(limit)

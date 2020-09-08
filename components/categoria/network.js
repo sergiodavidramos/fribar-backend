@@ -13,6 +13,17 @@ router.get('/', (req, res) => {
     .then((category) => response.success(req, res, category, 200))
     .catch((error) => response.error(req, res, error, 500))
 })
+router.get(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  scopeValidation(['ADMIN-ROLE', 'USER-ROLE']),
+  (req, res) => {
+    controller
+      .getCategoryId(req.params.id)
+      .then((category) => response.success(req, res, category, 200))
+      .catch((error) => response.error(req, res, error, 500))
+  }
+)
 
 router.post(
   '/',
@@ -23,6 +34,18 @@ router.post(
       .addCategory(req.body)
       .then((category) => response.success(req, res, category, 200))
       .catch((error) => response.error(res, res, error, 500))
+  }
+)
+
+router.patch(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  scopeValidation(['ADMIN-ROLE', 'USER-ROLE']),
+  (req, res) => {
+    controller
+      .updateCategory(req.body, req.params.id)
+      .then((category) => response.success(req, res, category, 200))
+      .catch((error) => response.error(req, res, error, 500))
   }
 )
 module.exports = router

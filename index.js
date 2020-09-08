@@ -7,20 +7,12 @@ const path = require('path')
 const cors = require('cors')
 require('dotenv').config()
 var corsOptions = {
-  //   origin: 'http://localhost:3000',
-  //   optionsSuccessStatus: 200,
-  credentials: true,
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 }
 
-app.all(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
-  res.header('Access-Control-Allow-Credentials', 'include')
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  )
-  next()
-})
 app.use(cors(corsOptions))
 db(process.env.DB_URL)
 app.use(bodyParser.urlencoded({ extended: false }))

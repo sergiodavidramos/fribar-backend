@@ -7,5 +7,13 @@ const categorySchema = new Schema({
     required: [true, 'El Nombre de la categoria es necesaria'],
     unique: true,
   },
+  description: {
+    type: String,
+    required: [true, 'La descripcion es necesario'],
+  },
+  img: {
+    type: String,
+    required: false,
+  },
 })
 module.exports = mongoose.model('Categoria', categorySchema)

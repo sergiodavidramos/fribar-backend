@@ -59,12 +59,16 @@ router.patch(
         'password',
         'img',
         'role',
+        'phone',
+        'direccion',
       ])
     } else {
       body = _.pick(req.body, [
         'nombre_comp',
         'password',
         'img',
+        'phone',
+        'direccion',
       ])
     }
     controller

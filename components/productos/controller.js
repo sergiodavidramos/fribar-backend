@@ -13,7 +13,6 @@ function getFilterIdAndPaginateProduct(id, des, limit) {
   const desde = Number(des) || 0
   const lim = Number(limit) || 10
   if (id !== null) filterProduct._id = id
-
   return getFilterIdAndPaginateProductDB(filterProduct, desde, lim)
 }
 function getAllProduct() {
@@ -61,9 +60,9 @@ function addProduct(product) {
 }
 function updateProduct(newProduct, id) {
   if (Object.keys(newProduct).length === 0 && !id)
-    return Promise.reject(
-      'Todos los datos son requeridos para ser Actualizados'
-    )
+    return Promise.reject({
+      message: 'Todos los datos son requeridos para ser Actualizados',
+    })
   return updateProductDB(newProduct, id)
 }
 function deleteProduct(id) {

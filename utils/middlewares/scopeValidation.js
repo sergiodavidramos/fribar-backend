@@ -7,13 +7,13 @@ function scopeValidation(scope) {
       .map((allowedScope) => req.user.role.includes(allowedScope))
       .find((allowed) => Boolean(allowed))
 
-      if(access){
-          next()
-      }else{
-          res.send('Insufficient Scope')
-        //   next();
-      }
+    if (access) {
+      next()
+    } else {
+      res.sendStatus(401)
+      //   next();
+    }
   }
 }
 
-module.exports = scopeValidation;
+module.exports = scopeValidation

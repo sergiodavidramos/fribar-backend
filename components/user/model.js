@@ -25,6 +25,14 @@ const userSchema = new Schema({
     unique: false,
     // required: [true, 'El número de celular en necesario'],
   },
+  compras: {
+    type: Number,
+    default: 0,
+  },
+  puntos: {
+    type: Number,
+    default: 0,
+  },
   direccion: [
     { type: Schema.Types.ObjectId, ref: 'Direccion', require: false },
   ],

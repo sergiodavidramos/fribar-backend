@@ -17,5 +17,8 @@ router.put(
       .catch((error) => response.error(req, res, error.message, 500))
   }
 )
+router.get('/:tipo/:foto', (req, res) => {
+  controller.retornaImagen(req, res)
+})
 
 module.exports = router

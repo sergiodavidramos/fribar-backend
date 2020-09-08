@@ -33,7 +33,9 @@ function addUser(user) {
 
 function updateUser(newUser, id) {
   if (Object.keys(newUser).length === 0)
-    return Promise.reject('Los datos son requeridos para ser actualizados')
+    return Promise.reject({
+      message: 'Los datos son requeridos para ser actualizados',
+    })
   if (newUser.password) {
     newUser.password = bcrypt.hashSync(newUser.password, 5)
   }
