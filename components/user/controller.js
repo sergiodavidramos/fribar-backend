@@ -4,15 +4,24 @@ const {
   updateUserDB,
   deleteUserDB,
   findUserDB,
+  getUserStateDB,
 } = require('./store')
 const bcrypt = require('bcrypt')
 
-function getUser(id, des, limit) {
+function getUser(id, state, des, limit) {
   let filterUser = {}
+  let filterState = {}
   const desde = Number(des) || 0
   const lim = Number(limit) || 10
   if (id !== null) filterUser = { _id: id }
-  return getUserDB(filterUser, desde, lim)
+  if (state !== null) filterState = { status: state }
+  return getUserDB(filterUser, state, desde, lim)
+}
+function getUserState(state) {
+  const value = state === 'true'
+  let filterState = {}
+  if (state !== null) filterState = { status: value }
+  return getUserStateDB(filterState)
 }
 function findUser(ter) {
   const termino = new RegExp(ter, 'i')
@@ -51,4 +60,5 @@ module.exports = {
   updateUser,
   deleteUser,
   findUser,
+  getUserState,
 }

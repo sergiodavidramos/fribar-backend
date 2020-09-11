@@ -9,10 +9,11 @@ function subirFoto(req) {
   const tiposValidos = ['user', 'producto', 'categoria']
   const token = req.headers.authorization.split(' ')[1]
   return new Promise((resolve, reject) => {
-    if (id !== req.user._id.toString() && tipo === 'user')
-      return reject({
-        message: 'No puedes cambiar la foto de otro usuario',
-      })
+    if (req.user.role !== 'ADMIN-ROLE')
+      if (id !== req.user._id.toString() && tipo === 'user')
+        return reject({
+          message: 'No puedes cambiar la foto de otro usuario',
+        })
     if (tiposValidos.indexOf(tipo) < 0)
       return reject({ message: 'Tipo de coleccion no es valido' })
     if (!req.files)

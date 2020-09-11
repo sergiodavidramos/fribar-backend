@@ -13,8 +13,21 @@ router.get(
   scopeValidationHandler(['ADMIN-ROLE']),
   (req, res) => {
     const id = req.query.id || null
+    const state = req.query.state || null
     controller
-      .getUser(id, req.query.desde, req.query.limite)
+      .getUser(id, state, req.query.desde, req.query.limite)
+      .then((user) => response.success(req, res, user, 200))
+      .catch((err) => response.error(req, res, err.message, 500))
+  }
+)
+router.get(
+  '/state',
+  passport.authenticate('jwt', { session: false }),
+  scopeValidationHandler(['ADMIN-ROLE']),
+  (req, res) => {
+    const state = req.query.state || null
+    controller
+      .getUserState(state)
       .then((user) => response.success(req, res, user, 200))
       .catch((err) => response.error(req, res, err.message, 500))
   }
@@ -59,6 +72,7 @@ router.patch(
         'password',
         'img',
         'role',
+        'email',
         'phone',
         'direccion',
       ])
