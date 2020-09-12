@@ -21,6 +21,9 @@ async function findUserDB(data) {
 async function getUserStateDB(state) {
   return Model.find(state)
 }
+async function getUserRoleDB(role) {
+  return Model.find(role)
+}
 async function addUserDB(user) {
   const myUser = new Model(user)
   return myUser.save()
@@ -28,7 +31,7 @@ async function addUserDB(user) {
 async function updateUserDB(newUser, id) {
   return Model.findByIdAndUpdate(id, newUser, {
     new: true,
-    // runValidators: true,
+    runValidators: true,
   })
 }
 async function deleteUserDB(id) {
@@ -41,4 +44,5 @@ module.exports = {
   deleteUserDB,
   findUserDB,
   getUserStateDB,
+  getUserRoleDB,
 }

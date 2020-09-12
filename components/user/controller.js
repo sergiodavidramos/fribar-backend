@@ -5,6 +5,7 @@ const {
   deleteUserDB,
   findUserDB,
   getUserStateDB,
+  getUserRoleDB,
 } = require('./store')
 const bcrypt = require('bcrypt')
 
@@ -22,6 +23,13 @@ function getUserState(state) {
   let filterState = {}
   if (state !== null) filterState = { status: value }
   return getUserStateDB(filterState)
+}
+function getUserRole(role) {
+  let filterRole = {
+    role: { $in: ['ADMIN-ROLE', 'USER-ROLE', 'DELIVERY-ROLE'] },
+  }
+  if (role !== null) filterRole = { role: role }
+  return getUserRoleDB(filterRole)
 }
 function findUser(ter) {
   const termino = new RegExp(ter, 'i')
@@ -61,4 +69,5 @@ module.exports = {
   deleteUser,
   findUser,
   getUserState,
+  getUserRole,
 }

@@ -32,6 +32,18 @@ router.get(
       .catch((err) => response.error(req, res, err.message, 500))
   }
 )
+router.get(
+  '/role',
+  passport.authenticate('jwt', { session: false }),
+  scopeValidationHandler(['ADMIN-ROLE']),
+  (req, res) => {
+    const role = req.query.role || null
+    controller
+      .getUserRole(role)
+      .then((user) => response.success(req, res, user, 200))
+      .catch((err) => response.error(req, res, err.message, 500))
+  }
+)
 
 router.get(
   '/buscar/:termino',
