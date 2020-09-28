@@ -27,7 +27,6 @@ function updateCategory(newCategory, id) {
     })
   return updateCategoryDB(newCategory, id)
 }
-
 module.exports = {
   getCategory,
   addCategory,

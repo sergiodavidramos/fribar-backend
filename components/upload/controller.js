@@ -6,7 +6,7 @@ require('dotenv').config()
 function subirFoto(req) {
   const tipo = req.params.tipo
   const id = req.params.id
-  const tiposValidos = ['user', 'producto', 'categoria']
+  const tiposValidos = ['user', 'producto', 'categoria', 'oferta']
   const token = req.headers.authorization.split(' ')[1]
   return new Promise((resolve, reject) => {
     if (req.user.role !== 'ADMIN-ROLE')
@@ -122,6 +122,29 @@ async function subirPorTipo(tipo, id, nombreArchivo, token, usuarioDB) {
       })
       const cateDate = await cate.json()
       return cateDate.body
+    }
+
+    if (tipo === 'oferta') {
+      const ofertaDB = await fetch(`${process.env.API_URL}/offers/${id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const oferta = await ofertaDB.json()
+      const pathViejo = './uploads/oferta/' + oferta.body.img
+      if (fs.existsSync(pathViejo)) fs.unlinkSync(pathViejo)
+      const ofer = await fetch(`${process.env.API_URL}/offers/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ img: nombreArchivo[0] }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const ofertDate = await ofer.json()
+      return ofertDate.body
     }
   } catch (error) {
     return Promise.reject({ message: 'No se pudo actualizar la foto' })

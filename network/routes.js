@@ -7,6 +7,7 @@ const detalle = require('../components/detalle/network')
 const pedido = require('../components/pedidos/network')
 const venta = require('../components/ventas/network')
 const upload = require('../components/upload/network')
+const offers = require('../components/ofertas/network')
 const router = (server) => {
   server.use('/login', auth)
   server.use('/user', user)
@@ -17,5 +18,6 @@ const router = (server) => {
   server.use('/pedido', pedido)
   server.use('/venta', venta)
   server.use('/upload', upload)
+  server.use('/offers', offers)
 }
 module.exports = router
