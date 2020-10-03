@@ -20,9 +20,10 @@ const pedidoSchema = new Schema({
   fecha: { type: Date, required: true },
   total: { type: Number, required: true },
 
-  entregado: { type: Boolean, default: false },
-  preparado: { type: Boolean, default: false },
-  recogido: { type: Boolean, default: false },
+  pendiente: { type: Boolean, default: true },
+  proceso: { type: Boolean, default: false },
+  completo: { type: Boolean, default: false },
+  cancelado: { type: Boolean, default: false },
 })
 
 module.exports = mongoose.model('Pedido', pedidoSchema)

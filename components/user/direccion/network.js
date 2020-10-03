@@ -11,7 +11,7 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     controller
-      .addDirection(req.body,req.user)
+      .addDirection(req.body, req.user)
       .then((dir) => response.success(req, res, dir, 200))
       .catch((err) => response.error(req, res, err.message, 500))
   }
@@ -22,8 +22,10 @@ router.delete(
   (req, res) => {
     const id = req.params.id
     controller
-      .deleteDirection(id,req.user)
-      .then((deleted) => response.success(req, res, `${id} Eliminado`, 200))
+      .deleteDirection(id, req.user)
+      .then((deleted) =>
+        response.success(req, res, `${id} Eliminado`, 200)
+      )
       .catch((err) => response.error(req, res, err.message, 500))
   }
 )

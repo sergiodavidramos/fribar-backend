@@ -1,11 +1,13 @@
 const { addVentaDB, getVentaIdDB, getVentaFechaDB } = require('./store')
-const axios = require('axios')
+const fetch = require('node-fetch')
 const fechaHoy = new Date()
 function getVentaId(id) {
   return getVentaIdDB(id)
 }
 function getVentaFecha(
-  start = `${fechaHoy.getFullYear()}-${fechaHoy.getMonth()+1}-${fechaHoy.getDate()}`,
+  start = `${fechaHoy.getFullYear()}-${
+    fechaHoy.getMonth() + 1
+  }-${fechaHoy.getDate()}`,
   end = fechaHoy
 ) {
   return getVentaFechaDB(start, end)
@@ -15,9 +17,10 @@ async function addVenta(body, user) {
   if (!body.detalleVenta || !body.client)
     return Promise.reject('Los Campos son obligatorios')
   try {
-    const det = await axios.post(`http://localhost:3000/detalle`, {
-      responseType: 'json',
-      detalle: body.detalleVenta,
+    const det = await fetch(`http://localhost:3000/detalle`, {
+      methods: 'POST',
+      body: JSON.stringify({ detalle: body.detalleVenta }),
+      headers: { 'Content-Type': 'application/json' },
     })
     let total = null
     for (let i of det.data.body.detalle) {

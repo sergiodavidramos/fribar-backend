@@ -1,5 +1,4 @@
 const fs = require('fs')
-const axios = require('axios')
 const path = require('path')
 const fetch = require('node-fetch')
 require('dotenv').config()
@@ -64,39 +63,46 @@ async function subirPorTipo(tipo, id, nombreArchivo, token, usuarioDB) {
     if (tipo === 'user') {
       const pathViejo = './uploads/user/' + usuarioDB.img
       if (fs.existsSync(pathViejo)) fs.unlinkSync(pathViejo)
-      const user = await axios.patch(
-        `${process.env.API_URL}/user/${id}`,
-        { img: nombreArchivo[0] },
-        {
-          responseType: 'json',
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      return user.data.body
+      const user = await fetch(`${process.env.API_URL}/user/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          img: nombreArchivo[0],
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const u = await user.json()
+      return u.body
     }
     if (tipo === 'producto') {
-      const producto = await axios.get(
-        `${process.env.API_URL}/productos?id=${id}`,
-        {
-          responseType: 'json',
-        }
-      )
-      const pathViejo = producto.data.body[0][0].img
+      const p = await fetch(`${process.env.API_URL}/productos?id=${id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const producto = await p.json()
+      const pathViejo = producto.body[0][0].img
       if (pathViejo.length > 0) {
         for (const data of pathViejo) {
           if (fs.existsSync(`./uploads/producto/${data}`))
             fs.unlinkSync(`./uploads/producto/${data}`)
         }
       }
-      const produc = await axios.patch(
+      const produc = await fetch(
         `${process.env.API_URL}/productos/${id}`,
-        { img: nombreArchivo },
         {
-          responseType: 'json',
-          headers: { Authorization: `Bearer ${token}` },
+          method: 'PATCH',
+          body: JSON.stringify({ img: nombreArchivo }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
       )
-      return produc.data.body
+      const pro = await produc.json()
+
+      return pro.body
     }
     if (tipo === 'categoria') {
       const categoriaDB = await fetch(

@@ -24,12 +24,12 @@ app.use(bodyParser.json())
 app.use(express.static(path.resolve(__dirname, './public')))
 socket.connect(server)
 router(app)
-socket.socket.io.on('connection', (cliente) => {
-  console.log('cliente conectado')
-  cliente.on('disconnect', () => {
-    console.log('Client disconnected')
-  })
-})
+// socket.socket.io.on('connection', (cliente) => {
+//   console.log('cliente conectado')
+//   cliente.on('disconnect', () => {
+//     console.log('Client disconnected')
+//   })
+// })
 server.listen(process.env.PORT, () => {
   console.log('Server listen en the PORT: ', process.env.PORT)
 })

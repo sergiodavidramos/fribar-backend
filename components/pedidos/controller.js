@@ -1,22 +1,26 @@
 const { addPedidoDB } = require('./store')
-const axios = require('axios')
-
+const fetch = require('node-fetch')
+require('dotenv').config()
 async function addPedido(body, user) {
   if (!body.detalleVenta || !body.direccion)
     return Promise.reject('Los Campos son obligatorios')
   try {
-    const det = await axios.post(`http://localhost:3000/detalle`, {
-      responseType: 'json',
-      detalle: body.detalleVenta,
+    const det = await fetch(`${process.env.API_URL}/detalle`, {
+      method: 'POST',
+      body: JSON.stringify({ detalle: body.detalleVenta }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
     let total = null
-    for (let i of det.data.body.detalle) {
+    const detalle = await det.json()
+    for (let i of detalle.body.detalle) {
       total += i.producto.precioVenta * i.cantidad
     }
     const pedido = {
       user: user._id,
       direction: body.direccion,
-      detalleVenta: det.data.body._id,
+      detalleVenta: detalle.body._id,
       fecha: new Date(),
       total,
     }
