@@ -18,7 +18,6 @@ router.post('/facebook', (req, res) => {
   controller
     .loginFacebook(req.body)
     .then((user) => {
-      // res.cookie('user', user, {})
       response.success(req, res, user, 200)
     })
     .catch((err) => response.error(req, res, err, 500))

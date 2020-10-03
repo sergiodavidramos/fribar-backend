@@ -1,7 +1,14 @@
 const Pedido = require('./model')
 
-function getPedidosDiaDB(fecha) {
-  return Pedido.find()
+function getPedidosDiaDB(fechaInicial, fechaFinal) {
+  return Pedido.find({
+    $and: [
+      {
+        fecha: { $gte: new Date(fechaInicial) },
+        fecha: { $lt: new Date(fechaFinal) },
+      },
+    ],
+  })
 }
 function addPedidoDB(pedido) {
   const newPedido = new Pedido(pedido)
@@ -14,7 +21,7 @@ function updatePedidoDB(id, newPedido) {
   })
 }
 module.exports = {
-  getPedidoDB,
   addPedidoDB,
   updatePedidoDB,
+  getPedidosDiaDB,
 }

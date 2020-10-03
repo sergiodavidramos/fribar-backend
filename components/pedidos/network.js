@@ -15,7 +15,6 @@ router.post(
     controller
       .addPedido(req.body, req.user)
       .then((pedido) => {
-        EscucharPedido()
         return response.success(req, res, pedido, 200)
       })
       .catch((err) => {

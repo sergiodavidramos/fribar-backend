@@ -131,7 +131,7 @@ function loginFacebook({ userID, accessToken }) {
               return reject({ message: err })
             }
             const token = generaToken(usuarioDB)
-            return resolve({ usuarioDB, token })
+            return resolve({ usuario: usuarioDB, token })
           })
       }
     } catch (err) {

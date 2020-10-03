@@ -1,4 +1,4 @@
-const { addPedidoDB } = require('./store')
+const { addPedidoDB, getPedidosDiaDB } = require('./store')
 const fetch = require('node-fetch')
 require('dotenv').config()
 async function addPedido(body, user) {
@@ -29,7 +29,15 @@ async function addPedido(body, user) {
     return Promise.reject(err.message)
   }
 }
+function getPedidosDia(fecha) {
+  const fechaInicial = fecha
+  const fechaFinal = fechaInicial
+    .substring(0, 8)
+    .concat(Number(fechaInicial.substring(8)) + 1)
+  return getPedidosDiaDB(fechaInicial, fechaFinal)
+}
 
 module.exports = {
   addPedido,
+  getPedidosDia,
 }
