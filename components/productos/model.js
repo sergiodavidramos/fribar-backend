@@ -41,6 +41,10 @@ const productSchema = new Schema({
     required: [true, 'La fecha de vencimineto es obligatoria'],
   },
   codigo: { type: String, required: false },
+  tipoVenta: {
+    type: String,
+    required: true,
+  },
 })
 
 productSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })

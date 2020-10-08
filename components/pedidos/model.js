@@ -19,11 +19,8 @@ const pedidoSchema = new Schema({
   },
   fecha: { type: Date, required: true },
   total: { type: Number, required: true },
-
-  pendiente: { type: Boolean, default: true },
-  proceso: { type: Boolean, default: false },
-  completo: { type: Boolean, default: false },
-  cancelado: { type: Boolean, default: false },
+  deliveryFees: { type: Number, required: true },
+  state: { type: Number, default: 0, required: true },
 })
 
 module.exports = mongoose.model('Pedido', pedidoSchema)

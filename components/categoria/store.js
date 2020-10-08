@@ -4,7 +4,7 @@ function getCategoryDB() {
   return Category.find()
 }
 function getCategoryIdDB(id) {
-  return Category.find({ _id: id })
+  return Category.findById({ _id: id })
 }
 function addCategoryDB(name, description) {
   const newCategory = new Category({ name, description })

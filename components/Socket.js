@@ -1,9 +1,11 @@
 const { socket } = require('../socket')
 
-function EscucharPedido() {
-  socket.io.on('escuchar-pedido', () => {
-    console.log('nuevo pedido')
-  })
+function EscucharPedido(pedido) {
+  pedido
+    .then((data) => socket.io.emit('escuchar-pedido', data))
+    .catch((error) => {
+      console.log('EL ERROR', error)
+    })
 }
 
 module.exports = {

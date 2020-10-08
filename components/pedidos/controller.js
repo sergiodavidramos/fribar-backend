@@ -1,4 +1,9 @@
-const { addPedidoDB, getPedidosDiaDB } = require('./store')
+const {
+  addPedidoDB,
+  getPedidosDiaDB,
+  updatePedidoDB,
+  getPedidoIdDB,
+} = require('./store')
 const fetch = require('node-fetch')
 require('dotenv').config()
 async function addPedido(body, user) {
@@ -13,16 +18,19 @@ async function addPedido(body, user) {
       },
     })
     let total = null
+    let deliveryFees = 0
     const detalle = await det.json()
     for (let i of detalle.body.detalle) {
       total += i.producto.precioVenta * i.cantidad
     }
+    if (total < 25) deliveryFees = 5
     const pedido = {
       user: user._id,
       direction: body.direccion,
       detalleVenta: detalle.body._id,
       fecha: new Date(),
-      total,
+      deliveryFees,
+      total: total + deliveryFees,
     }
     return addPedidoDB(pedido)
   } catch (err) {
@@ -36,8 +44,20 @@ function getPedidosDia(fecha) {
     .concat(Number(fechaInicial.substring(8)) + 1)
   return getPedidosDiaDB(fechaInicial, fechaFinal)
 }
-
+function getPedidoId(id) {
+  if (!id) return Promise.reject({ message: 'EL id Es requerido' })
+  return getPedidoIdDB(id)
+}
+function updatePedido(id, newPedido) {
+  if (Object.keys(newPedido).length === 0 && !id)
+    return Promise.reject({
+      message: 'Todos los datos son requeridos para ser Actualizados',
+    })
+  return updatePedidoDB(id, newPedido)
+}
 module.exports = {
   addPedido,
   getPedidosDia,
+  updatePedido,
+  getPedidoId,
 }

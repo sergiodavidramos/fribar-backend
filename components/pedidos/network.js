@@ -3,11 +3,21 @@ const controller = require('./controller')
 const response = require('../../network/response')
 const router = express.Router()
 const passport = require('passport')
-const { socket } = require('../Socket')
-
 require('../../utils/strategies/jwt')
 const { EscucharPedido } = require('../Socket')
-router.get('/', (req, res) => {})
+router.get('/:fecha', (req, res) => {
+  const fecha = req.params.fecha
+  controller
+    .getPedidosDia(fecha)
+    .then((pedidos) => response.success(req, res, pedidos, 200))
+    .catch((err) => response.error(req, res, err, 500))
+})
+router.get('/detalle/:id', (req, res) => {
+  controller
+    .getPedidoId(req.params.id)
+    .then((pedido) => response.success(req, res, pedido, 200))
+    .catch((error) => response.error(req, res, error, 500))
+})
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
@@ -15,13 +25,26 @@ router.post(
     controller
       .addPedido(req.body, req.user)
       .then((pedido) => {
+        EscucharPedido(
+          pedido
+            .populate({
+              path: 'detalleVenta',
+              populate: { path: 'detalle.producto' },
+            })
+            .populate('direction')
+            .execPopulate()
+        )
         return response.success(req, res, pedido, 200)
       })
       .catch((err) => {
-        console.log(err)
         response.error(req, res, err, 500)
       })
   }
 )
-
+router.patch('/:id', (req, res) => {
+  controller
+    .updatePedido(req.params.id, req.body)
+    .then((newPedido) => response.success(req, res, newPedido, 200))
+    .catch((err) => response.error(req, res, err, 500))
+})
 module.exports = router

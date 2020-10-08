@@ -39,8 +39,9 @@ function addProduct(product) {
     promo,
     precioPromo,
     fechaPromo,
+    tipoVenta,
   } = product
-  if (!name || !stock || !precioCompra || !precioVenta)
+  if (!name || !stock || !precioCompra || !precioVenta || !tipoVenta)
     return Promise.reject({ message: 'Todos los datos son necesarios' })
   const productDB = {
     name: name.replace(/\b\w/g, (l) => l.toUpperCase()),
@@ -55,6 +56,7 @@ function addProduct(product) {
     promo,
     precioPromo,
     fechaPromo,
+    tipoVenta,
   }
   return addProductDB(productDB)
 }
