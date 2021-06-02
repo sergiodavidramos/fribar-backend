@@ -33,6 +33,10 @@ const userSchema = new Schema({
     type: Number,
     default: 0,
   },
+  cuenta: {
+    type: Number,
+    default: 0,
+  },
   direccion: [
     { type: Schema.Types.ObjectId, ref: 'Direccion', require: false },
   ],
