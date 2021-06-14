@@ -4,7 +4,7 @@ const response = require('../../network/response')
 const router = express.Router()
 const passport = require('passport')
 require('../../utils/strategies/jwt')
-const { EscucharPedido } = require('../Socket')
+const { EscucharPedido, tableroPedidos } = require('../Socket')
 router.get('/:fecha', (req, res) => {
   const fecha = req.params.fecha
   controller
@@ -16,6 +16,12 @@ router.get('/detalle/:id', (req, res) => {
   controller
     .getPedidoId(req.params.id)
     .then((pedido) => response.success(req, res, pedido, 200))
+    .catch((error) => response.error(req, res, error, 500))
+})
+router.get('/estado/tablero', (req, res) => {
+  controller
+    .getEstado()
+    .then((pedidos) => response.success(req, res, pedidos, 200))
     .catch((error) => response.error(req, res, error, 500))
 })
 router.post(
@@ -34,6 +40,7 @@ router.post(
             .populate('direction')
             .execPopulate()
         )
+        tableroPedidos()
         return response.success(req, res, pedido, 200)
       })
       .catch((err) => {
@@ -44,7 +51,10 @@ router.post(
 router.patch('/:id', (req, res) => {
   controller
     .updatePedido(req.params.id, req.body)
-    .then((newPedido) => response.success(req, res, newPedido, 200))
+    .then((newPedido) => {
+      tableroPedidos()
+      response.success(req, res, newPedido, 200)
+    })
     .catch((err) => response.error(req, res, err, 500))
 })
 module.exports = router

@@ -3,6 +3,7 @@ const {
   getPedidosDiaDB,
   updatePedidoDB,
   getPedidoIdDB,
+  getEstadoDB,
 } = require('./store')
 const fetch = require('node-fetch')
 require('dotenv').config()
@@ -41,12 +42,22 @@ function getPedidosDia(fecha) {
   const fechaInicial = fecha
   const fechaFinal = fechaInicial
     .substring(0, 8)
-    .concat(Number(fechaInicial.substring(8)) + 1)
+    .concat(Number(fechaInicial.substring(8)) + 2)
   return getPedidosDiaDB(fechaInicial, fechaFinal)
 }
 function getPedidoId(id) {
   if (!id) return Promise.reject({ message: 'EL id Es requerido' })
   return getPedidoIdDB(id)
+}
+function getEstado() {
+  const fecha = new Date()
+  const fechaInicial = `${fecha.getFullYear()}-${
+    fecha.getMonth() + 1
+  }-${fecha.getDate()}`
+  const fechaFinal = fechaInicial
+    .substring(0, 8)
+    .concat(Number(fechaInicial.substring(8)) + 1)
+  return getEstadoDB(fechaInicial, fechaFinal)
 }
 function updatePedido(id, newPedido) {
   if (Object.keys(newPedido).length === 0 && !id)
@@ -60,4 +71,5 @@ module.exports = {
   getPedidosDia,
   updatePedido,
   getPedidoId,
+  getEstado,
 }

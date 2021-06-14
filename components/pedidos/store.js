@@ -25,6 +25,38 @@ function getPedidoIdDB(id) {
     })
     .populate('direction')
 }
+function getEstadoDB(fechaInicial, fechaFinal) {
+  return Pedido.aggregate([
+    {
+      $match: {
+        fecha: {
+          $gte: new Date(fechaInicial),
+          $lte: new Date(fechaFinal),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { $toLower: '$state' },
+        count: { $sum: 1 },
+        total: { $sum: '$total' },
+      },
+    },
+    // {
+    //   $group: {
+    //     _id: null,
+    //     counts: {
+    //       $push: { k: '$_id', v: '$count' },
+    //     },
+    //   },
+    // },
+    // {
+    //   $replaceRoot: {
+    //     newRoot: { $arrayToObject: '$counts' },
+    //   },
+    // },
+  ])
+}
 function addPedidoDB(pedido) {
   const newPedido = new Pedido(pedido)
   return newPedido.save()
@@ -40,4 +72,5 @@ module.exports = {
   updatePedidoDB,
   getPedidosDiaDB,
   getPedidoIdDB,
+  getEstadoDB,
 }
