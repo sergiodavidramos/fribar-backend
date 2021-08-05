@@ -1,5 +1,7 @@
 const { addVentaDB, getVentaIdDB, getVentaFechaDB } = require('./store')
 const fetch = require('node-fetch')
+require('dotenv').config()
+
 const fechaHoy = new Date()
 function getVentaId(id) {
   return getVentaIdDB(id)
@@ -17,13 +19,14 @@ async function addVenta(body, user) {
   if (!body.detalleVenta || !body.client)
     return Promise.reject('Los Campos son obligatorios')
   try {
-    const det = await fetch(`http://localhost:3000/detalle`, {
+    const det = await fetch(`${process.env.API_URL}/detalle`, {
       methods: 'POST',
       body: JSON.stringify({ detalle: body.detalleVenta }),
       headers: { 'Content-Type': 'application/json' },
     })
     let total = null
-    for (let i of det.data.body.detalle) {
+    const detalle = await det.json()
+    for (let i of detalle.data.body.detalle) {
       total += i.producto.precioVenta * i.cantidad
     }
     const venta = {
