@@ -14,6 +14,13 @@ router.get('/', (req, res) => {
     .then((product) => response.success(req, res, product, 200))
     .catch((err) => response.error(req, res, err, 500))
 })
+router.get('/codigoproducto', (req, res) => {
+  const code = req.query.code || null
+  controller
+    .findForCode(parseInt(code))
+    .then((product) => response.success(req, res, product, 200))
+    .catch((err) => response.error(req, res, err, 500))
+})
 
 router.get('/all', (req, res) => {
   controller

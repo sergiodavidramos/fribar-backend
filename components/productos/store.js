@@ -30,6 +30,9 @@ async function updateProductDB(newProduct, id) {
 async function deleteProductDB(id) {
   return Product.findByIdAndUpdate(id, { status: false }, { new: true })
 }
+async function findForCodeDB(code) {
+  return Product.findOne({ code }).populate('category')
+}
 
 module.exports = {
   getFilterIdAndPaginateProductDB,
@@ -39,4 +42,5 @@ module.exports = {
   updateProductDB,
   deleteProductDB,
   findCategoriaProductDB,
+  findForCodeDB,
 }

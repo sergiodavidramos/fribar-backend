@@ -6,6 +6,7 @@ const {
   updateProductDB,
   findProductDB,
   findCategoriaProductDB,
+  findForCodeDB,
 } = require('./store')
 
 function getFilterIdAndPaginateProduct(id, des, limit) {
@@ -25,8 +26,17 @@ function findProduct(ter) {
 function findCategoriaProduct(categoria) {
   return findCategoriaProductDB(categoria)
 }
+function findForCode(code) {
+  if (code) return findForCodeDB(code)
+  else {
+    return Promise.reject({
+      message: 'EL codigo del producto debe ser un numero',
+    })
+  }
+}
 function addProduct(product) {
   const {
+    code,
     name,
     detail,
     stock,
@@ -41,9 +51,17 @@ function addProduct(product) {
     fechaPromo,
     tipoVenta,
   } = product
-  if (!name || !stock || !precioCompra || !precioVenta || !tipoVenta)
+  if (
+    !code ||
+    !name ||
+    !stock ||
+    !precioCompra ||
+    !precioVenta ||
+    !tipoVenta
+  )
     return Promise.reject({ message: 'Todos los datos son necesarios' })
   const productDB = {
+    code: parseInt(code),
     name: name.replace(/\b\w/g, (l) => l.toUpperCase()),
     detail,
     stock,
@@ -79,4 +97,5 @@ module.exports = {
   addProduct,
   updateProduct,
   deleteProduct,
+  findForCode,
 }

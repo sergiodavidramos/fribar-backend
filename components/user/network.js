@@ -14,8 +14,9 @@ router.get(
   (req, res) => {
     const id = req.query.id || null
     const state = req.query.state || null
+    const ci = req.query.ci || null
     controller
-      .getUser(id, state, req.query.desde, req.query.limite)
+      .getUser(id, state, ci, req.query.desde, req.query.limite)
       .then((user) => response.success(req, res, user, 200))
       .catch((err) => response.error(req, res, err.message, 500))
   }

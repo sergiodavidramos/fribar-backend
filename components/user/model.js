@@ -14,7 +14,10 @@ const userSchema = new Schema({
   email: {
     type: String,
     unique: true,
-    required: [true, 'El correo es necesario'],
+  },
+  ci: {
+    type: String,
+    unique: true,
   },
   password: {
     type: String,

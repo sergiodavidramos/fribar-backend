@@ -9,12 +9,13 @@ const {
 } = require('./store')
 const bcrypt = require('bcrypt')
 
-function getUser(id, state, des, limit) {
+function getUser(id, state, ci, des, limit) {
   let filterUser = {}
   let filterState = {}
   const desde = Number(des) || 0
   const lim = Number(limit) || 10
   if (id !== null) filterUser = { _id: id }
+  if (ci !== null) filterUser = { ci: ci }
   if (state !== null) filterState = { status: state }
   return getUserDB(filterUser, state, desde, lim)
 }

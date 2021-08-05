@@ -3,6 +3,11 @@ const uniqueValidator = require('mongoose-unique-validator')
 
 const Schema = mongoose.Schema
 const productSchema = new Schema({
+  code: {
+    type: Number,
+    require: [true, 'El codigo del producto es requerido'],
+    unique: true,
+  },
   name: {
     type: String,
     required: [true, 'El nombre completo es necesario'],
