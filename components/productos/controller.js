@@ -42,14 +42,12 @@ function addProduct(product) {
     stock,
     precioCompra,
     precioVenta,
+    fechaCaducidad,
     category,
+    marca,
     img,
-    vence,
-    codigo,
-    promo,
-    precioPromo,
-    fechaPromo,
     tipoVenta,
+    ventaOnline,
   } = product
   if (
     !code ||
@@ -67,14 +65,12 @@ function addProduct(product) {
     stock,
     precioCompra,
     precioVenta,
+    fechaCaducidad,
     category,
+    marca,
     img,
-    vence,
-    codigo,
-    promo,
-    precioPromo,
-    fechaPromo,
     tipoVenta,
+    ventaOnline,
   }
   return addProductDB(productDB)
 }

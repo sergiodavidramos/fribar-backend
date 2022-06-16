@@ -1,25 +1,35 @@
 const Model = require('./model')
 
-function getUserDB(filterUser, state, des, limit) {
-  return new Promise((resolve, reject) => {
-    Model.find(Object.keys(filterUser).length === 0 ? state : filterUser)
-      .populate('direccion', 'direccion lat lon')
-      .skip(des)
-      .limit(limit)
-      .exec((err, users) => {
-        if (err) return reject(err)
-        Model.countDocuments({ status: true }, (err, count) => {
-          if (err) return reject(err)
-          resolve({ users, count })
-        })
-      })
-  })
+function getUserDB(filterUser) {
+  return Model.find(
+    Object.keys(filterUser).length === 0
+      ? {
+          $or: [
+            { role: 'ADMIN-ROLE' },
+            { role: 'USER-ROLE' },
+            { role: 'DELIVERY-ROLE' },
+            { role: 'GERENTE-ROLE' },
+          ],
+        }
+      : filterUser
+  )
+    .populate('direccion', 'direccion lat lon')
+    .populate('persona')
 }
 async function findUserDB(data) {
-  return Model.find({ nombre_comp: data })
-}
-async function getUserStateDB(state) {
-  return Model.find(state)
+  return Model.aggregate([
+    {
+      $lookup: {
+        from: 'personas',
+        localField: 'idPersona',
+        foreignField: '_id',
+        as: 'persona',
+      },
+    },
+    {
+      $match: { 'persona.nombre_comp': data },
+    },
+  ]).exec()
 }
 async function getUserRoleDB(role) {
   return Model.find(role)
@@ -43,6 +53,5 @@ module.exports = {
   updateUserDB,
   deleteUserDB,
   findUserDB,
-  getUserStateDB,
   getUserRoleDB,
 }

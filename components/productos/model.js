@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 const productSchema = new Schema({
   code: {
     type: Number,
-    require: [true, 'El codigo del producto es requerido'],
+    required: [true, 'El codigo del producto es requerido'],
     unique: true,
   },
   name: {
@@ -29,23 +29,27 @@ const productSchema = new Schema({
     type: Number,
     required: [true, 'El precio de Venta es necesaria'],
   },
-  promo: { type: Boolean, default: false },
-  precioPromo: { type: Number },
-  fechaPromo: { type: Date },
+  fechaCaducidad: { type: Date, required: true },
+  ventaOnline: { type: Boolean, default: true },
   category: [
     {
       required: [true, 'La Categoria es necesaria'],
       type: Schema.Types.ObjectId,
-      ref: 'Categoria',
+      ref: 'categorias',
     },
   ],
+  marca: {
+    type: Schema.Types.ObjectId,
+    ref: 'marcas',
+    required: [true, 'La marca es necesaria'],
+  },
+  oferta: {
+    type: Schema.Types.ObjectId,
+    ref: 'ofertas',
+    require: false,
+  },
   img: [{ type: String, require: true }],
   status: { type: Boolean, default: true },
-  vence: {
-    type: Date,
-    required: [true, 'La fecha de vencimineto es obligatoria'],
-  },
-  codigo: { type: String, required: false },
   tipoVenta: {
     type: String,
     required: true,
@@ -53,4 +57,4 @@ const productSchema = new Schema({
 })
 
 productSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })
-module.exports = mongoose.model('Product', productSchema)
+module.exports = mongoose.model('productos', productSchema)

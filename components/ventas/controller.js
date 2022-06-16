@@ -20,7 +20,7 @@ async function addVenta(body, user) {
     return Promise.reject('Los Campos son obligatorios')
   try {
     const det = await fetch(`${process.env.API_URL}/detalle`, {
-      methods: 'POST',
+      method: 'POST',
       body: JSON.stringify({ detalle: body.detalleVenta }),
       headers: { 'Content-Type': 'application/json' },
     })

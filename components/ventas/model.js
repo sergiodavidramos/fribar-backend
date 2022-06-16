@@ -19,6 +19,7 @@ const ventaSchema = new Schema({
   },
   fecha: { type: Date, required: true },
   total: { type: Number, required: true },
+  online: { type: Boolean, default: false },
 })
 
 module.exports = mongoose.model('Venta', ventaSchema)

@@ -1,4 +1,5 @@
 const auth = require('../components/user/auth/network')
+const person = require('../components/persona/network')
 const user = require('../components/user/network')
 const direction = require('../components/user/direccion/network')
 const productos = require('../components/productos/network')
@@ -10,8 +11,14 @@ const upload = require('../components/upload/network')
 const offers = require('../components/ofertas/network')
 const movimientos = require('../components/user/movimientos/network')
 const verify = require('../components/verify/network')
+const sucursal = require('../components/sucursal/network')
+const ciudad = require('../components/ciudad/network')
+const inventario = require('../components/inventario/network')
+const marca = require('../components/marcas/network')
+
 const router = (server) => {
   server.use('/login', auth)
+  server.use('/person', person)
   server.use('/user', user)
   server.use('/direction', direction)
   server.use('/productos', productos)
@@ -23,5 +30,9 @@ const router = (server) => {
   server.use('/offers', offers)
   server.use('/movimiento', movimientos)
   server.use('/verificar', verify)
+  server.use('/sucursal', sucursal)
+  server.use('/ciudad', ciudad)
+  server.use('/inventario', inventario)
+  server.use('/marca', marca)
 }
 module.exports = router

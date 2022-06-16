@@ -48,7 +48,7 @@ function generaToken(payload) {
     email: payload.email,
   }
   return jwt.sign(usuario, process.env.AUTH_JWT_SECRET, {
-    expiresIn: '100m',
+    expiresIn: '180d',
   })
 }
 function loginGoogle(tokenGoogle) {

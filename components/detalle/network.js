@@ -1,22 +1,25 @@
 const express = require('express')
 const controller = require('./controller')
 const response = require('../../network/response')
+const {
+  NumberContext,
+} = require('twilio/lib/rest/pricing/v1/voice/number')
 
 const router = express.Router()
 
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res, next) => {
   controller
     .getDetalle(req.params.id)
-    .then((det) => response.success(req, res, det, 200))
-    .catch((err) => response.error(req, res, err, 500))
+    .then((det) => response.success(res, det))
+    .catch(next)
 })
-router.post('/', (req, res) => {
+router.post('/', (req, res, next) => {
   controller
     .addDetalle(req.body)
     .then((det) => {
-      response.success(req, res, det, 200)
+      response.success(res, det)
     })
-    .catch((err) => response.error(req, res, err, 500))
+    .catch(next)
 })
 
 module.exports = router

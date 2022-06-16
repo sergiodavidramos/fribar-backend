@@ -9,24 +9,22 @@ const router = express.Router()
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .addDirection(req.body, req.user)
-      .then((dir) => response.success(req, res, dir, 200))
-      .catch((err) => response.error(req, res, err.message, 500))
+      .then((dir) => response.success(res, dir, 200))
+      .catch(next)
   }
 )
 router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     const id = req.params.id
     controller
       .deleteDirection(id, req.user)
-      .then((deleted) =>
-        response.success(req, res, `${id} Eliminado`, 200)
-      )
-      .catch((err) => response.error(req, res, err.message, 500))
+      .then((deleted) => response.success(res, `${id} Eliminado`, 200))
+      .catch(next)
   }
 )
 

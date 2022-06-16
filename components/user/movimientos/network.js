@@ -8,21 +8,21 @@ const router = express.Router()
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .addMovimiento(req.user, req.body)
-      .then((movi) => response.success(req, res, movi, 200))
-      .catch((error) => response.error(req, res, error.message, 500))
+      .then((movi) => response.success(res, movi, 200))
+      .catch(next)
   }
 )
 router.get(
   '/',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .getMovimientoUser(req.user)
-      .then((movi) => response.success(req, res, movi, 200))
-      .catch((error) => response.error(req, res, error.message, 500))
+      .then((movi) => response.success(res, movi, 200))
+      .catch(next)
   }
 )
 module.exports = router

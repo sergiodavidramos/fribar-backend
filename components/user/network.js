@@ -10,72 +10,59 @@ const router = express.Router()
 router.get(
   '/',
   passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['ADMIN-ROLE']),
-  (req, res) => {
+  scopeValidationHandler(['GERENTE-ROLE']),
+  (req, res, next) => {
     const id = req.query.id || null
     const state = req.query.state || null
     const ci = req.query.ci || null
     controller
       .getUser(id, state, ci, req.query.desde, req.query.limite)
-      .then((user) => response.success(req, res, user, 200))
-      .catch((err) => response.error(req, res, err.message, 500))
-  }
-)
-router.get(
-  '/state',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['ADMIN-ROLE']),
-  (req, res) => {
-    const state = req.query.state || null
-    controller
-      .getUserState(state)
-      .then((user) => response.success(req, res, user, 200))
-      .catch((err) => response.error(req, res, err.message, 500))
+      .then((user) => response.success(res, user, 200))
+      .catch(next)
   }
 )
 router.get(
   '/role',
   passport.authenticate('jwt', { session: false }),
   scopeValidationHandler(['ADMIN-ROLE']),
-  (req, res) => {
+  (req, res, next) => {
     const role = req.query.role || null
     controller
       .getUserRole(role)
-      .then((user) => response.success(req, res, user, 200))
-      .catch((err) => response.error(req, res, err.message, 500))
+      .then((user) => response.success(res, user, 200))
+      .catch(next)
   }
 )
 
 router.get(
   '/buscar/:termino',
   passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['ADMIN-ROLE']),
-  (req, res) => {
+  scopeValidationHandler(['GERENTE-ROLE']),
+  (req, res, next) => {
     const termino = req.params.termino
     controller
       .findUser(termino)
-      .then((user) => response.success(req, res, user, 200))
-      .catch((err) => response.error(req, res, err.message, 500))
+      .then((user) => response.success(res, user, 200))
+      .catch(next)
   }
 )
 
-router.post('/', (req, res) => {
+router.post('/', (req, res, next) => {
   controller
     .addUser(req.body)
-    .then((user) => {
-      const userDB = {
-        nombre: user.nombre_comp,
-        email: user.email,
-        phone: user.phone,
-      }
-      response.success(req, res, userDB, 200)
+    .then(async (user) => {
+      response.success(
+        res,
+        await user.populate('idPersona').execPopulate(),
+        200
+      )
     })
-    .catch((err) => response.error(req, res, err.message, 500))
+    .catch(next)
 })
 router.patch(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     const id = req.params.id
     let body = {}
     if (req.user.role === 'ADMIN-ROLE') {
@@ -100,22 +87,20 @@ router.patch(
     }
     controller
       .updateUser(body, id)
-      .then((user) => response.success(req, res, user, 200))
-      .catch((err) => response.error(req, res, err, 500))
+      .then((user) => response.success(res, user, 200))
+      .catch(next)
   }
 )
 router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   scopeValidationHandler(['ADMIN-ROLE']),
-  (req, res) => {
+  (req, res, next) => {
     const id = req.params.id
     controller
       .deleteUser(id)
-      .then((user) =>
-        response.success(req, res, ` ${user.id} Eliminado`, 200)
-      )
-      .catch((err) => response.error(req, res, err.message, 500))
+      .then((user) => response.success(res, ` ${user.id} Eliminado`, 200))
+      .catch(next)
   }
 )
 

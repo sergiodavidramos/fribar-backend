@@ -30,7 +30,7 @@ function subirFoto(req) {
       cont++
     }
     if (verificarExtencion(extencionArchivo))
-      return reject({ message: 'Extencion no valida' })
+      return reject({ message: 'Extencion de la imagen no valida' })
 
     const nombreArchivo = []
     const path = []

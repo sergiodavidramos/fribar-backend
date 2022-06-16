@@ -5,22 +5,28 @@ const controller = require('./controller')
 router.post('/', (req, res, next) => {
   controller
     .login(req, res, next)
-    .then((user) => response.success(req, res, user, 200))
-    .catch((err) => response.error(req, res, err, 500))
+    .then(async (user) => {
+      const userData = await user.usuario
+        .populate('idPersona')
+        .execPopulate()
+      const token = user.token
+      response.success(res, { token, userData }, 200)
+    })
+    .catch(next)
 })
-router.post('/google', (req, res) => {
+router.post('/google', (req, res, next) => {
   controller
     .loginGoogle(req.body.idtoken)
-    .then((user) => response.success(req, res, user, 200))
-    .catch((err) => response.error(req, res, err, 500))
+    .then((user) => response.success(res, user, 200))
+    .catch(next)
 })
-router.post('/facebook', (req, res) => {
+router.post('/facebook', (req, res, next) => {
   controller
     .loginFacebook(req.body)
     .then((user) => {
-      response.success(req, res, user, 200)
+      response.success(res, user, 200)
     })
-    .catch((err) => response.error(req, res, err, 500))
+    .catch(next)
 })
 
 module.exports = router

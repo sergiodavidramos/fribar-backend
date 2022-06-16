@@ -7,6 +7,7 @@ const path = require('path')
 const cors = require('cors')
 const server = require('http').Server(app)
 const socket = require('./socket')
+const errors = require('./network/errors')
 // const io = require('socket.io')(server)
 
 require('dotenv').config()
@@ -30,6 +31,8 @@ router(app)
 //     console.log('Client disconnected')
 //   })
 // })
+
+app.use(errors)
 server.listen(process.env.PORT, () => {
   console.log('Server listen en the PORT: ', process.env.PORT)
 })

@@ -5,29 +5,29 @@ const router = express.Router()
 const passport = require('passport')
 require('../../utils/strategies/jwt')
 const { EscucharPedido, tableroPedidos } = require('../Socket')
-router.get('/:fecha', (req, res) => {
+router.get('/:fecha', (req, res, next) => {
   const fecha = req.params.fecha
   controller
     .getPedidosDia(fecha)
-    .then((pedidos) => response.success(req, res, pedidos, 200))
-    .catch((err) => response.error(req, res, err, 500))
+    .then((pedidos) => response.success(res, pedidos))
+    .catch(next)
 })
-router.get('/detalle/:id', (req, res) => {
+router.get('/detalle/:id', (req, res, next) => {
   controller
     .getPedidoId(req.params.id)
-    .then((pedido) => response.success(req, res, pedido, 200))
-    .catch((error) => response.error(req, res, error, 500))
+    .then((pedido) => response.success(res, pedido))
+    .catch(next)
 })
-router.get('/estado/tablero', (req, res) => {
+router.get('/estado/tablero', (req, res, next) => {
   controller
     .getEstado()
-    .then((pedidos) => response.success(req, res, pedidos, 200))
-    .catch((error) => response.error(req, res, error, 500))
+    .then((pedidos) => response.success(res, pedidos))
+    .catch(next)
 })
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .addPedido(req.body, req.user)
       .then((pedido) => {
@@ -41,20 +41,18 @@ router.post(
             .execPopulate()
         )
         tableroPedidos()
-        return response.success(req, res, pedido, 200)
+        return response.success(res, pedido)
       })
-      .catch((err) => {
-        response.error(req, res, err, 500)
-      })
+      .catch(next)
   }
 )
-router.patch('/:id', (req, res) => {
+router.patch('/:id', (req, res, next) => {
   controller
     .updatePedido(req.params.id, req.body)
     .then((newPedido) => {
       tableroPedidos()
-      response.success(req, res, newPedido, 200)
+      response.success(res, newPedido)
     })
-    .catch((err) => response.error(req, res, err, 500))
+    .catch(next)
 })
 module.exports = router

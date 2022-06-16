@@ -10,11 +10,11 @@ router.use(fileUpload())
 router.put(
   '/:tipo/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .subirFoto(req)
-      .then((data) => response.success(req, res, data, 200))
-      .catch((error) => response.error(req, res, error.message, 500))
+      .then((data) => response.success(res, data))
+      .catch(next)
   }
 )
 router.get('/:tipo/:foto', (req, res) => {

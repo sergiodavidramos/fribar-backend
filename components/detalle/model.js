@@ -6,7 +6,7 @@ const detalleVenta = new Schema({
     {
       producto: {
         type: Schema.Types.ObjectId,
-        ref: 'Product',
+        ref: 'productos',
         required: true,
       },
       cantidad: { type: Number, required: true },

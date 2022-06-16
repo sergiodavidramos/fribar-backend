@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const Schema = mongoose.Schema
 const personaSchema = new Schema({
@@ -9,8 +10,16 @@ const personaSchema = new Schema({
   ci: {
     type: String,
     unique: true,
-    require: false,
   },
+  compras: {
+    type: Number,
+    default: 0,
+  },
+  puntos: {
+    type: Number,
+    default: 0,
+  },
+  status: { type: Boolean, default: true },
 })
-
-module.exports = mongoose.model('Persona', personaSchema)
+personaSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })
+module.exports = mongoose.model('personas', personaSchema)

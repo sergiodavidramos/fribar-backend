@@ -8,35 +8,35 @@ const router = express.Router()
 router.get('/', (req, res) => {
   controller
     .getOfferState(req.query.state || null)
-    .then((offer) => response.success(req, res, offer, 200))
-    .catch((error) => response.error(req, res, error.message, 500))
+    .then((offer) => response.success(res, offer))
+    .catch(next)
 })
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res, next) => {
   controller
     .getOfferId(req.params.id || null)
-    .then((offer) => response.success(req, res, offer, 200))
-    .catch((error) => response.error(req, res, error.message, 500))
+    .then((offer) => response.success(res, offer))
+    .catch(next)
 })
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
   scopeValidation(['ADMIN-ROLE']),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .addOffer(req.body)
-      .then((offer) => response.success(req, res, offer, 200))
-      .catch((error) => response.error(req, res, error.message, 500))
+      .then((offer) => response.success(res, offer))
+      .catch(next)
   }
 )
 router.patch(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   scopeValidation(['ADMIN-ROLE', 'USER-ROLE']),
-  (req, res) => {
+  (req, res, next) => {
     controller
       .updateOffer(req.body, req.params.id)
-      .then((category) => response.success(req, res, category, 200))
-      .catch((error) => response.error(req, res, error, 500))
+      .then((category) => response.success(res, category))
+      .catch(next)
   }
 )
 module.exports = router
