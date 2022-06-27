@@ -33,6 +33,8 @@ async function findUserDB(data) {
 }
 async function getUserRoleDB(role) {
   return Model.find(role)
+    .populate('direccion', 'direccion lat lon')
+    .populate('idPersona')
 }
 async function addUserDB(user) {
   const myUser = new Model(user)

@@ -58,7 +58,6 @@ function loginGoogle(tokenGoogle) {
         return reject({ message: e })
       })
       const usuario = await User.findOne({ email: googleUser.email })
-
       if (usuario) {
         if (usuario.google === false)
           return reject({
@@ -69,8 +68,18 @@ function loginGoogle(tokenGoogle) {
           return resolve({ usuario, token })
         }
       } else {
+        const persona = await fetch(`${process.env.API_URL}/person`, {
+          method: 'POST',
+          body: JSON.stringify({
+            nombre_comp: googleUser.nombre_comp,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        })
+        const datos = await persona.json()
+        if (datos.error || !datos.body._id)
+          return reject({ message: 'Error al crear persona' })
         const usuario = new User({
-          nombre_comp: googleUser.nombre_comp,
+          idPersona: datos.body._id,
           email: googleUser.email,
           img: googleUser.img,
           google: true,

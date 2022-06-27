@@ -23,7 +23,7 @@ const sucursalSchema = new Schema({
     type: Boolean,
     default: true,
   },
-  image: {
+  img: {
     type: String,
     require: false,
   },

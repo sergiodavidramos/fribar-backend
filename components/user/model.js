@@ -38,7 +38,7 @@ const userSchema = new Schema({
   ],
   phone: {
     type: Number,
-    unique: false,
+    unique: true,
     // required: [true, 'El número de celular en necesario'],
   },
   img: { type: String, require: false },

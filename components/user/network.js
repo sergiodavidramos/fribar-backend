@@ -24,7 +24,7 @@ router.get(
 router.get(
   '/role',
   passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['ADMIN-ROLE']),
+  scopeValidationHandler(['ADMIN-ROLE', 'GERENTE-ROLE']),
   (req, res, next) => {
     const role = req.query.role || null
     controller
@@ -94,7 +94,7 @@ router.patch(
 router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['ADMIN-ROLE']),
+  scopeValidationHandler(['ADMIN-ROLE', 'GERENTE-ROLE']),
   (req, res, next) => {
     const id = req.params.id
     controller

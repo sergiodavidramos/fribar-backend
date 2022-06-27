@@ -6,12 +6,21 @@ const router = express.Router()
 
 router.post('/', (req, res, next) => {
   controller
-    .addProductoInventario(req.body)
-    .then((det) => {
-      response.success(res, det, 200)
+    .addNewSucursal(req.body.sucursal)
+    .then((data) => {
+      response.success(res, data, 201)
     })
     .catch(next)
 })
+
+// router.post('/', (req, res, next) => {
+//   controller
+//     .addProductoInventario(req.body)
+//     .then((det) => {
+//       response.success(res, det, 200)
+//     })
+//     .catch(next)
+// })
 router.get('/productos/:id', (req, res, next) => {
   controller
     .getAllProductosInventarioId(req.params.id)
