@@ -80,7 +80,7 @@ function addUser({
         .then((user) => {
           resolve(user)
         })
-        .catch((err) => reject(err))
+        .catch((err) => reject(err)) 
     } catch (err) {
       return reject(err)
     }
