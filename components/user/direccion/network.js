@@ -11,8 +11,38 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res, next) => {
     controller
-      .addDirection(req.body, req.user)
+      .addDirection(req.body)
       .then((dir) => response.success(res, dir, 200))
+      .catch(next)
+  }
+)
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  (req, res, next) => {
+    controller
+      .findDirectionsById(req.query.id)
+      .then((directions) => response.success(res, directions))
+      .catch(next)
+  }
+)
+router.get(
+  '/all',
+  passport.authenticate('jwt', { session: false }),
+  (req, res, next) => {
+    controller
+      .allDirections()
+      .then((directions) => response.success(res, directions))
+      .catch(next)
+  }
+)
+router.patch(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res, next) => {
+    controller
+      .updateDirection(req.body, req.params.id)
+      .then((direction) => response.success(res, direction))
       .catch(next)
   }
 )
@@ -20,10 +50,15 @@ router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res, next) => {
-    const id = req.params.id
     controller
-      .deleteDirection(id, req.user)
-      .then((deleted) => response.success(res, `${id} Eliminado`, 200))
+      .deleteDirection(req.params.id)
+      .then((deleted) =>
+        response.success(
+          res,
+          `${deleted.deletedCount} Direccion eliminado`,
+          200
+        )
+      )
       .catch(next)
   }
 )

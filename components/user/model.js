@@ -9,6 +9,7 @@ const roleValidator = {
     'GERENTE-ROLE',
     'CAJERO-ROLE',
     'ALMACEN-ROLE',
+    'USER-ROLE',
   ],
   message: '{VALUE} is not a role valid',
 }
@@ -19,6 +20,14 @@ const userSchema = new Schema({
     ref: 'personas',
     require: [true, 'El id de la persona es necesario'],
   },
+  direccion: [
+    { type: Schema.Types.ObjectId, ref: 'direcciones', required: false },
+  ],
+  idSucursal: {
+    type: Schema.Types.ObjectId,
+    ref: 'sucursales',
+    required: false,
+  },
   email: {
     type: String,
     unique: true,
@@ -28,14 +37,10 @@ const userSchema = new Schema({
     type: String,
     required: [true, 'La contraseña es necesario'],
   },
-
   cuenta: {
     type: Number,
     default: 0,
   },
-  direccion: [
-    { type: Schema.Types.ObjectId, ref: 'Direccion', required: false },
-  ],
   phone: {
     type: Number,
     unique: true,
@@ -46,11 +51,7 @@ const userSchema = new Schema({
   facebook: { type: Boolean, default: false },
   role: { type: String, default: 'CLIENT-ROLE', enum: roleValidator },
   personal: { type: Boolean, default: false },
-  idSucursal: {
-    type: Schema.Types.ObjectId,
-    ref: 'sucursales',
-    required: false,
-  },
+  status: { type: Boolean, default: true },
 })
 userSchema.methods.toJSON = function () {
   const user = this

@@ -9,8 +9,8 @@ const scopeValidatorHandler = require('../../utils/middlewares/scopeValidation')
 const router = express.Router()
 router.get(
   '/',
-  //   passport.authenticate('jwt', { session: false }),
-  //   scopeValidatorHandler(['ADMIN-ROLE', 'USER-ROLE']),
+  passport.authenticate('jwt', { session: false }),
+  scopeValidatorHandler(['ADMIN-ROLE', 'USER-ROLE']),
   (req, res, next) => {
     const id = req.query.id || null
     const state = req.query.state || null
@@ -23,8 +23,8 @@ router.get(
 )
 router.get(
   '/buscar/:termino',
-  //   passport.authenticate('jwt', { session: false }),
-  //   scopeValidatorHandler(['ADMIN-ROLE']),
+  passport.authenticate('jwt', { session: false }),
+  scopeValidatorHandler(['ADMIN-ROLE', 'GERENTE-ROLE']),
   (req, res, next) => {
     const termino = req.params.termino
     controller
@@ -46,18 +46,12 @@ router.post('/', (req, res, next) => {
 
 router.patch(
   '/:id',
-  //   passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', { session: false }),
   (req, res, next) => {
     const id = req.params.id
     let body = {}
     if (true) {
-      body = _.pick(req.body, [
-        'nombre_comp',
-        'ci',
-        'compras',
-        'puntos',
-        'status',
-      ])
+      body = _.pick(req.body, ['nombre_comp', 'ci', 'compras', 'puntos'])
     } else {
       body = _.pick(req.body, ['nombre_comp', 'ci', 'phone', 'direccion'])
     }
@@ -69,8 +63,8 @@ router.patch(
 )
 router.delete(
   '/:id',
-  //   passport.authenticate('jwt', { session: false }),
-  //   scopeValidatorHandler(['ADMIN-ROLE']),
+  passport.authenticate('jwt', { session: false }),
+  scopeValidatorHandler(['ADMIN-ROLE']),
   (req, res, next) => {
     const id = req.params.id
     controller

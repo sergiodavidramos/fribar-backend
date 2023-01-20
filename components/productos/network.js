@@ -14,13 +14,18 @@ router.get('/', (req, res, next) => {
     .then((product) => response.success(res, product, 200))
     .catch(next)
 })
-router.get('/codigoproducto', (req, res, next) => {
-  const code = req.query.code || null
-  controller
-    .findForCode(parseInt(code))
-    .then((product) => response.success(res, product, 200))
-    .catch(next)
-})
+router.get(
+  '/codigoproducto',
+  passport.authenticate('jwt', { session: false }),
+  scopeValidation(['ADMIN-ROLE', 'USER-ROLE', 'GERENTE-ROLE']),
+  (req, res, next) => {
+    const code = req.query.code || null
+    controller
+      .findForCode(parseInt(code))
+      .then((product) => response.success(res, product, 200))
+      .catch(next)
+  }
+)
 
 router.get('/all', (req, res, next) => {
   controller
@@ -40,7 +45,20 @@ router.get('/:categoria', (req, res, next) => {
     .then((product) => response.success(res, product, 200))
     .catch(next)
 })
-
+router.get('/productos/filtrados', (req, res, next) => {
+  controller
+    .productosFiltrados(req.body)
+    .then((product) => response.success(res, product, 200))
+    .catch(next)
+})
+router.get('/informacion/filtro', (req, res, next) => {
+  controller
+    .informacionFiltro(req.query)
+    .then((product) => {
+      response.success(res, product, 200)
+    })
+    .catch(next)
+})
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
@@ -58,7 +76,12 @@ router.patch(
   scopeValidation(['ADMIN-ROLE', 'USER-ROLE', 'GERENTE-ROLE']),
   (req, res, next) => {
     controller
-      .updateProduct(req.body, req.params.id)
+      .updateProduct(
+        req.body.desStock,
+        req.body.like,
+        req.body,
+        req.params.id
+      )
       .then((product) => response.success(res, product, 200))
       .catch(next)
   }

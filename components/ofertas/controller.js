@@ -3,12 +3,13 @@ const {
   getOfferStateDB,
   getOfferIdDB,
   updateOfferDB,
+  getMejoresValoresDB,
 } = require('./store')
 
 function getOfferState(state) {
   const value = state === 'true'
-  let filterState = {}
-  if (state !== null) filterState = { status: value }
+  let filterState = { mejorValor: null }
+  if (state !== null) filterState = { status: value, mejorValor: null }
   return getOfferStateDB(filterState)
 }
 function getOfferId(id) {
@@ -17,14 +18,27 @@ function getOfferId(id) {
   }
   return getOfferIdDB(id)
 }
+function getMejoresValores() {
+  return getMejoresValoresDB()
+}
 function addOffer(offer) {
-  const { titulo, descuento, producto, status, description } = offer
+  const {
+    idSucursal,
+    titulo,
+    descuento,
+    producto,
+    status,
+    description,
+    mejorValor,
+  } = offer
   const offerDB = {
+    idSucursal,
     titulo: titulo.replace(/\b\w/g, (l) => l.toUpperCase()),
     descuento,
     producto,
     status,
     description,
+    mejorValor,
   }
   return addOfferDB(offerDB)
 }
@@ -41,4 +55,5 @@ module.exports = {
   addOffer,
   getOfferId,
   updateOffer,
+  getMejoresValores,
 }

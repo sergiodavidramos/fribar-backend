@@ -47,13 +47,26 @@ router.get(
   }
 )
 
-router.post('/', (req, res, next) => {
+router.post(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  scopeValidationHandler(['GERENTE-ROLE']),
+  (req, res, next) => {
+    controller
+      .addUser(req.body, req.headers.authorization)
+      .then((user) => {
+        response.success(res, user, 200)
+      })
+      .catch(next)
+  }
+)
+router.post('/clientes', (req, res, next) => {
   controller
-    .addUser(req.body)
-    .then(async (user) => {
+    .addClient(req.body)
+    .then(async (client) => {
       response.success(
         res,
-        await user.populate('idPersona').execPopulate(),
+        await client.populate('idPersona').execPopulate(),
         200
       )
     })
@@ -65,32 +78,53 @@ router.patch(
   (req, res, next) => {
     const id = req.params.id
     let body = {}
-    if (req.user.role === 'ADMIN-ROLE') {
+    if (req.user.role === 'GERENTE-ROLE') {
       body = _.pick(req.body, [
         'nombre_comp',
+        'ci',
+        'compras',
+        'puntos',
         'status',
         'password',
         'img',
         'role',
         'email',
         'phone',
-        'direccion',
+        'cuenta',
+        'personal',
+        'idSucursal',
+        'idPersona',
       ])
+      if (!body.idPersona)
+        body = { ...body, idPersona: req.user.idPersona }
     } else {
-      body = _.pick(req.body, [
-        'nombre_comp',
-        'password',
-        'img',
-        'phone',
-        'direccion',
-      ])
+      if (req.user._id === req.params.id) {
+        body = _.pick(req.body, [
+          'nombre_comp',
+          'password',
+          'img',
+          'phone',
+        ])
+        body = { ...body, idPersona: req.user.idPersona }
+      } else
+        response.error(res, {
+          message: 'No se permite editar la cuenta de otra persona',
+        })
     }
+
     controller
-      .updateUser(body, id)
-      .then((user) => response.success(res, user, 200))
+      .updateUser(body, id, req.headers.authorization)
+      .then(async (user) =>
+        response.success(
+          res,
+          await user.populate('idPersona').execPopulate(),
+          200
+        )
+      )
       .catch(next)
   }
 )
+
 router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),

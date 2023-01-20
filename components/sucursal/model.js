@@ -8,16 +8,14 @@ const sucursalSchema = new Schema({
     unique: true,
   },
   direccion: {
-    type: String,
-    required: [true, 'La direccion de la sucursal es necesaria'],
+    type: Schema.Types.ObjectId,
+    require: true,
+    ref: 'direccion',
   },
-  lat: {
-    type: Number,
-    require: [true, 'La latitud de la sucursal es necesaria'],
-  },
-  lon: {
-    type: Number,
-    required: [true, 'La longitud de la sucursal es necesaria'],
+  ciudad: {
+    type: Schema.Types.ObjectId,
+    require: true,
+    ref: 'ciudades',
   },
   state: {
     type: Boolean,
@@ -35,11 +33,7 @@ const sucursalSchema = new Schema({
     type: String,
     require: [true, 'lA hora de cierre es necesaria'],
   },
-  ciudad: {
-    type: Schema.Types.ObjectId,
-    require: true,
-    ref: 'ciudades',
-  },
+
   descripcion: {
     type: String,
   },

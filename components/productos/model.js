@@ -21,6 +21,14 @@ const productSchema = new Schema({
     type: Number,
     required: [true, 'La cantidad del stock es necesaria'],
   },
+  cantidadVendidos: {
+    type: Number,
+    default: 0,
+  },
+  like: {
+    type: Number,
+    default: 0,
+  },
   precioCompra: {
     type: Number,
     required: [true, 'El precio de Compra es necesaria'],
@@ -28,6 +36,10 @@ const productSchema = new Schema({
   precioVenta: {
     type: Number,
     required: [true, 'El precio de Venta es necesaria'],
+  },
+  descuento: {
+    type: Number,
+    default: 0,
   },
   fechaCaducidad: { type: Date, required: true },
   ventaOnline: { type: Boolean, default: true },
@@ -38,15 +50,10 @@ const productSchema = new Schema({
       ref: 'categorias',
     },
   ],
-  marca: {
+  proveedor: {
     type: Schema.Types.ObjectId,
-    ref: 'marcas',
-    required: [true, 'La marca es necesaria'],
-  },
-  oferta: {
-    type: Schema.Types.ObjectId,
-    ref: 'ofertas',
-    require: false,
+    ref: 'proveedor',
+    required: [true, 'El proveedor es necesaria'],
   },
   img: [{ type: String, require: true }],
   status: { type: Boolean, default: true },

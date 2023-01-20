@@ -5,10 +5,12 @@ function addSucursalDB(newSucursal) {
   return sucursal.save()
 }
 function getSucursalesDB() {
-  return Sucursal.find().populate('ciudad', 'nombre')
+  return Sucursal.find().populate('ciudad', 'nombre').populate('direccion')
 }
 function getSucursalIdDB(id) {
-  return Sucursal.findById(id).populate('ciudad', 'nombre')
+  return Sucursal.findById(id)
+    .populate('ciudad', 'nombre')
+    .populate('direccion')
 }
 function updateSucursalDB(newSucursal, id) {
   return Sucursal.findOneAndUpdate(id, newSucursal, {

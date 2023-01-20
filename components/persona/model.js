@@ -19,7 +19,6 @@ const personaSchema = new Schema({
     type: Number,
     default: 0,
   },
-  status: { type: Boolean, default: true },
 })
 personaSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })
 module.exports = mongoose.model('personas', personaSchema)

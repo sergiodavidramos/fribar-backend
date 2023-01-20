@@ -19,7 +19,7 @@ const pedidoSchema = new Schema({
   },
   fecha: { type: Date, required: true },
   total: { type: Number, required: true },
-  deliveryFees: { type: Number, required: true },
+  costoDelivery: { type: Number, required: true },
   state: { type: Number, default: 0, required: true },
 })
 

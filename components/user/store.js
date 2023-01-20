@@ -44,6 +44,7 @@ async function updateUserDB(newUser, id) {
   return Model.findByIdAndUpdate(id, newUser, {
     new: true,
     runValidators: true,
+    context: 'query',
   })
 }
 async function deleteUserDB(id) {

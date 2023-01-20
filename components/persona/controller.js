@@ -33,9 +33,10 @@ function updatePerson(newPerson, id) {
     return Promise.reject({
       message: 'Los datos son requeridos para ser actualizados',
     })
-  newPerson.nombre_comp = newPerson.nombre_comp.replace(/\b\w/g, (l) =>
-    l.toUpperCase()
-  )
+  if (newPerson.nombre_comp)
+    newPerson.nombre_comp = newPerson.nombre_comp.replace(/\b\w/g, (l) =>
+      l.toUpperCase()
+    )
   return updatePersonDB(newPerson, id)
 }
 function deletePerson(id) {

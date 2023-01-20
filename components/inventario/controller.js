@@ -1,38 +1,70 @@
 const {
-  getAllProductoInventarioIdDB,
+  getProductoInventarioPaginateDB,
   addProductoInventarioDB,
-  addNewSucursalDB,
+  addNewInventarioDB,
+  getProductoIdDB,
+  getProductoWithTerminoDB,
+  getProductWithCodigoDB,
+  updateStockProductDB,
 } = require('./store')
-
-function addNewSucursal(sucursal) {
+ObjectId = require('mongodb').ObjectID
+function addNewInventario(sucursal) {
   if (!sucursal)
-    return Promise.reject({ message: 'El id del inventario es requerido' })
-  return addNewSucursalDB(sucursal)
+    return Promise.reject({ message: 'El id del sucursal es requerido' })
+  return addNewInventarioDB(sucursal)
 }
 
-function addProductoInventario({ producto, stockInventario, idSucursal }) {
-  if (!producto || !stockInventario || !idSucursal)
+function addProductoInventario({ producto, stock, idSucursal }) {
+  if (!producto || !stock || !idSucursal)
     return Promise.reject({ message: 'Todos los datos son necesarios' })
-  return addProductoInventarioDB({ producto, stockInventario, idSucursal })
+  return addProductoInventarioDB({ producto, stock, idSucursal })
 }
-
-function getAllInventario() {
-  return getAllInventarioDB()
-}
-function getAllProductosInventarioId(id) {
+function getProductosInventarioPaginate(id, pagina) {
+  const desde = Number(pagina) || 1
   if (!id)
     return Promise.reject({ message: 'El id del inventario es requerido' })
-  return getAllProductoInventarioIdDB({ idSucursal: id })
+  return getProductoInventarioPaginateDB({ idSucursal: id }, desde)
 }
 
-function updateInventario(newInventario, id) {
+function getProductoId(id) {
   if (!id)
-    return Promise.reject({ message: 'El id del inventario es requerido' })
-  return updateInventarioDB(newInventario, id)
+    return Promise.reject({ message: 'Id id del producto es necesario' })
+  return getProductoIdDB(id)
+}
+function getProductoWithTermino(ter, idSucursal) {
+  if (!ter || !idSucursal)
+    return Promise.reject({ message: 'Los datos son necesario' })
+  const termino = new RegExp(ter, 'i')
+  const id = ObjectId(idSucursal)
+  return getProductoWithTerminoDB(termino, id)
+}
+function getProductWithCodigo(code, idSucursal) {
+  if (!code || !idSucursal)
+    return Promise.reject({ message: 'Todos los datos son necesarios' })
+  const id = ObjectId(idSucursal)
+  return getProductWithCodigoDB(code, id)
+}
+
+function updateStockProduct(
+  id = false,
+  stock = false,
+  idSucursal = false
+) {
+  if (!id || !stock || !idSucursal)
+    return Promise.reject({
+      message: 'El id y el stock del inventario son requerido',
+    })
+  const idSu = ObjectId(idSucursal)
+  const idPro = ObjectId(id)
+  return updateStockProductDB(idPro, parseInt(stock), idSu)
 }
 
 module.exports = {
-  addNewSucursal,
-  getAllProductosInventarioId,
+  addNewInventario,
+  getProductosInventarioPaginate,
   addProductoInventario,
+  getProductoId,
+  getProductoWithTermino,
+  getProductWithCodigo,
+  updateStockProduct,
 }

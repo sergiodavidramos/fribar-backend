@@ -22,7 +22,7 @@ router.post(
 
 router.get('/', (req, res, next) => {
   controller
-    .getAllCiudad(req.query.state)
+    .getAllCiudad(req.query.status)
     .then((ciudad) => {
       response.success(res, ciudad, 200)
     })

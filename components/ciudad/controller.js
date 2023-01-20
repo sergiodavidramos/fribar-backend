@@ -5,14 +5,19 @@ const {
   getCiudadDB,
 } = require('./store')
 
-function addCiudad(body) {
+function addCiudad({ nombre }) {
+  if (!nombre)
+    return Promise.reject({
+      message: 'El nombre de la ciudad es necesario',
+    })
   return addCiudadDB({
-    nombre: body.nombre.replace(/\b\w/g, (l) => l.toUpperCase()),
+    nombre: nombre.replace(/\b\w/g, (l) => l.toUpperCase()),
   })
 }
 
 function getAllCiudad(state = {}) {
-  return getAllCiudadDB(state)
+  state = state === 'true'
+  return getAllCiudadDB({ status: state })
 }
 function getCiudad(id) {
   return getCiudadDB(id)

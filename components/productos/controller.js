@@ -7,12 +7,17 @@ const {
   findProductDB,
   findCategoriaProductDB,
   findForCodeDB,
+  updateStockProductDB,
+  informacionFiltroDB,
+  updateFavoritoProductDB,
+  productosFiltradosDB,
 } = require('./store')
+ObjectId = require('mongodb').ObjectID
 
 function getFilterIdAndPaginateProduct(id, des, limit) {
   let filterProduct = {}
   const desde = Number(des) || 0
-  const lim = Number(limit) || 10
+  const lim = Number(limit) || 12
   if (id !== null) filterProduct._id = id
   return getFilterIdAndPaginateProductDB(filterProduct, desde, lim)
 }
@@ -25,6 +30,49 @@ function findProduct(ter) {
 }
 function findCategoriaProduct(categoria) {
   return findCategoriaProductDB(categoria)
+}
+function informacionFiltro({ categoria = '' }) {
+  let category = false
+  if (categoria) category = ObjectId(categoria)
+  return informacionFiltroDB(category)
+}
+function productosFiltrados({
+  orden = 0,
+  categoria = false,
+  proveedor = false,
+  precio = [0, 200],
+  descuento = [0, 200],
+  pagina = 1,
+}) {
+  let ordenBan = {}
+  switch (orden) {
+    case 0:
+      ordenBan = { cantidadVendidos: -1 }
+
+      break
+    case 1:
+      ordenBan = { precioVenta: 1 }
+      break
+    case 2:
+      ordenBan = { precioVenta: -1 }
+      break
+    case 3:
+      ordenBan = { name: 1 }
+      break
+    case 4:
+      ordenBan = { descuento: -1 }
+      break
+    default:
+      ordenBan = { cantidadVendidos: -1 }
+  }
+  return productosFiltradosDB(
+    ordenBan,
+    categoria,
+    proveedor,
+    precio,
+    descuento,
+    pagina
+  )
 }
 function findForCode(code) {
   if (code) return findForCodeDB(code)
@@ -42,9 +90,10 @@ function addProduct(product) {
     stock,
     precioCompra,
     precioVenta,
+    descuento,
     fechaCaducidad,
     category,
-    marca,
+    proveedor,
     img,
     tipoVenta,
     ventaOnline,
@@ -55,7 +104,9 @@ function addProduct(product) {
     !stock ||
     !precioCompra ||
     !precioVenta ||
-    !tipoVenta
+    !tipoVenta ||
+    !category ||
+    !proveedor
   )
     return Promise.reject({ message: 'Todos los datos son necesarios' })
   const productDB = {
@@ -65,16 +116,20 @@ function addProduct(product) {
     stock,
     precioCompra,
     precioVenta,
+    descuento,
     fechaCaducidad,
     category,
-    marca,
+    proveedor,
     img,
     tipoVenta,
     ventaOnline,
   }
+  console.log(category)
   return addProductDB(productDB)
 }
-function updateProduct(newProduct, id) {
+function updateProduct(desStock = false, like = false, newProduct, id) {
+  if (desStock) return updateStockProductDB(desStock, id)
+  if (like) return updateFavoritoProductDB(id)
   if (Object.keys(newProduct).length === 0 && !id)
     return Promise.reject({
       message: 'Todos los datos son requeridos para ser Actualizados',
@@ -94,4 +149,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   findForCode,
+  productosFiltrados,
+  informacionFiltro,
 }

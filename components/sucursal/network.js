@@ -12,7 +12,7 @@ router.post(
   scopeValidationHandler(['GERENTE-ROLE']),
   (req, res, next) => {
     controller
-      .addSucursal(req.body)
+      .addSucursal(req.body, req.headers.authorization)
       .then((sucursal) => response.success(res, sucursal))
       .catch(next)
   }

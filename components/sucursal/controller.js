@@ -4,19 +4,23 @@ const {
   updateSucursalDB,
   getSucursalIdDB,
 } = require('./store')
-
-function addSucursal({
-  nombre,
-  direccion,
-  lat,
-  lon,
-  state,
-  image,
-  horaApertura,
-  horaCierre,
-  descripcion,
-  ciudad,
-}) {
+const fetch = require('node-fetch')
+require('dotenv').config()
+function addSucursal(
+  {
+    nombre,
+    direccion,
+    ciudad,
+    lat,
+    lon,
+    referencia,
+    state,
+    horaApertura,
+    horaCierre,
+    descripcion,
+  },
+  autToken
+) {
   if (
     !nombre ||
     !direccion ||
@@ -29,17 +33,34 @@ function addSucursal({
     return Promise.reject({ message: 'Todos los datos son necesarios' })
   const sucursal = {
     nombre,
-    direccion,
-    lat,
-    lon,
     state,
-    image,
     horaApertura,
     horaCierre,
     descripcion,
     ciudad,
   }
-  return addSucursalDB(sucursal)
+  const datosDireccion = {
+    direccion,
+    lat,
+    lon,
+    referencia,
+  }
+  return new Promise(async (resolve, reject) => {
+    const direc = await fetch(`${process.env.API_URL}/direction`, {
+      method: 'POST',
+      body: JSON.stringify(datosDireccion),
+      headers: {
+        Authorization: autToken,
+        'Content-Type': 'application/json',
+      },
+    })
+    const datos = await direc.json()
+    if (datos.error || !datos.body._id)
+      return reject({ message: 'Error al registrar la dirección' })
+    addSucursalDB({ ...sucursal, direccion: datos.body._id })
+      .then((sucursal) => resolve(sucursal))
+      .catch((err) => reject(err))
+  })
 }
 
 function getSucursales() {

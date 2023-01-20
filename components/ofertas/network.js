@@ -5,7 +5,7 @@ const passport = require('passport')
 const scopeValidation = require('../../utils/middlewares/scopeValidation')
 require('../../utils/strategies/jwt')
 const router = express.Router()
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   controller
     .getOfferState(req.query.state || null)
     .then((offer) => response.success(res, offer))
@@ -17,10 +17,18 @@ router.get('/:id', (req, res, next) => {
     .then((offer) => response.success(res, offer))
     .catch(next)
 })
+router.get('/mejores/valores', (req, res, next) => {
+  controller
+    .getMejoresValores()
+    .then((offer) => {
+      response.success(res, offer)
+    })
+    .catch(next)
+})
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
-  scopeValidation(['ADMIN-ROLE']),
+  scopeValidation(['ADMIN-ROLE', 'GERENTE-ROLE']),
   (req, res, next) => {
     controller
       .addOffer(req.body)
@@ -31,7 +39,7 @@ router.post(
 router.patch(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  scopeValidation(['ADMIN-ROLE', 'USER-ROLE']),
+  scopeValidation(['ADMIN-ROLE', 'GERENTE-ROLE']),
   (req, res, next) => {
     controller
       .updateOffer(req.body, req.params.id)
