@@ -1,15 +1,5 @@
 const Detalle = require('./model')
 
-function getDetalleDB(id) {
-  return new Promise((resolve, reject) => {
-    Detalle.findById(id)
-      .populate('detalle.producto', 'precioVenta')
-      .exec((err, detalles) => {
-        if (err) return reject(err)
-        return resolve(detalles)
-      })
-  })
-}
 function addDetalleDB(detalle) {
   const newDetalle = new Detalle(detalle)
   return new Promise((resolve, reject) => {
@@ -24,6 +14,12 @@ function addDetalleDB(detalle) {
       )
       .catch((err) => reject(err))
   })
+}
+function getDetalleDB(id) {
+  return Detalle.findById(id).populate(
+    'detalle.producto',
+    'name precioVenta descuento'
+  )
 }
 
 module.exports = {

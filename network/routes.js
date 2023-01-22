@@ -16,6 +16,7 @@ const ciudad = require('../components/ciudad/network')
 const inventario = require('../components/inventario/network')
 const marca = require('../components/marcas/network')
 const proveedor = require('../components/proveedor/network')
+const costodelivery = require('../components/costoEnvio/network')
 
 const router = (server) => {
   server.use('/login', auth)
@@ -36,5 +37,6 @@ const router = (server) => {
   server.use('/inventario', inventario)
   server.use('/marca', marca)
   server.use('/proveedor', proveedor)
+  server.use('/costodelivery', costodelivery)
 }
 module.exports = router

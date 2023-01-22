@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
-const detalleVenta = new Schema({
+const detalleCompraVenta = new Schema({
   detalle: [
     {
       producto: {
@@ -10,8 +10,13 @@ const detalleVenta = new Schema({
         required: true,
       },
       cantidad: { type: Number, required: true },
+      subTotal: { type: Number, require: true },
     },
   ],
+  venta: {
+    type: Schema.Types.Boolean,
+    default: true,
+  },
 })
 
-module.exports = mongoose.model('Detalle', detalleVenta)
+module.exports = mongoose.model('detallecompraventas', detalleCompraVenta)

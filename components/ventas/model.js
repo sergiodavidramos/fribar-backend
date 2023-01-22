@@ -14,7 +14,7 @@ const ventaSchema = new Schema({
 
   detalleVenta: {
     type: Schema.Types.ObjectId,
-    ref: 'Detalle',
+    ref: 'detallecompraventas',
     required: [true, 'El detalle de la venta es necesaria'],
   },
   fecha: { type: Date, required: true },
