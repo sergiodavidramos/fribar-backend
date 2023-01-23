@@ -2,19 +2,19 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 const pedidoSchema = new Schema({
-  user: {
+  cliente: {
     type: Schema.Types.ObjectId,
-    ref: 'Usuario',
+    ref: 'usuarios',
     required: [true, 'El usuario es necesario'],
   },
   direction: {
     type: Schema.Types.ObjectId,
-    ref: 'Direccion',
+    ref: 'direcciones',
     required: [true, 'La direccion es necesaria'],
   },
-  detalleVenta: {
+  detallePedido: {
     type: Schema.Types.ObjectId,
-    ref: 'Detalle',
+    ref: 'detallecompraventas',
     required: [true, 'El detalle de la venta es necesaria'],
   },
   fecha: { type: Date, required: true },

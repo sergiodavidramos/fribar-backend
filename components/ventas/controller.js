@@ -15,30 +15,37 @@ function getVentaFecha(
   return getVentaFechaDB(start, end)
 }
 
-async function addVenta(body, user) {
+async function addVenta(body, user, userToken) {
   if (!body.detalleVenta || !body.client)
     return Promise.reject('Los Campos son obligatorios')
   try {
     const det = await fetch(`${process.env.API_URL}/detalle`, {
       method: 'POST',
       body: JSON.stringify({ detalle: body.detalleVenta }),
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: userToken,
+      },
     })
     let total = null
     const detalle = await det.json()
-    for (let i of detalle.data.body.detalle) {
-      total += i.producto.precioVenta * i.cantidad
+    if (detalle.error) return Promise.reject({ message: detalle.body })
+    console.log('RESSSS', detalle)
+    for (let i of detalle.body.detalle) {
+      total += i.subTotal
     }
     const venta = {
       user: user._id,
+      idSucursal: user.idSucursal,
       client: body.client,
-      detalleVenta: det.data.body._id,
+      detalleVenta: detalle.body._id,
       fecha: new Date(),
       total,
     }
     return addVentaDB(venta)
   } catch (err) {
-    return Promise.reject(err.message)
+    console.log('ERORRR', err)
+    return Promise.reject({ message: err.message })
   }
 }
 

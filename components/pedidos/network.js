@@ -34,7 +34,7 @@ router.post(
         EscucharPedido(
           pedido
             .populate({
-              path: 'detalleVenta',
+              path: 'detallePedido',
               populate: { path: 'detalle.producto' },
             })
             .populate('direction')

@@ -37,6 +37,7 @@ const offers = new Schema({
     type: Date,
     required: false,
   },
+  //  mejor valor para mostrar en la seccion de mejores valores con numero de identificadores 1 ,2,3, 4
   mejorValor: {
     type: Number,
     required: false,

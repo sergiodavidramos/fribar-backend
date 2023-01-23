@@ -4,7 +4,6 @@ require('dotenv').config()
 const expectedRound = require('expected-round')
 function addDetalle(detalle, venta = true) {
   let mandarDatosDB = []
-  var ban
   if (!detalle || detalle.length === 0)
     return Promise.reject({ message: 'Los datos son obligatorios' })
   return new Promise(async (resolve, reject) => {
@@ -19,7 +18,9 @@ function addDetalle(detalle, venta = true) {
         )
         const datos = await producto.json()
         if (datos.error || datos.body[0].length <= 0) {
-          throw new SyntaxError('dato incompleto: sin nombre')
+          throw new SyntaxError(
+            'Error en el detalle Producto: no encontrado con esa ID '
+          )
         }
         const productoDB = datos.body[0][0]
         if (productoDB.descuento > 0 && venta === true) {
@@ -46,22 +47,21 @@ function addDetalle(detalle, venta = true) {
             ).toFixed(2),
           })
         }
-        ban = mandarDatosDB
       } catch (error) {
-        console.log(error)
         reject({
           message: 'Error al obtener el producto del servidor',
         })
       }
     }
-    addDetalleDB({ detalle: mandarDatosDB, venta })
-      .then((det) => {
-        resolve(det)
-      })
-      .catch((error) => {
-        console.log(error)
-        reject({ message: 'Error al registrar el detalle' })
-      })
+    if (mandarDatosDB.length > 0)
+      addDetalleDB({ detalle: mandarDatosDB, venta })
+        .then((det) => {
+          resolve(det)
+        })
+        .catch((error) => {
+          console.log(error)
+          reject({ message: 'Error al registrar el detalle' })
+        })
   })
 }
 

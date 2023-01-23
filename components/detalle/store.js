@@ -8,7 +8,7 @@ function addDetalleDB(detalle) {
       .then((det) =>
         resolve(
           det
-            .populate('detalle.producto', 'name precioVenta')
+            .populate('detalle.producto', 'name precioVenta descuento')
             .execPopulate()
         )
       )

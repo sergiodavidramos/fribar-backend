@@ -2,6 +2,11 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 const ventaSchema = new Schema({
+  idSucursal: {
+    type: Schema.Types.ObjectId,
+    ref: 'sucursales',
+    required: [true, 'El sucursal es necesario'],
+  },
   user: {
     type: Schema.Types.ObjectId,
     ref: 'usuarios',
