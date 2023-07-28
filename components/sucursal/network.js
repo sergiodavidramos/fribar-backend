@@ -1,56 +1,64 @@
-const express = require('express')
-const controller = require('./controller')
-const response = require('../../network/response')
-const router = express.Router()
-require('../../utils/strategies/jwt')
-const passport = require('passport')
-const scopeValidationHandler = require('../../utils/middlewares/scopeValidation')
+const express = require("express");
+const controller = require("./controller");
+const response = require("../../network/response");
+const router = express.Router();
+require("../../utils/strategies/jwt");
+const passport = require("passport");
+const scopeValidationHandler = require("../../utils/middlewares/scopeValidation");
 
 router.post(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['GERENTE-ROLE']),
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE"]),
   (req, res, next) => {
     controller
       .addSucursal(req.body, req.headers.authorization)
       .then((sucursal) => response.success(res, sucursal))
-      .catch(next)
+      .catch(next);
   }
-)
+);
 
 router.get(
-  '/all',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['GERENTE-ROLE']),
+  "/all",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE"]),
   (req, res, next) => {
     controller
       .getSucursales()
       .then((sucursales) => response.success(res, sucursales))
-      .catch(next)
+      .catch(next);
   }
-)
+);
 router.get(
-  '/:id',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['GERENTE-ROLE']),
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE"]),
   (req, res, next) => {
     controller
       .getSucursalId(req.params.id)
       .then((sucursal) => response.success(res, sucursal))
-      .catch(next)
+      .catch(next);
   }
-)
+);
 router.patch(
-  '/:id',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidationHandler(['GERENTE-ROLE']),
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE"]),
   (req, res, next) => {
     controller
-      .updateSucursal(req.params.id, req.body)
-      .then((sucursal) => {
-        response.success(res, sucursal)
+      .updateSucursal(req.params.id, req.body, req.headers.authorization)
+      .then(async (sucursal) => {
+        response.success(res, {
+          sucursalNuevo: await sucursal[0]
+            .populate({
+              path: "administrador",
+              populate: { path: "idPersona" },
+            })
+            .execPopulate(),
+          direccion: sucursal[1].body,
+        });
       })
-      .catch(next)
+      .catch(next);
   }
-)
-module.exports = router
+);
+module.exports = router;

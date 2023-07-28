@@ -5,30 +5,30 @@ const {
   deleteUserDB,
   findUserDB,
   getUserRoleDB,
-} = require('./store')
-const bcrypt = require('bcrypt')
-const fetch = require('node-fetch')
-require('dotenv').config()
+} = require("./store");
+const bcrypt = require("bcrypt");
+const fetch = require("node-fetch");
+require("dotenv").config();
 
 function getUser(id, state, ci, des, limit) {
-  let filterUser = {}
-  const desde = Number(des) || 0
-  const lim = Number(limit) || 10
-  if (id !== null) filterUser = { _id: id }
-  if (ci !== null) filterUser = { ci: ci }
-  if (state !== null) filterUser = { status: state }
-  return getUserDB(filterUser, state, desde, lim)
+  let filterUser = {};
+  const desde = Number(des) || 0;
+  const lim = Number(limit) || 10;
+  if (id !== null) filterUser = { _id: id };
+  if (ci !== null) filterUser = { ci: ci };
+  if (state !== null) filterUser = { status: state };
+  return getUserDB(filterUser);
 }
 function getUserRole(role) {
   let filterRole = {
-    role: { $in: ['ADMIN-ROLE', 'USER-ROLE', 'DELIVERY-ROLE'] },
-  }
-  if (role !== null) filterRole = { role: role }
-  return getUserRoleDB(filterRole)
+    role: { $in: ["ADMIN-ROLE", "USER-ROLE", "DELIVERY-ROLE"] },
+  };
+  if (role !== null) filterRole = { role: role };
+  return getUserRoleDB(filterRole);
 }
 function findUser(ter) {
-  const termino = new RegExp(ter, 'i')
-  return findUserDB(termino)
+  const termino = new RegExp(ter, "i");
+  return findUserDB(termino);
 }
 
 function addUser(
@@ -59,63 +59,62 @@ function addUser(
     !lon,
     !referencia)
   )
-    return Promise.reject({ message: 'Todos los datos son obligatorios' })
+    return Promise.reject({ message: "Todos los datos son obligatorios" });
 
   const person = {
     nombre_comp,
     ci,
-  }
+  };
   const datosDireccion = {
     direccion,
     lat,
     lon,
     referencia,
-  }
+  };
   if (password.length < 6)
     return Promise.reject({
-      message: 'La contraseña debe tener al menos 6 caracteres',
-    })
+      message: "La contraseña debe tener al menos 6 caracteres",
+    });
   let userDB = {
     email,
     password: bcrypt.hashSync(password, 5),
     phone,
-  }
+  };
 
-  if (personal === '1') {
+  if (personal === "1") {
     if (
       !idSucursal ||
       !role ||
-      role === 'GERENTE-ROLE' ||
-      role === 'ADMIN-ROLE'
+      role === "GERENTE-ROLE" ||
+      role === "ADMIN-ROLE"
     )
       return Promise.reject({
-        message:
-          'Todos los datos son requeridos o no puede asignar ese rol',
-      })
-    userDB = { ...userDB, personal: true, idSucursal, role }
+        message: "Todos los datos son requeridos o no puede asignar ese rol",
+      });
+    userDB = { ...userDB, personal: true, idSucursal, role };
   }
 
   const per = fetch(`${process.env.API_URL}/person`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(person),
-    headers: { 'Content-Type': 'application/json' },
-  })
+    headers: { "Content-Type": "application/json" },
+  });
   const dir = fetch(`${process.env.API_URL}/direction`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(datosDireccion),
     headers: {
       Authorization: userToken,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-  })
+  });
   return new Promise(async (resolve, reject) => {
     Promise.all([per, dir]).then(async ([res1, res2]) => {
-      const data1 = await res1.json()
-      const data2 = await res2.json()
+      const data1 = await res1.json();
+      const data2 = await res2.json();
       if (data1.error || data2.error)
         return reject({
-          message: 'error al registrar el persona o direccion del usuario',
-        })
+          message: "error al registrar el persona o direccion del usuario",
+        });
 
       addUserDB({
         ...userDB,
@@ -123,93 +122,91 @@ function addUser(
         direccion: data2.body._id,
       })
         .then((user) => {
-          return resolve(user)
+          return resolve(user);
         })
         .catch((error) => {
-          return reject(error)
-        })
-    })
-  })
+          return reject(error);
+        });
+    });
+  });
 }
 
 function addClient({ nombre_comp, ci, email, password, phone }) {
   if ((!nombre_comp, !ci, !email, !password))
-    return Promise.reject({ message: 'Los datos son obligatorios' })
+    return Promise.reject({ message: "Los datos son obligatorios" });
   const person = {
     nombre_comp,
     ci,
-  }
+  };
   if (password.length < 6)
     return Promise.reject({
-      message: 'La contraseña debe tener al menos 6 caracteres',
-    })
+      message: "La contraseña debe tener al menos 6 caracteres",
+    });
   let userDB = {
     email,
     password: bcrypt.hashSync(password, 5),
     phone,
-  }
+  };
   return new Promise(async (resolve, reject) => {
     try {
       const persona = await fetch(`${process.env.API_URL}/person`, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(person),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      const datos = await persona.json()
+        headers: { "Content-Type": "application/json" },
+      });
+      const datos = await persona.json();
       if (datos.error || !datos.body._id)
         return reject({
-          message: `Error al crear la persona ${
-            datos.body ? datos.body : ''
-          }`,
-        })
+          message: `Error al crear la persona ${datos.body ? datos.body : ""}`,
+        });
       addUserDB({ ...userDB, idPersona: datos.body._id })
         .then((user) => {
-          resolve(user)
+          resolve(user);
         })
-        .catch((err) => reject(err))
+        .catch((err) => reject(err));
     } catch (err) {
-      return reject(err)
+      return reject(err);
     }
-  })
+  });
 }
 
 function updateUser(newUser, idUser, userToken) {
   if (Object.keys(newUser).length === 0)
     return Promise.reject({
-      message: 'Los datos son requeridos para ser actualizados',
-    })
+      message: "Los datos son requeridos para ser actualizados",
+    });
   if (newUser.password) {
-    newUser.password = bcrypt.hashSync(newUser.password, 5)
+    newUser.password = bcrypt.hashSync(newUser.password, 5);
   }
   return new Promise(async (resolve, reject) => {
     const persona = await fetch(
       `${process.env.API_URL}/person/${newUser.idPersona}`,
       {
-        method: 'PATCH',
+        method: "PATCH",
         body: JSON.stringify(newUser),
         headers: {
-          'Content-type': 'application/json',
+          "Content-type": "application/json",
           Authorization: userToken,
         },
       }
-    )
-    const datosPersona = await persona.json()
+    );
+    const datosPersona = await persona.json();
     if (datosPersona.error || !datosPersona.body._id)
       return reject({
         message: `Error al editar la persona ${
-          datosPersona.body ? datosPersona.body : ''
+          datosPersona.body ? datosPersona.body : ""
         }`,
-      })
+      });
 
     updateUserDB(newUser, idUser)
       .then((user) => {
-        resolve(user)
+        resolve(user);
       })
-      .catch((error) => reject(error))
-  })
+      .catch((error) => reject(error));
+  });
 }
 function deleteUser(id) {
-  return deleteUserDB(id)
+  return deleteUserDB(id);
 }
 
 module.exports = {
@@ -220,4 +217,4 @@ module.exports = {
   findUser,
   getUserRole,
   addClient,
-}
+};

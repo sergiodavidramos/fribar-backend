@@ -1,21 +1,21 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 const sucursalSchema = new Schema({
   nombre: {
     type: String,
-    required: [true, 'El nombre de la sucursal es necesario'],
+    required: [true, "El nombre de la sucursal es necesario"],
     unique: true,
   },
   direccion: {
     type: Schema.Types.ObjectId,
     require: true,
-    ref: 'direccion',
+    ref: "direcciones",
   },
   ciudad: {
     type: Schema.Types.ObjectId,
     require: true,
-    ref: 'ciudades',
+    ref: "ciudades",
   },
   state: {
     type: Boolean,
@@ -27,15 +27,20 @@ const sucursalSchema = new Schema({
   },
   horaApertura: {
     type: String,
-    required: [true, 'La hora de apertura es necesaria'],
+    required: [true, "La hora de apertura es necesaria"],
   },
   horaCierre: {
     type: String,
-    require: [true, 'lA hora de cierre es necesaria'],
+    require: [true, "La hora de cierre es necesaria"],
   },
 
   descripcion: {
     type: String,
   },
-})
-module.exports = mongoose.model('sucursales', sucursalSchema)
+  administrador: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: "usuarios",
+  },
+});
+module.exports = mongoose.model("sucursales", sucursalSchema);

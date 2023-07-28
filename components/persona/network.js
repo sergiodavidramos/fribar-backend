@@ -1,77 +1,77 @@
-const express = require('express')
-const controller = require('./controller')
-const response = require('../../network/response')
-const _ = require('underscore')
-require('../../utils/strategies/jwt')
-const passport = require('passport')
-const scopeValidatorHandler = require('../../utils/middlewares/scopeValidation')
+const express = require("express");
+const controller = require("./controller");
+const response = require("../../network/response");
+const _ = require("underscore");
+require("../../utils/strategies/jwt");
+const passport = require("passport");
+const scopeValidatorHandler = require("../../utils/middlewares/scopeValidation");
 
-const router = express.Router()
+const router = express.Router();
 router.get(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidatorHandler(['ADMIN-ROLE', 'USER-ROLE']),
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
-    const id = req.query.id || null
-    const state = req.query.state || null
-    const ci = req.query.ci || null
+    const id = req.query.id || null;
+    const state = req.query.state || null;
+    const ci = req.query.ci || null;
     controller
       .getPerson(id, state, ci, req.query.desde, req.query.limite)
       .then((user) => response.success(res, user))
-      .catch(next)
+      .catch(next);
   }
-)
+);
 router.get(
-  '/buscar/:termino',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidatorHandler(['ADMIN-ROLE', 'GERENTE-ROLE']),
+  "/buscar/:termino",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["ADMIN-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
-    const termino = req.params.termino
+    const termino = req.params.termino;
     controller
       .findPersonWithTer(termino)
       .then((user) => {
-        response.success(res, user)
+        response.success(res, user);
       })
-      .catch(next)
+      .catch(next);
   }
-)
-router.post('/', (req, res, next) => {
+);
+router.post("/", (req, res, next) => {
   controller
     .addPerson(req.body)
     .then((person) => {
-      response.success(res, person, 200)
+      response.success(res, person, 200);
     })
-    .catch(next)
-})
+    .catch(next);
+});
 
 router.patch(
-  '/:id',
-  passport.authenticate('jwt', { session: false }),
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
-    const id = req.params.id
-    let body = {}
+    const id = req.params.id;
+    let body = {};
     if (true) {
-      body = _.pick(req.body, ['nombre_comp', 'ci', 'compras', 'puntos'])
+      body = _.pick(req.body, ["nombre_comp", "ci", "compras", "puntos"]);
     } else {
-      body = _.pick(req.body, ['nombre_comp', 'ci', 'phone', 'direccion'])
+      body = _.pick(req.body, ["nombre_comp", "ci", "phone", "direccion"]);
     }
     controller
       .updatePerson(body, id)
       .then((user) => response.success(res, user))
-      .catch(next)
+      .catch(next);
   }
-)
+);
 router.delete(
-  '/:id',
-  passport.authenticate('jwt', { session: false }),
-  scopeValidatorHandler(['ADMIN-ROLE']),
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["ADMIN-ROLE"]),
   (req, res, next) => {
-    const id = req.params.id
+    const id = req.params.id;
     controller
       .deletePerson(id)
       .then((user) => response.success(res, `${user.id} Eliminado`))
-      .catch(next)
+      .catch(next);
   }
-)
+);
 
-module.exports = router
+module.exports = router;
