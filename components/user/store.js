@@ -1,6 +1,8 @@
+const { filter } = require("underscore");
 const Model = require("./model");
+const { model } = require("mongoose");
 
-function getUserDB(filterUser) {
+function getUserDB(filterUser, desde, limit) {
   if (filterUser.ci)
     return Model.aggregate([
       {
@@ -15,21 +17,35 @@ function getUserDB(filterUser) {
         $match: { "persona.ci": filterUser.ci },
       },
     ]).exec();
-  else
-    return Model.find(
-      Object.keys(filterUser).length === 0
-        ? {
-            $or: [
-              { role: "ADMIN-ROLE" },
-              { role: "USER-ROLE" },
-              { role: "DELIVERY-ROLE" },
-              { role: "GERENTE-ROLE" },
-            ],
-          }
-        : filterUser
-    )
-      .populate("direccion", "direccion lat lon")
-      .populate("idPersona");
+  else if (Object.keys(filterUser).length === 0)
+    return Promise.all([
+      Model.find({
+        $or: [
+          { role: "ADMIN-ROLE" },
+          { role: "USER-ROLE" },
+          { role: "DELIVERY-ROLE" },
+          { role: "GERENTE-ROLE" },
+          { role: "CLIENT-ROLE" },
+        ],
+      })
+        .limit(limit)
+        .skip(desde)
+        .populate("direccion", "direccion lat lon")
+        .populate("idPersona"),
+      Model.countDocuments({ status: true }),
+    ]);
+  else {
+    if (filter.id) return model.find(filterUser);
+    else
+      return Promise.all([
+        Model.find(filterUser)
+          .limit(limit)
+          .skip(desde)
+          .populate("direccion", "direccion lat lon")
+          .populate("idPersona"),
+        Model.countDocuments(filterUser),
+      ]);
+  }
 }
 async function findUserDB(data) {
   return Model.aggregate([

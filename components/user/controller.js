@@ -17,7 +17,7 @@ function getUser(id, state, ci, des, limit) {
   if (id !== null) filterUser = { _id: id };
   if (ci !== null) filterUser = { ci: ci };
   if (state !== null) filterUser = { status: state };
-  return getUserDB(filterUser);
+  return getUserDB(filterUser, desde, lim);
 }
 function getUserRole(role) {
   let filterRole = {

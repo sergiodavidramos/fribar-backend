@@ -1,25 +1,25 @@
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
+const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 const productSchema = new Schema({
   code: {
     type: Number,
-    required: [true, 'El codigo del producto es requerido'],
+    required: [true, "El codigo del producto es requerido"],
     unique: true,
   },
   name: {
     type: String,
-    required: [true, 'El nombre completo es necesario'],
+    required: [true, "El nombre completo es necesario"],
     unique: true,
   },
   detail: {
     type: String,
-    required: [true, 'El detalle es necesario'],
+    required: [true, "El detalle es necesario"],
   },
   stock: {
     type: Number,
-    required: [true, 'La cantidad del stock es necesaria'],
+    required: [true, "La cantidad del stock es necesaria"],
   },
   cantidadVendidos: {
     type: Number,
@@ -31,11 +31,11 @@ const productSchema = new Schema({
   },
   precioCompra: {
     type: Number,
-    required: [true, 'El precio de Compra es necesaria'],
+    required: [true, "El precio de Compra es necesaria"],
   },
   precioVenta: {
     type: Number,
-    required: [true, 'El precio de Venta es necesaria'],
+    required: [true, "El precio de Venta es necesaria"],
   },
   descuento: {
     type: Number,
@@ -43,17 +43,16 @@ const productSchema = new Schema({
   },
   fechaCaducidad: { type: Date, required: true },
   ventaOnline: { type: Boolean, default: true },
-  category: [
-    {
-      required: [true, 'La Categoria es necesaria'],
-      type: Schema.Types.ObjectId,
-      ref: 'categorias',
-    },
-  ],
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: "categorias",
+    required: [true, "La Categoria es necesaria"],
+  },
+
   proveedor: {
     type: Schema.Types.ObjectId,
-    ref: 'proveedor',
-    required: [true, 'El proveedor es necesaria'],
+    ref: "proveedor",
+    required: [true, "El proveedor es necesaria"],
   },
   img: [{ type: String, require: true }],
   status: { type: Boolean, default: true },
@@ -61,7 +60,7 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-})
+});
 
-productSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })
-module.exports = mongoose.model('productos', productSchema)
+productSchema.plugin(uniqueValidator, { message: "{PATH} debe ser único" });
+module.exports = mongoose.model("productos", productSchema);

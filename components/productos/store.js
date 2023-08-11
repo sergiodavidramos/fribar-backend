@@ -1,21 +1,23 @@
-const Product = require('./model')
+const Product = require("./model");
 
 async function getAllProductDB() {
-  return Product.find()
+  return Product.find();
 }
 function getFilterIdAndPaginateProductDB(filter, des, limit) {
   return Promise.all([
-    Product.find(filter).limit(limit).skip(des).populate('category'),
+    Product.find(filter).limit(limit).skip(des).populate("category"),
     Product.countDocuments({ status: true }),
-  ])
+  ]);
 }
 
 async function findProductDB(data) {
-  return Product.find({ name: data }).populate('category')
+  return Product.find({ name: data }).populate("category");
 }
 async function findCategoriaProductDB(categoria) {
-  return Product.find({ category: categoria }).populate('category')
+  return Product.find({ category: categoria }).populate("category");
 }
+
+// muestra la informacion de la cantidad de productos existen segun el precio de venta y el descuento depende de la categoria
 async function informacionFiltroDB(categoria) {
   if (categoria) {
     return Promise.all([
@@ -27,19 +29,19 @@ async function informacionFiltroDB(categoria) {
         },
         {
           $lookup: {
-            from: 'proveedors',
-            localField: 'proveedor',
-            foreignField: '_id',
-            as: 'proveedor',
+            from: "proveedors",
+            localField: "proveedor",
+            foreignField: "_id",
+            as: "proveedor",
           },
         },
         {
           $group: {
-            _id: '$category',
+            _id: "$category",
             proveedores: {
-              $addToSet: '$proveedor.nombreComercial',
+              $addToSet: "$proveedor.nombreComercial",
             },
-            idProveedor: { $addToSet: '$proveedor._id' },
+            idProveedor: { $addToSet: "$proveedor._id" },
           },
         },
       ]),
@@ -51,7 +53,7 @@ async function informacionFiltroDB(categoria) {
         },
         {
           $group: {
-            _id: '$precioVenta',
+            _id: "$precioVenta",
             count: { $sum: 1 },
           },
         },
@@ -69,7 +71,7 @@ async function informacionFiltroDB(categoria) {
         },
         {
           $group: {
-            _id: '$descuento',
+            _id: "$descuento",
             count: { $sum: 1 },
           },
         },
@@ -79,13 +81,13 @@ async function informacionFiltroDB(categoria) {
           },
         },
       ]),
-    ])
+    ]);
   } else {
     return Promise.all([
       Product.aggregate([
         {
           $group: {
-            _id: '$precioVenta',
+            _id: "$precioVenta",
             count: { $sum: 1 },
           },
         },
@@ -98,7 +100,7 @@ async function informacionFiltroDB(categoria) {
       Product.aggregate([
         {
           $group: {
-            _id: '$descuento',
+            _id: "$descuento",
             count: { $sum: 1 },
           },
         },
@@ -108,7 +110,7 @@ async function informacionFiltroDB(categoria) {
           },
         },
       ]),
-    ])
+    ]);
   }
 }
 async function productosFiltradosDB(
@@ -132,7 +134,7 @@ async function productosFiltradosDB(
     })
       .limit(12)
       .skip((pagina - 1) * 12)
-      .sort(orden)
+      .sort(orden);
   }
   if (categoria) {
     return Product.find({
@@ -146,7 +148,7 @@ async function productosFiltradosDB(
     })
       .limit(12)
       .skip((pagina - 1) * 12)
-      .sort(orden)
+      .sort(orden);
   }
   if (proveedor) {
     return Product.find({
@@ -160,7 +162,7 @@ async function productosFiltradosDB(
     })
       .limit(12)
       .skip((pagina - 1) * 12)
-      .sort(orden)
+      .sort(orden);
   }
   return Product.find({
     $and: [
@@ -172,19 +174,19 @@ async function productosFiltradosDB(
   })
     .limit(12)
     .skip((pagina - 1) * 12)
-    .sort(orden)
+    .sort(orden);
 }
 async function addProductDB(product) {
-  const myProduct = new Product(product)
-  return myProduct.save()
+  const myProduct = new Product(product);
+  return myProduct.save();
 }
 
 async function updateProductDB(newProduct, id) {
   return Product.findByIdAndUpdate(id, newProduct, {
     new: true,
     runValidators: true,
-    context: 'query',
-  })
+    context: "query",
+  });
 }
 async function updateStockProductDB(desStock, id) {
   return Product.findByIdAndUpdate(
@@ -193,9 +195,9 @@ async function updateStockProductDB(desStock, id) {
     {
       new: true,
       runValidators: true,
-      context: 'query',
+      context: "query",
     }
-  )
+  );
 }
 async function updateFavoritoProductDB(id) {
   return Product.findByIdAndUpdate(
@@ -204,15 +206,15 @@ async function updateFavoritoProductDB(id) {
     {
       new: true,
       runValidators: true,
-      context: 'query',
+      context: "query",
     }
-  )
+  );
 }
 async function deleteProductDB(id) {
-  return Product.findByIdAndUpdate(id, { status: false }, { new: true })
+  return Product.findByIdAndUpdate(id, { status: false }, { new: true });
 }
 async function findForCodeDB(code) {
-  return Product.findOne({ code }).populate('category')
+  return Product.findOne({ code }).populate("category");
 }
 
 module.exports = {
@@ -228,4 +230,4 @@ module.exports = {
   updateFavoritoProductDB,
   informacionFiltroDB,
   productosFiltradosDB,
-}
+};

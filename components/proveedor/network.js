@@ -18,17 +18,12 @@ router.post(
   }
 );
 
-router.get(
-  "/all",
-  passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["ADMIN-ROLE", "GERENTE-ROLE"]),
-  (req, res, next) => {
-    controller
-      .getAllProveedor(req.query.status)
-      .then((data) => response.success(res, data))
-      .catch(next);
-  }
-);
+router.get("/all", (req, res, next) => {
+  controller
+    .getAllProveedor(req.query.status)
+    .then((data) => response.success(res, data))
+    .catch(next);
+});
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
