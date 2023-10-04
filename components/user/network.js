@@ -18,7 +18,7 @@ router.get(
     controller
       .getUser(id, state, ci, req.query.desde, req.query.limite)
       .then((user) => response.success(res, user, 200))
-      .catch((err) => console.log(err));
+      .catch(next);
   }
 );
 router.get(
@@ -46,7 +46,7 @@ router.get(
       .catch(next);
   }
 );
-
+// agrega un usuario
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -60,6 +60,7 @@ router.post(
       .catch(next);
   }
 );
+// agrega un cliente
 router.post("/clientes", (req, res, next) => {
   controller
     .addClient(req.body)
@@ -95,7 +96,6 @@ router.patch(
         "idSucursal",
         "idPersona",
       ]);
-      if (!body.idPersona) body = { ...body, idPersona: req.user.idPersona };
     } else {
       if (req.user._id === req.params.id) {
         body = _.pick(req.body, ["nombre_comp", "password", "img", "phone"]);
@@ -105,7 +105,7 @@ router.patch(
           message: "No se permite editar la cuenta de otra persona",
         });
     }
-
+    if (body.ci === false) delete body.ci;
     controller
       .updateUser(body, id, req.headers.authorization)
       .then(async (user) =>

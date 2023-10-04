@@ -21,7 +21,7 @@ function getUser(id, state, ci, des, limit) {
 }
 function getUserRole(role) {
   let filterRole = {
-    role: { $in: ["ADMIN-ROLE", "USER-ROLE", "DELIVERY-ROLE"] },
+    role: { $in: ["ADMIN-ROLE", "USER-ROLE", "DELIVERY-ROLE", "GERENTE-ROLE"] },
   };
   if (role !== null) filterRole = { role: role };
   return getUserRoleDB(filterRole);
@@ -67,8 +67,8 @@ function addUser(
   };
   const datosDireccion = {
     direccion,
-    lat,
-    lon,
+    lat: parseInt(lat),
+    lon: parseInt(lon),
     referencia,
   };
   if (password.length < 6)
@@ -82,18 +82,12 @@ function addUser(
   };
 
   if (personal === "1") {
-    if (
-      !idSucursal ||
-      !role ||
-      role === "GERENTE-ROLE" ||
-      role === "ADMIN-ROLE"
-    )
+    if (!idSucursal || !role || role === "GERENTE-ROLE")
       return Promise.reject({
         message: "Todos los datos son requeridos o no puede asignar ese rol",
       });
     userDB = { ...userDB, personal: true, idSucursal, role };
   }
-
   const per = fetch(`${process.env.API_URL}/person`, {
     method: "POST",
     body: JSON.stringify(person),
@@ -111,10 +105,11 @@ function addUser(
     Promise.all([per, dir]).then(async ([res1, res2]) => {
       const data1 = await res1.json();
       const data2 = await res2.json();
-      if (data1.error || data2.error)
+      if (data1.error || data2.error) {
         return reject({
-          message: "error al registrar el persona o direccion del usuario",
+          message: "error al registrar la persona o direccion del usuario",
         });
+      }
 
       addUserDB({
         ...userDB,
@@ -179,25 +174,26 @@ function updateUser(newUser, idUser, userToken) {
     newUser.password = bcrypt.hashSync(newUser.password, 5);
   }
   return new Promise(async (resolve, reject) => {
-    const persona = await fetch(
-      `${process.env.API_URL}/person/${newUser.idPersona}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(newUser),
-        headers: {
-          "Content-type": "application/json",
-          Authorization: userToken,
-        },
-      }
-    );
-    const datosPersona = await persona.json();
-    if (datosPersona.error || !datosPersona.body._id)
-      return reject({
-        message: `Error al editar la persona ${
-          datosPersona.body ? datosPersona.body : ""
-        }`,
-      });
-
+    if (newUser.nombre_comp) {
+      const persona = await fetch(
+        `${process.env.API_URL}/person/${newUser.idPersona}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(newUser),
+          headers: {
+            "Content-type": "application/json",
+            Authorization: userToken,
+          },
+        }
+      );
+      const datosPersona = await persona.json();
+      if (datosPersona.error || !datosPersona.body._id)
+        return reject({
+          message: `Error al editar la persona ${
+            datosPersona.body ? datosPersona.body : ""
+          }`,
+        });
+    }
     updateUserDB(newUser, idUser)
       .then((user) => {
         resolve(user);
