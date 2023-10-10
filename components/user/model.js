@@ -1,41 +1,41 @@
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
+const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const roleValidator = {
   values: [
-    'ADMIN-ROLE',
-    'CLIENT-ROLE',
-    'DELIVERY-ROLE',
-    'GERENTE-ROLE',
-    'CAJERO-ROLE',
-    'ALMACEN-ROLE',
-    'USER-ROLE',
+    "ADMIN-ROLE",
+    "CLIENT-ROLE",
+    "DELIVERY-ROLE",
+    "GERENTE-ROLE",
+    "CAJERO-ROLE",
+    "ALMACEN-ROLE",
+    "USER-ROLE",
   ],
-  message: '{VALUE} is not a role valid',
-}
-const Schema = mongoose.Schema
+  message: "{VALUE} is not a role valid",
+};
+const Schema = mongoose.Schema;
 const userSchema = new Schema({
   idPersona: {
     type: Schema.Types.ObjectId,
-    ref: 'personas',
-    require: [true, 'El id de la persona es necesario'],
+    ref: "personas",
+    require: [true, "El id de la persona es necesario"],
   },
   direccion: [
-    { type: Schema.Types.ObjectId, ref: 'direcciones', required: false },
+    { type: Schema.Types.ObjectId, ref: "direcciones", required: false },
   ],
   idSucursal: {
     type: Schema.Types.ObjectId,
-    ref: 'sucursales',
+    ref: "sucursales",
     required: false,
   },
   email: {
     type: String,
     unique: true,
-    required: [true, 'EL Email es necesario'],
+    required: [true, "EL Email es necesario"],
   },
   password: {
     type: String,
-    required: [true, 'La contraseña es necesario'],
+    required: [true, "La contraseña es necesario"],
   },
   cuenta: {
     type: Number,
@@ -49,15 +49,15 @@ const userSchema = new Schema({
   img: { type: String, require: false },
   google: { type: Boolean, default: false },
   facebook: { type: Boolean, default: false },
-  role: { type: String, default: 'CLIENT-ROLE', enum: roleValidator },
+  role: { type: String, default: "CLIENT-ROLE", enum: roleValidator },
   personal: { type: Boolean, default: false },
   status: { type: Boolean, default: true },
-})
+});
 userSchema.methods.toJSON = function () {
-  const user = this
-  const userObject = user.toObject()
-  delete userObject.password
-  return userObject
-}
-userSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })
-module.exports = mongoose.model('usuarios', userSchema)
+  const user = this;
+  const userObject = user.toObject();
+  delete userObject.password;
+  return userObject;
+};
+userSchema.plugin(uniqueValidator, { message: "{PATH} debe ser único" });
+module.exports = mongoose.model("usuarios", userSchema);

@@ -5,7 +5,7 @@ const {
   updateCategoryDB,
 } = require("./store");
 
-function getCategory(status) {
+function getCategory(status = "0") {
   if (status === "0") return getCategoryDB({});
   return getCategoryDB({ status: status });
 }

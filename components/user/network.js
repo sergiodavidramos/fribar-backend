@@ -105,7 +105,12 @@ router.patch(
           message: "No se permite editar la cuenta de otra persona",
         });
     }
-    if (body.ci === false) delete body.ci;
+    if (body.password === false) delete body.password;
+
+    if (body.ci) delete body.ci;
+    if (body.role === "CLIENT-ROLE" || body.personal === false)
+      delete body.idSucursal;
+
     controller
       .updateUser(body, id, req.headers.authorization)
       .then(async (user) =>
@@ -128,6 +133,26 @@ router.delete(
     controller
       .deleteUser(id)
       .then((user) => response.success(res, ` ${user.id} Eliminado`, 200))
+      .catch(next);
+  }
+);
+router.patch(
+  "/agregar/direccion/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    const id = req.params.id;
+    let body = {};
+
+    if (req.user.role === "GERENTE-ROLE") {
+      body = { direccionId: req.body.direccionId, userId: id };
+    } else {
+      body = { direccionId: req.body.direccionId, userId: req.user._id };
+    }
+    controller
+      .addDireccion(body)
+      .then((det) => {
+        response.success(res, det, 200);
+      })
       .catch(next);
   }
 );

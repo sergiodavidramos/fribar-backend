@@ -30,8 +30,9 @@ function getUserDB(filterUser, desde, limit) {
       })
         .limit(limit)
         .skip(desde)
-        .populate("direccion", "direccion lat lon")
-        .populate("idPersona"),
+        .populate("direccion")
+        .populate("idPersona")
+        .populate("idSucursal", "nombre"),
       Model.countDocuments({ status: true }),
     ]);
   else {
@@ -41,8 +42,9 @@ function getUserDB(filterUser, desde, limit) {
         Model.find(filterUser)
           .limit(limit)
           .skip(desde)
-          .populate("direccion", "direccion lat lon")
-          .populate("idPersona"),
+          .populate("direccion")
+          .populate("idPersona")
+          .populate("idSucursal", "nombre"),
         Model.countDocuments(filterUser),
       ]);
   }
@@ -64,7 +66,7 @@ async function findUserDB(data) {
 }
 async function getUserRoleDB(role) {
   return Model.find(role)
-    .populate("direccion", "direccion lat lon")
+    .populate("direccion")
     .populate("idPersona")
     .populate("idSucursal", "nombre");
 }
@@ -82,6 +84,17 @@ async function updateUserDB(newUser, id) {
 async function deleteUserDB(id) {
   return Model.findByIdAndUpdate(id, { status: false }, { new: true });
 }
+async function addDireccionDB(direccionId, idUser) {
+  return Model.updateOne(
+    {
+      $and: [{ direccion: { $ne: direccionId } }, { _id: idUser }],
+    },
+    {
+      $push: { direccion: direccionId },
+    },
+    { upsert: true }
+  );
+}
 module.exports = {
   getUserDB,
   addUserDB,
@@ -89,4 +102,5 @@ module.exports = {
   deleteUserDB,
   findUserDB,
   getUserRoleDB,
+  addDireccionDB,
 };

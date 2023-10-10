@@ -5,6 +5,7 @@ const {
   deleteUserDB,
   findUserDB,
   getUserRoleDB,
+  addDireccionDB,
 } = require("./store");
 const bcrypt = require("bcrypt");
 const fetch = require("node-fetch");
@@ -198,11 +199,18 @@ function updateUser(newUser, idUser, userToken) {
       .then((user) => {
         resolve(user);
       })
-      .catch((error) => reject(error));
+      .catch((error) => {
+        reject(error);
+      });
   });
 }
 function deleteUser(id) {
   return deleteUserDB(id);
+}
+function addDireccion({ direccionId, userId }) {
+  if (!direccionId)
+    return Promise.reject({ message: "Todos los datos son necesarios" });
+  return addDireccionDB(direccionId, userId);
 }
 
 module.exports = {
@@ -213,4 +221,5 @@ module.exports = {
   findUser,
   getUserRole,
   addClient,
+  addDireccion,
 };
