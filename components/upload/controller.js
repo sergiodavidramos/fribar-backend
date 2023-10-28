@@ -46,7 +46,7 @@ function subirFoto(req) {
       });
     }
 
-    resolve(subirPorTipo(tipo, id, nombreArchivo, token, req.user));
+    resolve(subirPorTipo(tipo, id, nombreArchivo, token));
   });
 }
 function verificarExtencion(extencion) {
@@ -58,11 +58,19 @@ function verificarExtencion(extencion) {
   }
   return false;
 }
-async function subirPorTipo(tipo, id, nombreArchivo, token, usuarioDB) {
+async function subirPorTipo(tipo, id, nombreArchivo, token) {
   try {
     switch (tipo) {
       case "user": {
-        const pathViejo = "./uploads/user/" + usuarioDB.img;
+        const p = await fetch(`${process.env.API_URL}/user?id=${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const usuario = await p.json();
+        const pathViejo = "./uploads/user/" + usuario.body[0][0].img;
         if (fs.existsSync(pathViejo)) fs.unlinkSync(pathViejo);
         const user = await fetch(`${process.env.API_URL}/user/${id}`, {
           method: "PATCH",
@@ -176,6 +184,7 @@ async function subirPorTipo(tipo, id, nombreArchivo, token, usuarioDB) {
       }
     }
   } catch (error) {
+    console.log("SSSS", error);
     return Promise.reject({ message: "No se pudo actualizar la foto" });
   }
 }

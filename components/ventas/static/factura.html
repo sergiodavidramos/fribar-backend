@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf8" />
+    <title>Factura Fribar</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      * {
+        font-size: 12px;
+        font-family: "Times New Roman";
+      }
+      .ticket {
+        width: 302px;
+        max-width: 302px;
+      }
+      td,
+      th,
+      tr,
+      table {
+        border-top: solid black;
+        border-collapse: collapse;
+        border-width: 1px;
+      }
+      table {
+        margin: 5px;
+      }
+      td.producto,
+      th.producto {
+        overflow-wrap: break-word;
+        width: 120px;
+        max-width: 120px;
+      }
+      td.cantidad,
+      th.cantidad {
+        width: 60px;
+        max-width: 60px;
+        word-break: break-all;
+      }
+
+      td.precio,
+      th.precio {
+        width: 140px;
+        max-width: 200px;
+        word-break: break-all;
+      }
+      td.sub-total,
+      th.sub-total {
+        width: 85px;
+        max-width: 85px;
+        word-break: break-all;
+      }
+      .centrado {
+        text-align: center;
+        align-content: center;
+      }
+
+      img {
+        max-width: inherit;
+        width: inherit;
+      }
+
+      .info {
+        padding: 10px 5px 0px 5px;
+        border-top: solid black;
+        /* border-top-style: dashed; */
+        margin: 5px;
+      }
+      strong,
+      b {
+        font-weight: bold;
+      }
+      .header {
+        font-size: 15px;
+      }
+      .title {
+        font-size: 20px;
+      }
+      .eliminarBorder {
+        border-top: none !important;
+        /* border-collapse: collapse; */
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0; padding: 0">
+    <div class="ticket">
+      <img
+        src="https://yt3.ggpht.com/-3BKTe8YFlbA/AAAAAAAAAAI/AAAAAAAAAAA/ad0jqQ4IkGE/s900-c-k-no-mo-rj-c0xffffff/photo.jpg"
+        alt="Logotipo" />
+      <p class="centrado header" style="margin: 0px">
+        <strong class="title">*** {{nombreSucursal}} ***</strong>
+        <br />
+        de: Sergio David Ramos <br />{{direccionSucursal}} <br />Cel: 74231490
+        <br />{{ciudadSucursal}}-Bolivia
+        <br />
+        TICKET DE VENTA
+      </p>
+      <div class="info">
+        <p class="centrado" style="margin: 0 0 5px 0">
+          VENTA AL POR MAYOR Y MENOR DE PRODUCTOS DE PRIMERA CALIDAD.
+        </p>
+        <b>FECHA : </b> {{fechaVenta}} <br />
+        <b>NIT/CI : {{ciCliente}}</b> <br />
+        <b>SEÑOR (ES) : {{nombreCliente}}</b><br />
+      </div>
+      <table class="centrado">
+        <thead>
+          <tr>
+            <th class="cantidad">Cant</th>
+            <th class="producto">Producto</th>
+            <th class="precio">Pre-Uni</th>
+            <th class="sub-total">Sub Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{tablaProductos}}
+
+          <tr>
+            <td class="cantidad eliminarBorder"></td>
+            <td class="producto"></td>
+            <td class="precio">TOTAL Bs:</td>
+            <td class="sub-total">{{subtotal}}</td>
+          </tr>
+          <tr class="eliminarBorder">
+            <td class="cantidad eliminarBorder"></td>
+            <td class="producto eliminarBorder"></td>
+            <td class="producto eliminarBorder">Descuento Bs:</td>
+            <td class="sub-total eliminarBorder">{{descuento}}</td>
+          </tr>
+          <tr class="eliminarBorder">
+            <td class="cantidad eliminarBorder"></td>
+            <td class="producto eliminarBorder"></td>
+            <td class="sub-total eliminarBorder">
+              <strong>Total con descuento Bs:</strong>
+            </td>
+            <td class="sub-total eliminarBorder">
+              <strong>{{subtotalConDescuento}}</strong>
+            </td>
+          </tr>
+          <tr class="eliminarBorder">
+            <td class="cantidad eliminarBorder"></td>
+            <td class="producto eliminarBorder"></td>
+            <td class="sub-total eliminarBorder">Efectivo Bs:</td>
+            <td class="sub-total eliminarBorder">{{efectivo}}</td>
+          </tr>
+          <tr class="eliminarBorder">
+            <td class="cantidad eliminarBorder"></td>
+            <td class="producto eliminarBorder"></td>
+            <td class="sub-total eliminarBorder">Cambio Bs:</td>
+            <td class="sub-total eliminarBorder">{{cambioEfectivo}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin: 0 5px 0 10px; font-size: 11px" class="centrado">
+        <b>Son: </b> {{totalEnLetras}}
+      </p>
+
+      <p class="centrado">¡GRACIAS POR SU COMPRA!</p>
+      <div class="info">
+        <b>UD: </b> Fue atendido por: {{userNombre}}<br />
+        <b>HORA: </b> {{horaVenta}} <br />
+        <b>CÓDIGO DE CONTROL: </b> {{idDetalle}}<br />
+      </div>
+    </div>
+  </body>
+</html>

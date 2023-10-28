@@ -22,7 +22,7 @@ async function addProductoInventarioDB({ producto, stock, idSucursal }) {
 async function getProductoInventarioPaginateDB(idSucursal, des) {
   return Promise.all([
     Inventario.find(idSucursal, {
-      allProducts: { $slice: [(des - 1) * 12, 12 * des] },
+      allProducts: { $slice: [(des - 1) * 10, 10 * des] },
     })
       .populate("allProducts.producto", "img name category status")
       .populate({
@@ -91,11 +91,6 @@ async function getProductoWithTerminoDB(termino, id) {
     {
       $unwind: "$allProducts",
     },
-    // {
-    //   $replaceRoot: {
-    //     newRoot: '$allProducts',
-    //   },
-    // },
     {
       $lookup: {
         from: "productos",
@@ -106,14 +101,6 @@ async function getProductoWithTerminoDB(termino, id) {
     },
     {
       $match: { $and: [{ "producto.name": termino }, { idSucursal: id }] },
-    },
-    {
-      $lookup: {
-        from: "categorias",
-        localField: "producto.category",
-        foreignField: "_id",
-        as: "category",
-      },
     },
   ]);
 }
@@ -143,15 +130,15 @@ async function getProductWithCodigoDB(code, id) {
     },
   ]);
 }
-async function updateStockProductDB(id, stockpp, idSucursal) {
+async function updateStockProductDB(idProducto, stockpp, idSucursal) {
   return Inventario.updateOne(
     { idSucursal: { $eq: idSucursal } },
     {
       $inc: {
-        "allProducts.$[pro].stock": -stockpp,
+        "allProducts.$[pro].stock": stockpp,
       },
     },
-    { arrayFilters: [{ "pro.producto": { $eq: id } }] }
+    { arrayFilters: [{ "pro.producto": { $eq: idProducto } }] }
   );
 }
 module.exports = {

@@ -7,6 +7,7 @@ const scopeValidatorHandler = require("../../utils/middlewares/scopeValidation")
 
 const router = express.Router();
 
+// Agrega un nuevo inventario a la sucursal
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -102,7 +103,11 @@ router.patch(
   scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     controller
-      .updateStockProduct(req.body.id, req.body.stock, req.body.idSucursal)
+      .updateStockProduct(
+        req.body.idProducto,
+        req.body.stock,
+        req.body.idSucursal
+      )
       .then((producto) => response.success(res, producto))
       .catch(next);
   }

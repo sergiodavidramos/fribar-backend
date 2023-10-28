@@ -14,6 +14,14 @@ function getUserDB(filterUser, desde, limit) {
         },
       },
       {
+        $lookup: {
+          from: "direcciones",
+          localField: "direccion",
+          foreignField: "_id",
+          as: "direccion",
+        },
+      },
+      {
         $match: { "persona.ci": filterUser.ci },
       },
     ]).exec();
@@ -30,8 +38,8 @@ function getUserDB(filterUser, desde, limit) {
       })
         .limit(limit)
         .skip(desde)
-        .populate("direccion")
         .populate("idPersona")
+        .populate("direccion")
         .populate("idSucursal", "nombre"),
       Model.countDocuments({ status: true }),
     ]);

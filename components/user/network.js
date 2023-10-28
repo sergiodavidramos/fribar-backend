@@ -10,7 +10,7 @@ const router = express.Router();
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  scopeValidationHandler(["GERENTE-ROLE"]),
+  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE", "USER-ROLE"]),
   (req, res, next) => {
     const id = req.query.id || null;
     const state = req.query.state || null;
@@ -37,7 +37,7 @@ router.get(
 router.get(
   "/buscar/:termino",
   passport.authenticate("jwt", { session: false }),
-  scopeValidationHandler(["GERENTE-ROLE"]),
+  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     const termino = req.params.termino;
     controller
@@ -110,7 +110,6 @@ router.patch(
     if (body.ci) delete body.ci;
     if (body.role === "CLIENT-ROLE" || body.personal === false)
       delete body.idSucursal;
-
     controller
       .updateUser(body, id, req.headers.authorization)
       .then(async (user) =>

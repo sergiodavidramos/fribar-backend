@@ -13,7 +13,7 @@ passport.use(
       try {
         const user = await User.findOne({
           email: tokenPayload.email,
-        });
+        }).populate("idPersona", "nombre_comp");
         if (!user) return cb({ message: "Usuario no encontrado" }, false);
 
         return cb(null, user);

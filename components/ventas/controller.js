@@ -1,10 +1,14 @@
-const { addVentaDB, getVentaIdDB, getVentaFechaDB } = require('./store')
-const fetch = require('node-fetch')
-require('dotenv').config()
+const { addVentaDB, getVentaIdDB, getVentaFechaDB } = require("./store");
+const pdf = require("html-pdf");
+const fs = require("fs");
+const fetch = require("node-fetch");
 
-const fechaHoy = new Date()
+require("dotenv").config();
+
+const fechaHoy = new Date();
+
 function getVentaId(id) {
-  return getVentaIdDB(id)
+  return getVentaIdDB(id);
 }
 function getVentaFecha(
   start = `${fechaHoy.getFullYear()}-${
@@ -12,45 +16,329 @@ function getVentaFecha(
   }-${fechaHoy.getDate()}`,
   end = fechaHoy
 ) {
-  return getVentaFechaDB(start, end)
+  return getVentaFechaDB(start, end);
 }
 
 async function addVenta(body, user, userToken) {
+  const ubicacionPlantilla = require.resolve("../ventas/static/factura.html");
+  let contenidoHtml = fs.readFileSync(ubicacionPlantilla, "utf8");
+  const fechaHoy = new Date();
+  let tabla = "";
+  let subtotal = 0;
   if (!body.detalleVenta || !body.client)
-    return Promise.reject('Los Campos son obligatorios')
+    return Promise.reject("Los Campos son obligatorios");
   try {
     const det = await fetch(`${process.env.API_URL}/detalle`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ detalle: body.detalleVenta }),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: userToken,
       },
-    })
-    let total = null
-    const detalle = await det.json()
-    if (detalle.error) return Promise.reject({ message: detalle.body })
-    console.log('RESSSS', detalle)
-    for (let i of detalle.body.detalle) {
-      total += i.subTotal
+    });
+    let total = 0;
+    let descuento = 0;
+    let contarPixeles = 0;
+    const detalle = await det.json();
+    if (detalle.error) return Promise.reject({ message: detalle.body });
+    for (let producto of body.detalleVenta) {
+      total += parseFloat(producto.subTotal);
+      const totalProducto = producto.cantidad * producto.precioVenta;
+      subtotal += totalProducto;
+      descuento += producto.subTotal - totalProducto;
+      contarPixeles += 23;
+      tabla += `<tr>
+          <td>${producto.cantidad}</td>
+          <td>${producto.nombreProducto}</td>
+          <td>${`${producto.precioVenta.toFixed(2)}${
+            producto.descuento > 0
+              ? " - Desc.(" + producto.descuento + "%)"
+              : ""
+          }`}</td>
+          <td>${totalProducto.toFixed(2)}</td>
+          </tr>`;
     }
-    const venta = {
-      user: user._id,
-      idSucursal: user.idSucursal,
-      client: body.client,
-      detalleVenta: detalle.body._id,
-      fecha: new Date(),
-      total,
-    }
-    return addVentaDB(venta)
+
+    // Remplazar el valor {{tablaProductos}} por el verdadero valor
+    contenidoHtml = contenidoHtml.replace("{{tablaProductos}}", tabla);
+
+    contenidoHtml = contenidoHtml.replace("{{subtotal}}", subtotal.toFixed(2));
+    contenidoHtml = contenidoHtml.replace(
+      "{{descuento}}",
+      descuento.toFixed(2)
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{subtotalConDescuento}}",
+      total.toFixed(2)
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{fechaVenta}}",
+      `${fechaHoy.getDate()}-${
+        fechaHoy.getMonth() + 1
+      }-${fechaHoy.getFullYear()}`
+    );
+    contenidoHtml = contenidoHtml.replace("{{ciCliente}}", body.client.ci);
+    contenidoHtml = contenidoHtml.replace(
+      "{{nombreCliente}}",
+      body.client.nombre
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{totalEnLetras}}",
+      numeroALetras(total)
+    );
+    var nombrecortado = user.idPersona.nombre_comp.split(" ");
+    contenidoHtml = contenidoHtml.replace("{{userNombre}}", nombrecortado[0]);
+    contenidoHtml = contenidoHtml.replace(
+      "{{horaVenta}}",
+      `${fechaHoy.getHours()}:${fechaHoy.getMinutes()}:${fechaHoy.getSeconds()}`
+    );
+    contenidoHtml = contenidoHtml.replace("{{idDetalle}}", detalle.body._id);
+    contenidoHtml = contenidoHtml.replace(
+      "{{nombreSucursal}}",
+      body.sucursal.nombre
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{direccionSucursal}}",
+      body.sucursal.direccion.direccion
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{ciudadSucursal}}",
+      body.sucursal.ciudad.nombre
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{efectivo}}",
+      body.efectivo === "" ? 0 : parseFloat(body.efectivo).toFixed(2)
+    );
+    contenidoHtml = contenidoHtml.replace(
+      "{{cambioEfectivo}}",
+      (parseFloat(body.efectivo) - total).toFixed(2)
+    );
+    const efectivoCambiado = parseFloat(body.efectivo);
+
+    return new Promise(async (resolve, reject) => {
+      const venta = {
+        user: user._id,
+        idSucursal: user.idSucursal,
+        client: body.client.id,
+        detalleVenta: detalle.body._id,
+        fecha: new Date(),
+        total: total.toFixed(2),
+        efectivo: body.efectivo,
+        cambio: Number.isFinite(efectivoCambiado)
+          ? (efectivoCambiado - total).toFixed(2)
+          : 0,
+      };
+      const altura = (((840 + contarPixeles) * 2.54) / 96) * 10;
+      addVentaDB(venta)
+        .then((datos) => {
+          var options = {
+            paginationOffset: 1,
+            width: "80mm",
+            height: `${altura}mm`,
+            zoomFactor: "94",
+          };
+          pdf.create(contenidoHtml, options).toStream((error, stream) => {
+            if (error) {
+              return reject({ message: "Error creando PDF: " + error });
+            } else {
+              return resolve(stream);
+              //   res.setHeader("Content-Type", "application/pdf");
+              //   stream.pipe(res);
+            }
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
   } catch (err) {
-    console.log('ERORRR', err)
-    return Promise.reject({ message: err.message })
+    console.log("ERORRR", err);
+    return Promise.reject({ message: err.message });
   }
 }
 
+var numeroALetras = (function () {
+  function Unidades(num) {
+    switch (num) {
+      case 1:
+        return "UN";
+      case 2:
+        return "DOS";
+      case 3:
+        return "TRES";
+      case 4:
+        return "CUATRO";
+      case 5:
+        return "CINCO";
+      case 6:
+        return "SEIS";
+      case 7:
+        return "SIETE";
+      case 8:
+        return "OCHO";
+      case 9:
+        return "NUEVE";
+    }
+    return "";
+  } //unidades
+  function Decenas(num) {
+    let decena = Math.floor(num / 10);
+    let unidad = num - decena * 10;
+    switch (decena) {
+      case 1:
+        switch (unidad) {
+          case 0:
+            return "DIEZ";
+          case 1:
+            return "ONCE";
+          case 2:
+            return "DOCE";
+          case 3:
+            return "TRECE";
+          case 4:
+            return "CATORCE";
+          case 5:
+            return "QUINCE";
+          default:
+            return "DIECI" + Unidades(unidad);
+        }
+      case 2:
+        switch (unidad) {
+          case 0:
+            return "VEINTE";
+          default:
+            return "VEINTI" + Unidades(unidad);
+        }
+      case 3:
+        return DecenasY("TREINTA", unidad);
+      case 4:
+        return DecenasY("CUARENTA", unidad);
+      case 5:
+        return DecenasY("CINCUENTA", unidad);
+      case 6:
+        return DecenasY("SESENTA", unidad);
+      case 7:
+        return DecenasY("SETENTA", unidad);
+      case 8:
+        return DecenasY("OCHENTA", unidad);
+      case 9:
+        return DecenasY("NOVENTA", unidad);
+      case 0:
+        return Unidades(unidad);
+    }
+  } //DECENAS
+  function DecenasY(strSin, numUnidades) {
+    if (numUnidades > 0) return strSin + " Y " + Unidades(numUnidades);
+    return strSin;
+  } // Decenas Y()
+  function Centenas(num) {
+    let centenas = Math.floor(num / 100);
+    let decenas = num - centenas * 100;
+    switch (centenas) {
+      case 1:
+        if (decenas > 0) return "CIENTO" + Decenas(decenas);
+        return "CIEN";
+      case 2:
+        return "DOCIENTOS " + Decenas(decenas);
+      case 3:
+        return "TRECIENTOS " + Decenas(decenas);
+      case 4:
+        return "CUATROCIENTOS " + Decenas(decenas);
+      case 5:
+        return "QUINIENTOS " + Decenas(decenas);
+      case 6:
+        return "SEISCIENTOS " + Decenas(decenas);
+      case 7:
+        return "SETECIENTOS " + Decenas(decenas);
+      case 8:
+        return "OCHOCIENTOS " + Decenas(decenas);
+      case 9:
+        return "NOVECIENTOS " + Decenas(decenas);
+    }
+    return Decenas(decenas);
+  } // Centenas()
+  function Seccion(num, divisor, strSingular, strPlural) {
+    let cientos = Math.floor(num / divisor);
+    let resto = num - cientos * divisor;
+    let letras = "";
+    if (cientos > 0)
+      if (cientos > 1) letras = Centenas(cientos) + " " + strPlural;
+      else letras = strSingular;
+    if (resto > 0) letras += "";
+    return letras;
+  } //Seccion()
+
+  function Miles(num) {
+    let divisor = 1000;
+    let cientos = Math.floor(num / divisor);
+    let resto = num - cientos * divisor;
+
+    let strMiles = Seccion(num, divisor, "UN MIL", "MIL");
+    let strCentenas = Centenas(resto);
+
+    if (strMiles == "") return strCentenas;
+    return strMiles + " " + strCentenas;
+  } //Miles()
+
+  function Millones(num) {
+    let divisor = 1000000;
+    let cientos = Math.floor(num / divisor);
+    let resto = num - cientos * divisor;
+
+    let strMillones = Seccion(num, divisor, "UN MILLON DE", "MILLONES");
+    let strMiles = Miles(resto);
+
+    if (strMillones == "") return strMiles;
+    return strMillones + " " + strMiles;
+  } //Millones()
+  return function NumeroALetras(num, currency) {
+    currency = currency || {};
+    let data = {
+      numero: num,
+      enteros: Math.floor(num),
+      centavos: Math.round(num * 100) - Math.floor(num) * 100,
+      letrasCentavos: "",
+      letrasMonedaPlural: currency.plural || "BOLIVIANOS",
+      letrasMonedaSingular: currency.singular || "BOLIVIANO",
+      letrasMonedaCentavoPlural: currency.centPlural || "CENTAVOS",
+      letrasMonedaCentavoSingular: currency.centSingular || "CENTAVO",
+    };
+    if (data.centavos > 0) {
+      data.letrasCentavos =
+        "CON " +
+        (function () {
+          if (data.centavos == 1)
+            return (
+              Millones(data.centavos) + " " + data.letrasMonedaCentavoSingular
+            );
+          else
+            return (
+              Millones(data.centavos) + " " + data.letrasMonedaCentavoPlural
+            );
+        })();
+    }
+    if (data.enteros == 0)
+      return "CERO" + data.letrasMonedaPlural + " " + data.letrasCentavos;
+    if (data.enteros == 1)
+      return (
+        Millones(data.enteros) +
+        " " +
+        data.letrasMonedaSingular +
+        " " +
+        data.letrasCentavos
+      );
+    else
+      return (
+        Millones(data.enteros) +
+        " " +
+        data.letrasMonedaPlural +
+        " " +
+        data.letrasCentavos
+      );
+  };
+})();
 module.exports = {
   addVenta,
   getVentaId,
   getVentaFecha,
-}
+};

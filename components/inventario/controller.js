@@ -37,7 +37,8 @@ function getProductoIdInvetarioId(idProducto, idSucursal) {
     return Promise.reject({
       message: "Id id del producto y la sucursal es necesario",
     });
-  return getProductoIdInvetarioIdDB(idProducto, idSucursal);
+
+  return getProductoIdInvetarioIdDB(ObjectId(idProducto), ObjectId(idSucursal));
 }
 function getProductoWithTermino(ter, idSucursal) {
   if (!ter || !idSucursal)
@@ -53,13 +54,17 @@ function getProductWithCodigo(code, idSucursal) {
   return getProductWithCodigoDB(code, id);
 }
 
-function updateStockProduct(id = false, stock = false, idSucursal = false) {
-  if (!id || !stock || !idSucursal)
+function updateStockProduct(
+  idProducto = false,
+  stock = false,
+  idSucursal = false
+) {
+  if (!idProducto || !stock || !idSucursal)
     return Promise.reject({
       message: "El id y el stock del inventario son requerido",
     });
   const idSu = ObjectId(idSucursal);
-  const idPro = ObjectId(id);
+  const idPro = ObjectId(idProducto);
   return updateStockProductDB(idPro, parseInt(stock), idSu);
 }
 
