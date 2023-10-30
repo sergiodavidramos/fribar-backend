@@ -17,7 +17,7 @@ const offers = new Schema({
     type: Number,
     require: [true, 'El monto de descuento es necesario'],
   },
-  producto: [
+  productos: [
     {
       type: Schema.Types.ObjectId,
       ref: 'productos',
@@ -33,15 +33,15 @@ const offers = new Schema({
     default: true,
   },
   img: { type: String, require: false },
+  agotarStock:{
+    type:Boolean,
+    default: false
+  },
   fecha: {
     type: Date,
     required: false,
   },
-  //  mejor valor para mostrar en la seccion de mejores valores con numero de identificadores 1 ,2,3, 4
-  mejorValor: {
-    type: Number,
-    required: false,
-  },
+  
 })
 
 module.exports = mongoose.model('Ofertas', offers)
