@@ -1,4 +1,4 @@
-const Pedido = require('./model')
+const Pedido = require("./model");
 
 function getPedidosDiaDB(fechaInicial, fechaFinal) {
   return Pedido.find({
@@ -12,18 +12,29 @@ function getPedidosDiaDB(fechaInicial, fechaFinal) {
     ],
   })
     .populate({
-      path: 'detalleVenta',
-      populate: { path: 'detalle.producto' },
+      path: "detallePedido",
+      populate: { path: "detalle.producto" },
     })
-    .populate('direction')
+    .populate("direction");
 }
 function getPedidoIdDB(id) {
   return Pedido.findById({ _id: id })
     .populate({
-      path: 'detalleVenta',
-      populate: { path: 'detalle.producto' },
+      path: "detallePedido",
+      populate: {
+        path: "detalle.producto",
+        select: "name tipoVenta total costoDelivery fecha",
+      },
     })
-    .populate('direction')
+    .populate("direction", "direccion referencia nombre")
+    .populate({
+      path: "idSucursal",
+      populate: {
+        path: "ciudad",
+        select: "nombre",
+      },
+      select: "nombre",
+    });
 }
 function getEstadoDB(fechaInicial, fechaFinal) {
   return Pedido.aggregate([
@@ -37,9 +48,9 @@ function getEstadoDB(fechaInicial, fechaFinal) {
     },
     {
       $group: {
-        _id: { $toLower: '$state' },
+        _id: { $toLower: "$state" },
         count: { $sum: 1 },
-        total: { $sum: '$total' },
+        total: { $sum: "$total" },
       },
     },
     // {
@@ -55,17 +66,17 @@ function getEstadoDB(fechaInicial, fechaFinal) {
     //     newRoot: { $arrayToObject: '$counts' },
     //   },
     // },
-  ])
+  ]);
 }
 function addPedidoDB(pedido) {
-  const newPedido = new Pedido(pedido)
-  return newPedido.save()
+  const newPedido = new Pedido(pedido);
+  return newPedido.save();
 }
 function updatePedidoDB(id, newPedido) {
   return Pedido.findByIdAndUpdate(id, newPedido, {
     new: true,
     runValidators: true,
-  })
+  });
 }
 module.exports = {
   addPedidoDB,
@@ -73,4 +84,4 @@ module.exports = {
   getPedidosDiaDB,
   getPedidoIdDB,
   getEstadoDB,
-}
+};

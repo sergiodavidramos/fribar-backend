@@ -23,6 +23,13 @@ const userSchema = new Schema({
   direccion: [
     { type: Schema.Types.ObjectId, ref: "direcciones", required: false },
   ],
+  favoritos: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "productos",
+      require: false,
+    },
+  ],
   idSucursal: {
     type: Schema.Types.ObjectId,
     ref: "sucursales",

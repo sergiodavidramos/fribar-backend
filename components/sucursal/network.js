@@ -18,21 +18,21 @@ router.post(
   }
 );
 
-router.get(
-  "/all",
-  passport.authenticate("jwt", { session: false }),
-  scopeValidationHandler(["GERENTE-ROLE"]),
-  (req, res, next) => {
-    controller
-      .getSucursales()
-      .then((sucursales) => response.success(res, sucursales))
-      .catch(next);
-  }
-);
+router.get("/all", (req, res, next) => {
+  controller
+    .getSucursales()
+    .then((sucursales) => response.success(res, sucursales))
+    .catch(next);
+});
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  scopeValidationHandler(["GERENTE-ROLE"]),
+  scopeValidationHandler([
+    "GERENTE-ROLE",
+    "ADMIN-ROLE",
+    "USER-ROLE",
+    "DELIVERY-ROLE",
+  ]),
   (req, res, next) => {
     controller
       .getSucursalId(req.params.id)

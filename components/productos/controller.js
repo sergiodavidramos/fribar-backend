@@ -11,6 +11,9 @@ const {
   informacionFiltroDB,
   updateFavoritoProductDB,
   productosFiltradosDB,
+  addOfertaProductoDB,
+  produtosFiltradosPorDescuentoDB,
+  findDestacadosPrincipalesDB,
 } = require("./store");
 ObjectId = require("mongodb").ObjectID;
 
@@ -28,8 +31,11 @@ function findProduct(ter) {
   const termino = new RegExp(ter, "i");
   return findProductDB(termino);
 }
-function findCategoriaProduct(categoria) {
-  return findCategoriaProductDB(categoria);
+function findCategoriaProduct(categoria, pagina) {
+  return findCategoriaProductDB(categoria, pagina);
+}
+function findDestacadosPrincipales(pagina = false) {
+  return findDestacadosPrincipalesDB(pagina);
 }
 function informacionFiltro({ categoria = "" }) {
   let category = false;
@@ -45,7 +51,7 @@ function productosFiltrados({
   pagina = 1,
 }) {
   let ordenBan = {};
-  switch (orden) {
+  switch (parseInt(orden)) {
     case 0:
       ordenBan = { cantidadVendidos: -1 };
 
@@ -61,6 +67,9 @@ function productosFiltrados({
       break;
     case 4:
       ordenBan = { descuento: -1 };
+      break;
+    case 5:
+      ordenBan = { descuento: 1 };
       break;
     default:
       ordenBan = { cantidadVendidos: -1 };
@@ -81,6 +90,9 @@ function findForCode(code) {
       message: "EL codigo del producto debe ser un numero",
     });
   }
+}
+function produtosFiltradosPorDescuento() {
+  return produtosFiltradosPorDescuentoDB();
 }
 function addProduct(product) {
   const {
@@ -124,7 +136,6 @@ function addProduct(product) {
     tipoVenta,
     ventaOnline,
   };
-  console.log(category);
   return addProductDB(productDB);
 }
 function updateProduct(desStock = false, like = false, newProduct, id) {
@@ -139,7 +150,12 @@ function updateProduct(desStock = false, like = false, newProduct, id) {
 function deleteProduct(id) {
   return deleteProductDB(id);
 }
-
+function addOfertaProducto(idProducto = false, descuento = 0, agregar = true) {
+  if (!idProducto) {
+    return Promise.reject({ message: "Todos los datos son necesarios" });
+  }
+  return addOfertaProductoDB(idProducto, parseFloat(descuento), agregar);
+}
 module.exports = {
   getFilterIdAndPaginateProduct,
   getAllProduct,
@@ -151,4 +167,7 @@ module.exports = {
   findForCode,
   productosFiltrados,
   informacionFiltro,
+  addOfertaProducto,
+  produtosFiltradosPorDescuento,
+  findDestacadosPrincipales,
 };

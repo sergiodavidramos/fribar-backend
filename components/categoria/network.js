@@ -13,6 +13,12 @@ router.get("/", (req, res, next) => {
     .then((category) => response.success(res, category))
     .catch(next);
 });
+router.get("/buscar/:nombre", (req, res, next) => {
+  controller
+    .getCategoriaPorNombre(req.params.nombre)
+    .then((category) => response.success(res, category))
+    .catch(next);
+});
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),

@@ -2,28 +2,34 @@ const {
   addCostoDeliveryDB,
   getCostoDeliveryDB,
   updateCostoDeliveryDB,
-} = require('./store')
+} = require("./store");
 
 function addCostoDelivery({
-  costo,
+  costoNormal,
+  costoPromo,
   promoEnvio = false,
   cantidadTotalPromo = 0,
 }) {
-  if (!costo)
-    return Promise.reject({ message: 'Todos los datos son necesarios' })
-  return addCostoDeliveryDB({ costo, promoEnvio, cantidadTotalPromo })
+  if (!costoNormal)
+    return Promise.reject({ message: "Todos los datos son necesarios" });
+  return addCostoDeliveryDB({
+    costoNormal,
+    costoPromo,
+    promoEnvio,
+    cantidadTotalPromo,
+  });
 }
 
 function getCostoDelivery() {
-  return getCostoDeliveryDB()
+  return getCostoDeliveryDB();
 }
 
 function updateCostoDelivery(updated, id) {
-  return updateCostoDeliveryDB(updated, id)
+  return updateCostoDeliveryDB(updated, id);
 }
 
 module.exports = {
   addCostoDelivery,
   getCostoDelivery,
   updateCostoDelivery,
-}
+};

@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const productSchema = new Schema({
   code: {
     type: Number,
-    required: [true, "El codigo del producto es requerido"],
+    required: false,
     unique: true,
   },
   name: {

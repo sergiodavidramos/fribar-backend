@@ -3,11 +3,16 @@ const {
   getCategoryDB,
   getCategoryIdDB,
   updateCategoryDB,
+  getCategoriaPorNombreDB,
 } = require("./store");
 
 function getCategory(status = "0") {
   if (status === "0") return getCategoryDB({});
   return getCategoryDB({ status: status });
+}
+function getCategoriaPorNombre(nombre) {
+  const termino = new RegExp(nombre, "i");
+  return getCategoriaPorNombreDB(termino);
 }
 function getCategoryId(id) {
   return getCategoryIdDB(id);
@@ -33,4 +38,5 @@ module.exports = {
   addCategory,
   getCategoryId,
   updateCategory,
+  getCategoriaPorNombre,
 };

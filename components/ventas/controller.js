@@ -46,7 +46,7 @@ async function addVenta(body, user, userToken) {
       const totalProducto = producto.cantidad * producto.precioVenta;
       subtotal += totalProducto;
       descuento += producto.subTotal - totalProducto;
-      contarPixeles += 23;
+      contarPixeles += 20;
       tabla += `<tr>
           <td>${producto.cantidad}</td>
           <td>${producto.nombreProducto}</td>
@@ -128,9 +128,37 @@ async function addVenta(body, user, userToken) {
           ? (efectivoCambiado - total).toFixed(2)
           : 0,
       };
-      const altura = (((840 + contarPixeles) * 2.54) / 96) * 10;
+      const altura = (((700 + contarPixeles) * 2.54) / 96) * 10;
       addVentaDB(venta)
         .then((datos) => {
+          try {
+            for (const dat of detalle.body.detalle) {
+              Promise.all([
+                fetch(`${process.env.API_URL}/productos/${dat.producto._id}`, {
+                  method: "PATCH",
+                  body: JSON.stringify({ desStock: dat.cantidad }),
+                  headers: {
+                    Authorization: userToken,
+                    "Content-Type": "application/json",
+                  },
+                }),
+                fetch(`${process.env.API_URL}/inventario/actualiza-stock`, {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    idProducto: dat.producto._id,
+                    stock: -dat.cantidad,
+                    idSucursal: user.idSucursal,
+                  }),
+                  headers: {
+                    Authorization: userToken,
+                    "Content-Type": "application/json",
+                  },
+                }),
+              ]);
+            }
+          } catch (err) {
+            return Promise.reject({ message: err.message });
+          }
           var options = {
             paginationOffset: 1,
             width: "80mm",
@@ -142,8 +170,6 @@ async function addVenta(body, user, userToken) {
               return reject({ message: "Error creando PDF: " + error });
             } else {
               return resolve(stream);
-              //   res.setHeader("Content-Type", "application/pdf");
-              //   stream.pipe(res);
             }
           });
         })

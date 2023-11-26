@@ -95,10 +95,18 @@ router.patch(
         "personal",
         "idSucursal",
         "idPersona",
+        "favoritos",
       ]);
     } else {
-      if (req.user._id === req.params.id) {
-        body = _.pick(req.body, ["nombre_comp", "password", "img", "phone"]);
+      if (req.user._id == req.params.id) {
+        body = _.pick(req.body, [
+          "nombre_comp",
+          "password",
+          "img",
+          "phone",
+          "favoritos",
+          "direccion",
+        ]);
         body = { ...body, idPersona: req.user.idPersona };
       } else
         response.error(res, {
@@ -107,7 +115,7 @@ router.patch(
     }
     if (body.password === false) delete body.password;
 
-    if (body.ci) delete body.ci;
+    if (body.ci === "") delete body.ci;
     if (body.role === "CLIENT-ROLE" || body.personal === false)
       delete body.idSucursal;
     controller
@@ -115,7 +123,7 @@ router.patch(
       .then(async (user) =>
         response.success(
           res,
-          await user.populate("idPersona").execPopulate(),
+          await user.populate("idPersona").populate("direcion").execPopulate(),
           200
         )
       )

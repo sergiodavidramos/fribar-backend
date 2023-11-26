@@ -73,6 +73,7 @@ router.get(
       .catch(next);
   }
 );
+// Obtiene un producto por termino de una sucursal
 router.get(
   "/buscar/termino",
   passport.authenticate("jwt", { session: false }),
@@ -84,7 +85,7 @@ router.get(
       .catch(next);
   }
 );
-
+// Obtiene un producto por codigo de producto de una sucursal
 router.get(
   "/buscar/codigoProducto",
   passport.authenticate("jwt", { session: false }),

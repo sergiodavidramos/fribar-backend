@@ -5,7 +5,11 @@ async function getAllProductDB() {
 }
 function getFilterIdAndPaginateProductDB(filter, des, limit) {
   return Promise.all([
-    Product.find(filter).limit(limit).skip(des).populate("category"),
+    Product.find(filter)
+      .sort({ _id: -1 })
+      .limit(limit)
+      .skip(des)
+      .populate("category"),
     Product.countDocuments({ status: true }),
   ]);
 }
@@ -13,8 +17,19 @@ function getFilterIdAndPaginateProductDB(filter, des, limit) {
 async function findProductDB(data) {
   return Product.find({ name: data }).populate("category");
 }
-async function findCategoriaProductDB(categoria) {
-  return Product.find({ category: categoria }).populate("category");
+async function findCategoriaProductDB(categoria, pagina) {
+  return Product.find({ category: categoria })
+    .limit(12)
+    .skip((pagina - 1) * 12)
+    .populate("category");
+}
+async function findDestacadosPrincipalesDB(pagina) {
+  if (pagina)
+    return Product.find()
+      .sort({ cantidadVendidos: -1 })
+      .limit(12)
+      .skip((pagina - 1) * 12);
+  else return Product.find().sort({ cantidadVendidos: -1 }).limit(8);
 }
 
 // muestra la informacion de la cantidad de productos existen segun el precio de venta y el descuento depende de la categoria
@@ -176,6 +191,9 @@ async function productosFiltradosDB(
     .skip((pagina - 1) * 12)
     .sort(orden);
 }
+async function produtosFiltradosPorDescuentoDB() {
+  return Product.find({ descuento: { $gt: 0 } }).populate("category");
+}
 async function addProductDB(product) {
   const myProduct = new Product(product);
   return myProduct.save();
@@ -198,6 +216,28 @@ async function updateStockProductDB(desStock, id) {
       context: "query",
     }
   );
+}
+async function addOfertaProductoDB(idProducto, descuento, agregar) {
+  if (agregar === true)
+    return Product.findByIdAndUpdate(
+      {
+        _id: idProducto,
+      },
+      {
+        descuento,
+      },
+      { new: true }
+    );
+  else
+    return Product.updateOne(
+      {
+        _id: idProducto,
+      },
+      {
+        descuento: 0,
+      },
+      { new: true }
+    );
 }
 async function updateFavoritoProductDB(id) {
   return Product.findByIdAndUpdate(
@@ -230,4 +270,7 @@ module.exports = {
   updateFavoritoProductDB,
   informacionFiltroDB,
   productosFiltradosDB,
+  addOfertaProductoDB,
+  produtosFiltradosPorDescuentoDB,
+  findDestacadosPrincipalesDB,
 };

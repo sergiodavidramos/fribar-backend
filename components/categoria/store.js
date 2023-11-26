@@ -3,6 +3,9 @@ const Category = require("./model");
 function getCategoryDB(status) {
   return Category.find(status);
 }
+function getCategoriaPorNombreDB(ter) {
+  return Category.find({ name: ter });
+}
 function getCategoryIdDB(id) {
   return Category.findById({ _id: id });
 }
@@ -22,4 +25,5 @@ module.exports = {
   addCategoryDB,
   getCategoryIdDB,
   updateCategoryDB,
+  getCategoriaPorNombreDB,
 };

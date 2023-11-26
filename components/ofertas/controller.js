@@ -3,9 +3,9 @@ const {
   getOfferStateDB,
   getOfferIdDB,
   updateOfferDB,
-  getMejoresValoresDB,
+  getOfertasTerminoDB,
 } = require("./store");
-
+const fetch = require("node-fetch");
 function getOfferState(state) {
   const value = state === "true";
   let filterState = { mejorValor: null };
@@ -18,10 +18,12 @@ function getOfferId(id) {
   }
   return getOfferIdDB(id);
 }
-function getMejoresValores() {
-  return getMejoresValoresDB();
+function getOfertasTermino(ter) {
+  if (!ter) return Promise.reject({ message: "El nombre es necesario" });
+  const termino = new RegExp(ter, "i");
+  return getOfertasTerminoDB(termino);
 }
-function addOffer(offer) {
+function addOffer(offer, token) {
   const {
     idSucursal,
     titulo,
@@ -33,26 +35,55 @@ function addOffer(offer) {
     agotarStock,
   } = offer;
   let offerDB = {};
-  if (agotarStock === "true")
+  if (agotarStock === true)
     offerDB = {
       idSucursal,
       titulo: titulo.replace(/\b\w/g, (l) => l.toUpperCase()),
       descuento,
-      producto,
+      productos: producto,
       status,
       description,
       agotarStock,
     };
-  elseofferDB = {
-    idSucursal,
-    titulo: titulo.replace(/\b\w/g, (l) => l.toUpperCase()),
-    descuento,
-    producto,
-    status,
-    description,
-    fecha,
-  };
-  return addOfferDB(offerDB);
+  else
+    offerDB = {
+      idSucursal,
+      titulo: titulo.replace(/\b\w/g, (l) => l.toUpperCase()),
+      descuento,
+      productos: producto,
+      status,
+      description,
+      agotarStock,
+      fecha,
+    };
+
+  return new Promise((resolve, reject) => {
+    let productosListos = [];
+    addOfferDB(offerDB)
+      .then(async (datos) => {
+        for (const pro of datos.productos) {
+          const productosConEoferta = await fetch(
+            `${process.env.API_URL}/productos/agregar-oferta-producto/${pro}`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({ descuento: datos.descuento }),
+              headers: {
+                Authorization: token,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const datosproductos = await productosConEoferta.json();
+          if (datosproductos.error)
+            return reject({
+              message: "Error al registrar la oferta en el producto",
+            });
+          productosListos.push(datosproductos);
+        }
+        return resolve(datos);
+      })
+      .catch((error) => reject(error));
+  });
 }
 function updateOffer(newOffer, id) {
   if (Object.keys(newOffer).length === 0 && !id)
@@ -67,5 +98,5 @@ module.exports = {
   addOffer,
   getOfferId,
   updateOffer,
-  getMejoresValores,
+  getOfertasTermino,
 };

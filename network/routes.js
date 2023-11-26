@@ -17,7 +17,6 @@ const inventario = require("../components/inventario/network");
 const marca = require("../components/marcas/network");
 const proveedor = require("../components/proveedor/network");
 const costodelivery = require("../components/costoEnvio/network");
-// const facturacion = require("../components/facturacion/network");
 
 const router = (server) => {
   server.use("/login", auth);
@@ -38,7 +37,6 @@ const router = (server) => {
   server.use("/inventario", inventario);
   server.use("/marca", marca);
   server.use("/proveedor", proveedor);
-  server.use("/costodelivery", costodelivery);
-  //   server.use("/facturacion", facturacion);
+  server.use("/costo-envio", costodelivery);
 };
 module.exports = router;

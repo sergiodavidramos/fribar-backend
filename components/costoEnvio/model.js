@@ -1,10 +1,14 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 const constosEnvio = new Schema({
-  costo: {
+  costoNormal: {
     type: Number,
-    required: [true, 'El costo de envio en necesario'],
+    required: [true, "El costo de envio en necesario"],
+  },
+  costoPromo: {
+    type: Number,
+    default: 0,
   },
   promoEnvio: {
     type: Boolean,
@@ -14,6 +18,6 @@ const constosEnvio = new Schema({
     type: Number,
     default: 0,
   },
-})
+});
 
-module.exports = mongoose.model('constoenvios', constosEnvio)
+module.exports = mongoose.model("constoenvios", constosEnvio);

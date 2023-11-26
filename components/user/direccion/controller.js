@@ -5,9 +5,17 @@ const {
   allDirectionsDB,
   updateDirectionDB,
 } = require("./store");
-function addDirection({ direccion, lat, lon, referencia }) {
+function addDirection({ nombre, direccion, lat, lon, referencia }) {
   if (!direccion || !lat || !lon || !referencia)
     return Promise.reject({ message: "Todos los datos son necesarios" });
+  if (nombre)
+    return addDirectionDB({
+      nombre,
+      direccion: direccion.replace(/\b\w/g, (l) => l.toUpperCase()),
+      lat,
+      lon,
+      referencia,
+    });
   return addDirectionDB({
     direccion: direccion.replace(/\b\w/g, (l) => l.toUpperCase()),
     lat,

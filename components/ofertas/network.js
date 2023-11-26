@@ -17,9 +17,9 @@ router.get("/:id", (req, res, next) => {
     .then((offer) => response.success(res, offer))
     .catch(next);
 });
-router.get("/mejores/valores", (req, res, next) => {
+router.get("/buscar/:termino", (req, res, next) => {
   controller
-    .getMejoresValores()
+    .getOfertasTermino(req.params.termino)
     .then((offer) => {
       response.success(res, offer);
     })
@@ -31,7 +31,7 @@ router.post(
   scopeValidation(["ADMIN-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
     controller
-      .addOffer(req.body)
+      .addOffer(req.body, req.headers.authorization)
       .then((offer) => response.success(res, offer))
       .catch(next);
   }

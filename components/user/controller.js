@@ -128,12 +128,12 @@ function addUser(
 }
 
 function addClient({ nombre_comp, ci, email, password, phone }) {
-  if ((!nombre_comp, !ci, !email, !password))
+  if (!nombre_comp || !email || !password)
     return Promise.reject({ message: "Los datos son obligatorios" });
   const person = {
     nombre_comp,
-    ci,
   };
+  if (ci) person.ci = ci;
   if (password.length < 6)
     return Promise.reject({
       message: "La contraseña debe tener al menos 6 caracteres",
@@ -175,7 +175,7 @@ function updateUser(newUser, idUser, userToken) {
     newUser.password = bcrypt.hashSync(newUser.password, 5);
   }
   return new Promise(async (resolve, reject) => {
-    if (newUser.nombre_comp) {
+    if (newUser.nombre_comp || newUser.ci) {
       const persona = await fetch(
         `${process.env.API_URL}/person/${newUser.idPersona}`,
         {

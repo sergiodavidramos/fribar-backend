@@ -100,7 +100,7 @@ async function addDireccionDB(direccionId, idUser) {
     {
       $push: { direccion: direccionId },
     },
-    { upsert: true }
+    { upsert: true, new: true }
   );
 }
 module.exports = {
