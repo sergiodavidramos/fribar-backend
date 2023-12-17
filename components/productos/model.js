@@ -17,10 +17,6 @@ const productSchema = new Schema({
     type: String,
     required: [true, "El detalle es necesario"],
   },
-  stock: {
-    type: Number,
-    required: [true, "La cantidad del stock es necesaria"],
-  },
   cantidadVendidos: {
     type: Number,
     default: 0,
@@ -41,14 +37,16 @@ const productSchema = new Schema({
     type: Number,
     default: 0,
   },
-  fechaCaducidad: { type: Date, required: true },
   ventaOnline: { type: Boolean, default: true },
   category: {
     type: Schema.Types.ObjectId,
     ref: "categorias",
     required: [true, "La Categoria es necesaria"],
   },
-
+  stock: {
+    type: Number,
+    default: 0,
+  },
   proveedor: {
     type: Schema.Types.ObjectId,
     ref: "proveedor",

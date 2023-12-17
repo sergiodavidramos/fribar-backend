@@ -38,7 +38,7 @@ router.get(
 );
 
 router.get(
-  "/buscar",
+  "/buscar/termino",
   passport.authenticate("jwt", { session: false }),
   scopeValidatorHandler(["ADMIN-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {

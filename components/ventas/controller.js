@@ -1,22 +1,22 @@
-const { addVentaDB, getVentaIdDB, getVentaFechaDB } = require("./store");
+const {
+  addVentaDB,
+  getVentaIdDB,
+  getVentaFechaDB,
+  actualizarVentaDB,
+} = require("./store");
 const pdf = require("html-pdf");
 const fs = require("fs");
 const fetch = require("node-fetch");
 
 require("dotenv").config();
 
-const fechaHoy = new Date();
-
 function getVentaId(id) {
   return getVentaIdDB(id);
 }
-function getVentaFecha(
-  start = `${fechaHoy.getFullYear()}-${
-    fechaHoy.getMonth() + 1
-  }-${fechaHoy.getDate()}`,
-  end = fechaHoy
-) {
-  return getVentaFechaDB(start, end);
+function getVentaFecha(fechaInicio, fechaFin) {
+  if (!fechaInicio || !fechaFin)
+    return Promise.reject({ message: "El rango de fecha es obligatorio" });
+  return getVentaFechaDB(fechaInicio, fechaFin);
 }
 
 async function addVenta(body, user, userToken) {
@@ -136,7 +136,7 @@ async function addVenta(body, user, userToken) {
               Promise.all([
                 fetch(`${process.env.API_URL}/productos/${dat.producto._id}`, {
                   method: "PATCH",
-                  body: JSON.stringify({ desStock: dat.cantidad }),
+                  body: JSON.stringify({ desStock: -dat.cantidad }),
                   headers: {
                     Authorization: userToken,
                     "Content-Type": "application/json",
@@ -157,7 +157,7 @@ async function addVenta(body, user, userToken) {
               ]);
             }
           } catch (err) {
-            return Promise.reject({ message: err.message });
+            return reject({ message: err.message });
           }
           var options = {
             paginationOffset: 1,
@@ -179,7 +179,7 @@ async function addVenta(body, user, userToken) {
     });
   } catch (err) {
     console.log("ERORRR", err);
-    return Promise.reject({ message: err.message });
+    return Promise.reject({ message: err });
   }
 }
 
@@ -363,8 +363,51 @@ var numeroALetras = (function () {
       );
   };
 })();
+
+async function actualizarVenta(id, newVenta, token) {
+  if (Object.keys(newVenta).length === 0 && !id)
+    return Promise.reject({
+      message: "Todos los datos son requeridos para actualizar la venta",
+    });
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const ventaActualizada = await actualizarVentaDB(id, newVenta);
+      if (ventaActualizada.state === false) {
+        for (const dat of ventaActualizada.detalleVenta.detalle) {
+          Promise.all([
+            fetch(`${process.env.API_URL}/productos/${dat.producto._id}`, {
+              method: "PATCH",
+              body: JSON.stringify({ desStock: dat.cantidad }),
+              headers: {
+                Authorization: token,
+                "Content-Type": "application/json",
+              },
+            }),
+            fetch(`${process.env.API_URL}/inventario/actualiza-stock`, {
+              method: "PATCH",
+              body: JSON.stringify({
+                idProducto: dat.producto._id,
+                stock: dat.cantidad,
+                idSucursal: ventaActualizada.idSucursal,
+              }),
+              headers: {
+                Authorization: token,
+                "Content-Type": "application/json",
+              },
+            }),
+          ]);
+        }
+      }
+      return resolve(ventaActualizada);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   addVenta,
   getVentaId,
   getVentaFecha,
+  actualizarVenta,
 };

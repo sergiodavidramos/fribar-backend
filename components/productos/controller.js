@@ -18,7 +18,7 @@ const {
 ObjectId = require("mongodb").ObjectID;
 
 function getFilterIdAndPaginateProduct(id, des, limit) {
-  let filterProduct = {};
+  let filterProduct = { stock: { $gt: 0 } };
   const desde = Number(des) || 0;
   const lim = Number(limit) || 12;
   if (id !== null) filterProduct._id = id;
@@ -103,7 +103,6 @@ function addProduct(product) {
     precioCompra,
     precioVenta,
     descuento,
-    fechaCaducidad,
     category,
     proveedor,
     img,
@@ -129,7 +128,6 @@ function addProduct(product) {
     precioCompra,
     precioVenta,
     descuento,
-    fechaCaducidad,
     category,
     proveedor,
     img,

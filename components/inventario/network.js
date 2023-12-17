@@ -28,7 +28,7 @@ router.post(
   scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     controller
-      .addProductoInventario(req.body)
+      .addProductoInventario(req.body, req.headers.authorization)
       .then((det) => {
         response.success(res, det, 200);
       })
@@ -101,14 +101,9 @@ router.get(
 router.patch(
   "/actualiza-stock",
   passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     controller
-      .updateStockProduct(
-        req.body.idProducto,
-        req.body.stock,
-        req.body.idSucursal
-      )
+      .updateStockProduct(req.body)
       .then((producto) => response.success(res, producto))
       .catch(next);
   }

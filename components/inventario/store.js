@@ -1,4 +1,5 @@
 const Inventario = require("./model");
+ObjectId = require("mongodb").ObjectID;
 
 async function addNewInventarioDB(sucursal, productos = []) {
   const myInventario = new Inventario({
@@ -7,17 +8,54 @@ async function addNewInventarioDB(sucursal, productos = []) {
   });
   return myInventario.save();
 }
-async function addProductoInventarioDB({ producto, stock, idSucursal }) {
-  return Inventario.updateOne(
-    {
-      $and: [
-        { "allProducts.producto": { $ne: producto } },
-        { idSucursal: idSucursal },
-      ],
-    },
-    { $push: { allProducts: { producto: producto, stock: stock } } },
-    { upsert: true }
-  );
+// async function addProductoInventarioDB({
+//   producto,
+//   idLote,
+//   stockTotal,
+//   idSucursal,
+// }) {
+//   return Inventario.updateOne(
+//     {
+//       $and: [
+//         { "allProducts.producto": { $ne: producto } },
+//         { idSucursal: idSucursal },
+//       ],
+//     },
+//     {
+//       $push: {
+//         allProducts: {
+//           producto: producto,
+//           $push: { stockLotes: idLote },
+//           stockTotal,
+//         },
+//       },
+//     },
+//     { upsert: true }
+//   );
+// }
+async function addProductoInventarioDB({
+  producto,
+  idLote = false,
+  stockTotal,
+  idSucursal,
+}) {
+  let newProducto;
+  if (idLote) {
+    newProducto = new Inventario({
+      producto,
+      stockTotal,
+      idSucursal,
+      stockLotes: [{ lote: idLote }],
+    });
+  } else {
+    newProducto = new Inventario({
+      producto,
+      stockTotal,
+      idSucursal,
+    });
+  }
+  console.log("ESTOYY", newProducto);
+  return newProducto.save();
 }
 async function getProductoInventarioPaginateDB(idSucursal, des) {
   return Promise.all([
@@ -57,33 +95,36 @@ async function getProductoIdDB(id) {
   ).populate("allProducts.producto");
 }
 
+// async function getProductoIdInvetarioIdDB(idProducto, idSucursal) {
+//   return Inventario.aggregate([
+//     {
+//       $unwind: "$allProducts",
+//     },
+//     {
+//       $lookup: {
+//         from: "productos",
+//         localField: "allProducts.producto",
+//         foreignField: "_id",
+//         as: "producto",
+//       },
+//     },
+//     {
+//       $match: {
+//         $and: [{ "producto._id": idProducto }, { idSucursal: idSucursal }],
+//       },
+//     },
+//     {
+//       $lookup: {
+//         from: "categorias",
+//         localField: "producto.category",
+//         foreignField: "_id",
+//         as: "category",
+//       },
+//     },
+//   ]);
+// }
 async function getProductoIdInvetarioIdDB(idProducto, idSucursal) {
-  return Inventario.aggregate([
-    {
-      $unwind: "$allProducts",
-    },
-    {
-      $lookup: {
-        from: "productos",
-        localField: "allProducts.producto",
-        foreignField: "_id",
-        as: "producto",
-      },
-    },
-    {
-      $match: {
-        $and: [{ "producto._id": idProducto }, { idSucursal: idSucursal }],
-      },
-    },
-    {
-      $lookup: {
-        from: "categorias",
-        localField: "producto.category",
-        foreignField: "_id",
-        as: "category",
-      },
-    },
-  ]);
+  return Inventario.find({ producto: idProducto, idSucursal });
 }
 
 async function getProductoWithTerminoDB(termino, id) {
@@ -130,15 +171,23 @@ async function getProductWithCodigoDB(code, id) {
     },
   ]);
 }
-async function updateStockProductDB(idProducto, stockpp, idSucursal) {
+// async function updateStockProductDB(idProducto, stockpp, idSucursal) {
+//   return Inventario.updateOne(
+//     { idSucursal: { $eq: idSucursal } },
+//     {
+//       $inc: {
+//         "allProducts.$[pro].stock": stockpp,
+//       },
+//     },
+//     { arrayFilters: [{ "pro.producto": { $eq: idProducto } }] }
+//   );
+// }
+
+//Actualiza el stock de los productos sin lote
+async function updateStockProductDB(idProducto, idSucursal, cambios) {
   return Inventario.updateOne(
-    { idSucursal: { $eq: idSucursal } },
-    {
-      $inc: {
-        "allProducts.$[pro].stock": stockpp,
-      },
-    },
-    { arrayFilters: [{ "pro.producto": { $eq: idProducto } }] }
+    { producto: idProducto, idSucursal: idSucursal },
+    cambios
   );
 }
 module.exports = {

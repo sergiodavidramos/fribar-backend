@@ -16,7 +16,7 @@ function getUser(id, state, ci, des, limit) {
   const desde = Number(des) || 0;
   const lim = Number(limit) || 10;
   if (id !== null) filterUser = { _id: id };
-  if (ci !== null) filterUser = { ci: ci };
+  if (ci !== null) filterUser = { ci: new RegExp(ci, "i") };
   if (state !== null) filterUser = { status: state };
   return getUserDB(filterUser, desde, lim);
 }

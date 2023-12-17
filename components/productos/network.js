@@ -85,7 +85,6 @@ router.post(
 router.patch(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  scopeValidation(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
     controller
       .updateProduct(req.body.desStock, req.body.like, req.body, req.params.id)

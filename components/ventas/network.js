@@ -6,6 +6,7 @@ const passport = require("passport");
 require("../../utils/strategies/jwt");
 const scopeValidationHandler = require("../../utils/middlewares/scopeValidation");
 
+// obtiene una venta por Id
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
@@ -18,15 +19,17 @@ router.get(
       .catch(next);
   }
 );
+
+// Obtiene los pedidos de un rango de fecha asignado filtrando por en estado de la venta
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE", "USER-ROLE"]),
   (req, res, next) => {
-    const start = req.query.inicio;
-    const end = req.query.fin;
+    const fechaInicio = req.query.fechaInicio;
+    const fechaFin = req.query.fechaFin;
     controller
-      .getVentaFecha(start, end)
+      .getVentaFecha(fechaInicio, fechaFin)
       .then((ventas) => response.success(res, ventas, 200))
       .catch(next);
   }
@@ -44,5 +47,15 @@ router.post(
       .catch(next);
   }
 );
-
+router.patch(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    controller
+      .actualizarVenta(req.params.id, req.body, req.headers.authorization)
+      .then((nuevaVenta) => response.success(res, nuevaVenta))
+      .catch(next);
+  }
+);
 module.exports = router;

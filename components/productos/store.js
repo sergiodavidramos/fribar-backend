@@ -18,14 +18,14 @@ async function findProductDB(data) {
   return Product.find({ name: data }).populate("category");
 }
 async function findCategoriaProductDB(categoria, pagina) {
-  return Product.find({ category: categoria })
+  return Product.find({ category: categoria, stock: { $gt: 0 } })
     .limit(12)
     .skip((pagina - 1) * 12)
     .populate("category");
 }
 async function findDestacadosPrincipalesDB(pagina) {
   if (pagina)
-    return Product.find()
+    return Product.find({ stock: { $gt: 0 } })
       .sort({ cantidadVendidos: -1 })
       .limit(12)
       .skip((pagina - 1) * 12);
@@ -192,7 +192,9 @@ async function productosFiltradosDB(
     .sort(orden);
 }
 async function produtosFiltradosPorDescuentoDB() {
-  return Product.find({ descuento: { $gt: 0 } }).populate("category");
+  return Product.find({ descuento: { $gt: 0 }, stock: { $gt: 0 } }).populate(
+    "category"
+  );
 }
 async function addProductDB(product) {
   const myProduct = new Product(product);
@@ -206,10 +208,16 @@ async function updateProductDB(newProduct, id) {
     context: "query",
   });
 }
+//
 async function updateStockProductDB(desStock, id) {
   return Product.findByIdAndUpdate(
     id,
-    { $inc: { stock: -desStock, cantidadVendidos: desStock } },
+    {
+      $inc: {
+        stock: desStock,
+        cantidadVendidos: desStock > 0 ? 0 : desStock * -1,
+      },
+    },
     {
       new: true,
       runValidators: true,
@@ -254,7 +262,7 @@ async function deleteProductDB(id) {
   return Product.findByIdAndUpdate(id, { status: false }, { new: true });
 }
 async function findForCodeDB(code) {
-  return Product.findOne({ code }).populate("category");
+  return Product.findOne({ code: code });
 }
 
 module.exports = {

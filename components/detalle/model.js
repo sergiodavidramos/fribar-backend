@@ -11,6 +11,10 @@ const detalleCompraVenta = new Schema({
       },
       cantidad: { type: Number, required: true },
       subTotal: { type: Number, require: true },
+      numeroLote: {
+        type: String,
+        required: false,
+      },
     },
   ],
   venta: {

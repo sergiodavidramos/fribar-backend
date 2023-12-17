@@ -9,16 +9,105 @@ const {
   getProductoIdInvetarioIdDB,
 } = require("./store");
 ObjectId = require("mongodb").ObjectID;
+const fetch = require("node-fetch");
+require("dotenv").config();
 function addNewInventario(sucursal) {
   if (!sucursal)
     return Promise.reject({ message: "El id del sucursal es requerido" });
   return addNewInventarioDB(sucursal);
 }
 
-function addProductoInventario({ producto, stock, idSucursal }) {
-  if (!producto || !stock || !idSucursal)
+function addProductoInventario(
+  { idProducto, stock, idSucursal, numeroLote, fechaVencimientoLote },
+  userToken
+) {
+  if (!idProducto || !stock || !idSucursal)
     return Promise.reject({ message: "Todos los datos son necesarios" });
-  return addProductoInventarioDB({ producto, stock, idSucursal });
+  return new Promise(async (resolve, reject) => {
+    try {
+      let loteAgregado = false;
+      let newProducto = {
+        producto: idProducto,
+        stockTotal: stock,
+        idSucursal,
+      };
+
+      if (numeroLote) {
+        const resLote = await fetch(`${process.env.API_URL}/lotes`, {
+          method: "POST",
+          body: JSON.stringify({
+            numeroLote,
+            stock,
+            fechaVencimiento: fechaVencimientoLote,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: userToken,
+          },
+        });
+        loteAgregado = await resLote.json();
+        if (loteAgregado.error) {
+          console.log("Error al registrar el lote", loteAgregado);
+          return reject({ message: loteAgregado.body });
+        }
+        newProducto.idLote = loteAgregado.body._id;
+      }
+
+      const productoInventario = await getProductoIdInvetarioIdDB(
+        ObjectId(idProducto),
+        ObjectId(idSucursal)
+      );
+      if (productoInventario.error) {
+        console.log("Error al buscar El producto", productoInventario);
+        return reject({ message: loteAgregado.body });
+      }
+      if (productoInventario.length <= 0) {
+        return resolve(addProductoInventarioDB(newProducto));
+      } else {
+        productoInventario[0].stockTotal += stock;
+        if (numeroLote) {
+          let encontrado = false;
+          for (let i = 0; i < productoInventario[0].stockLotes.length; i++) {
+            if (
+              productoInventario[0].stockLotes[i].lote == newProducto.idLote
+            ) {
+              encontrado = true;
+            }
+          }
+
+          if (!encontrado) {
+            productoInventario[0].stockLotes.push({
+              lote: newProducto.idLote,
+            });
+          }
+          return resolve(
+            updateStockProduct(
+              ObjectId(idProducto),
+              ObjectId(idSucursal),
+              {
+                stockLotes: productoInventario[0].stockLotes,
+                stockTotal: productoInventario[0].stockTotal,
+              },
+              false
+            )
+          );
+        } else {
+          return resolve(
+            updateStockProduct(
+              ObjectId(idProducto),
+              ObjectId(idSucursal),
+              {
+                stockTotal: productoInventario[0].stockTotal,
+              },
+              false
+            )
+          );
+        }
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
 }
 function getProductosInventarioPaginate(id, pagina) {
   const desde = Number(pagina) || 1;
@@ -49,23 +138,102 @@ function getProductoWithTermino(ter, idSucursal) {
 }
 function getProductWithCodigo(code, idSucursal) {
   if (!code || !idSucursal)
-    return Promise.reject({ message: "Todos los datos son necesarios" });
+    return Promise.reject({
+      message: "EL codigo del producto debe ser un numero",
+    });
   const id = ObjectId(idSucursal);
   return getProductWithCodigoDB(code, id);
 }
 
-function updateStockProduct(
+async function updateStockProduct(
   idProducto = false,
-  stock = false,
-  idSucursal = false
+  idSucursal = false,
+  newDatos,
+  venta,
+  userToken
 ) {
-  if (!idProducto || !stock || !idSucursal)
+  if (!idProducto || !idSucursal)
     return Promise.reject({
-      message: "El id y el stock del inventario son requerido",
+      message: "Todos los datos son requerido para registrar un producto",
     });
-  const idSu = ObjectId(idSucursal);
-  const idPro = ObjectId(idProducto);
-  return updateStockProductDB(idPro, parseInt(stock), idSu);
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (venta === false) {
+        return resolve(updateStockProductDB(idProducto, idSucursal, newDatos));
+      } else {
+        const res = await getProductoIdInvetarioIdDB(
+          ObjectId(idProducto),
+          ObjectId(idSucursal)
+        );
+        const arrayLotesId = res[0].stockLotes;
+        const productoInvetario = await res[0]
+          .populate("stockLotes.lote")
+          .execPopulate();
+        const cantidadVenta = newDatos.stockTotal;
+        if (productoInvetario.stockLotes.length > 0) {
+          for (let lote of productoInvetario.stockLotes) {
+            if (cantidadVenta <= 0) break;
+            if (lote.lote.stock >= cantidadVenta) {
+              const res = await fetch(
+                `${process.env.API_URL}/lotes/actualizar/stock/${lote.lote._id}`,
+                {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    stock: -cantidadVenta,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: userToken,
+                  },
+                }
+              );
+              const loteActualizado = await res.json();
+              if (loteActualizado.body.stock <= 0) {
+                arrayLotesId.shift();
+              }
+              cantidadVenta -= lote.lote.stock;
+            } else {
+              const banCantidad = cantidadVenta;
+              cantidadVenta -= lote.lote.stock;
+              const restado = banCantidad - cantidadVenta;
+              const res = await fetch(
+                `${process.env.API_URL}/lotes/actualizar/stock/${lote.lote._id}`,
+                {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    stock: -restado,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: userToken,
+                  },
+                }
+              );
+              const loteActualizado = await res.json();
+              if (loteActualizado.body.stock <= 0) {
+                arrayLotesId.shift();
+              }
+            }
+          }
+          return resolve(
+            updateStockProductDB(idProducto, idSucursal, {
+              stockTotal: productoInvetario.stockTotal - cantidadVenta,
+              stockLotes: arrayLotesId,
+            })
+          );
+        } else {
+          return resolve(
+            updateStockProductDB(idProducto, idSucursal, {
+              stockTotal: productoInvetario.stockTotal - cantidadVenta,
+            })
+          );
+        }
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
 }
 
 module.exports = {

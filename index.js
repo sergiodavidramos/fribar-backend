@@ -8,12 +8,14 @@ const cors = require("cors");
 const server = require("http").Server(app);
 const socket = require("./socket");
 const errors = require("./network/errors");
-// const io = require('socket.io')(server)
+const { escucharSockets } = require("./components/Socket");
 
+socket.connect(server);
 require("dotenv").config();
+//   origin: ["http://localhost:3000", "http://localhost:3002"],
 var corsOptions = {
   origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
   preflightContinue: false,
   optionsSuccessStatus: 204,
 };
@@ -23,15 +25,10 @@ db(process.env.DB_URL);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.resolve(__dirname, "./public")));
-socket.connect(server);
-router(app);
-// socket.socket.io.on('connection', (cliente) => {
-//   console.log('cliente conectado')
-//   cliente.on('disconnect', () => {
-//     console.log('Client disconnected')
-//   })
-// })
 
+router(app);
+
+// escucharSockets();
 app.use(errors);
 server.listen(process.env.PORT, () => {
   console.log("Server listen en the PORT: ", process.env.PORT);
