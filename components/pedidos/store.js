@@ -22,9 +22,15 @@ async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
     return Pedido.find({
       $and: [
         {
-          fecha: { $gte: new Date(fechaInicio).toLocaleDateString("en-GB") },
+          fecha: {
+            $gte: new Date(fechaInicio),
+          },
         },
-        { fecha: { $lt: new Date(fechaFin).toLocaleDateString("en-GB") } },
+        {
+          fecha: {
+            $lt: new Date(fechaFin),
+          },
+        },
         { state: { $eq: estado } },
       ],
     })
@@ -43,14 +49,22 @@ async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
           select: "nombre",
         },
         select: "nombre",
+      })
+      .populate({
+        path: "cliente",
+        select: "idPersona phone email",
+        populate: {
+          path: "idPersona",
+          select: "nombre_comp",
+        },
       });
   else
     return Pedido.find({
       $and: [
         {
-          fecha: { $gte: new Date(fechaInicio).toLocaleDateString("en-GB") },
+          fecha: { $gte: new Date(fechaInicio) },
         },
-        { fecha: { $lt: new Date(fechaFin).toLocaleDateString("en-GB") } },
+        { fecha: { $lt: new Date(fechaFin) } },
       ],
     })
       .populate({
@@ -109,7 +123,8 @@ function getPedidoClienteIdDB(id, pagina) {
           select: "nombre",
         },
         select: "nombre",
-      });
+      })
+      .populate("direction");
   } else
     return Pedido.find({ cliente: id })
       .sort({ _id: -1 })
@@ -170,13 +185,100 @@ function updatePedidoDB(id, newPedido) {
   return Pedido.findByIdAndUpdate(id, newPedido, {
     new: true,
     runValidators: true,
-  }).populate({
-    path: "detallePedido",
-    populate: {
-      path: "detalle.producto",
-      select: "name",
+  })
+    .populate({
+      path: "detallePedido",
+      populate: {
+        path: "detalle.producto",
+        select: "name",
+      },
+    })
+    .populate({
+      path: "cliente",
+      select: "idPersona phone email",
+      populate: {
+        path: "idPersona",
+        select: "nombre_comp",
+      },
+    })
+    .populate("direction");
+}
+
+// TODO Reportes
+
+function getCantidadPedidosHoyDB(idSucursal, fechaHoyInicio, fechaHoyFin) {
+  return Pedido.aggregate([
+    {
+      $match: {
+        idSucursal: {
+          $eq: idSucursal,
+        },
+        state: {
+          $eq: 3,
+        },
+        fecha: {
+          $gte: new Date(fechaHoyInicio),
+          $lte: new Date(fechaHoyFin),
+        },
+      },
     },
-  });
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%dT%H", date: "$fecha" } },
+        pedidosTotales: { $sum: "$total" },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+  ]);
+}
+// reporte para obtener los productos mas vendidos con margen de ganancia de una sucursal
+function getProductosVendidosDB(idSucursal, fechaInicio, fechaFin) {
+  return Pedido.aggregate([
+    {
+      $lookup: {
+        from: "detallecompraventas",
+        localField: "detallePedido",
+        foreignField: "_id",
+        as: "detallePedido",
+      },
+    },
+    {
+      $match: {
+        idSucursal: {
+          $eq: idSucursal,
+        },
+        fecha: {
+          $gte: new Date(fechaInicio),
+          $lte: new Date(fechaFin),
+        },
+        "detallePedido.venta": { $eq: true },
+      },
+    },
+    {
+      $group: {
+        _id: "$detallePedido.detalle.producto",
+        cantidad: {
+          $addToSet: "$detallePedido.detalle.cantidad",
+        },
+        // count: { $sum: 1 },
+      },
+    },
+    // {
+    //   $lookup: {
+    //     from: "productos",
+    //     localField: "detallePedido.detalle.producto",
+    //     foreignField: "_id",
+    //     as: "detallePedido",
+    //   },
+    // },
+
+    // {
+    //   $sort: { _id: 1 },
+    // },
+  ]);
 }
 module.exports = {
   addPedidoDB,
@@ -186,4 +288,6 @@ module.exports = {
   getEstadoDB,
   getPedidoClienteIdDB,
   getFiltroFechaDB,
+  getCantidadPedidosHoyDB,
+  getProductosVendidosDB,
 };

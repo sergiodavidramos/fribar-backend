@@ -5,7 +5,7 @@ const loteSchema = new Schema({
   numeroLote: {
     type: String,
     required: [true, "El nombre del lote es necesario"],
-    unique: true,
+    unique: false,
   },
   stock: { type: Number, default: 0 },
   fechaVencimiento: {

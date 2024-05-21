@@ -18,7 +18,8 @@ const {
 ObjectId = require("mongodb").ObjectID;
 
 function getFilterIdAndPaginateProduct(id, des, limit) {
-  let filterProduct = { stock: { $gt: 0 } };
+  let filterProduct = {};
+  //   = { stock: { $gt: 0 } };
   const desde = Number(des) || 0;
   const lim = Number(limit) || 12;
   if (id !== null) filterProduct._id = id;
@@ -136,8 +137,14 @@ function addProduct(product) {
   };
   return addProductDB(productDB);
 }
-function updateProduct(desStock = false, like = false, newProduct, id) {
-  if (desStock) return updateStockProductDB(desStock, id);
+function updateProduct(
+  desStock = false,
+  like = false,
+  movimiento = false,
+  newProduct,
+  id
+) {
+  if (desStock) return updateStockProductDB(desStock, id, movimiento);
   if (like) return updateFavoritoProductDB(id);
   if (Object.keys(newProduct).length === 0 && !id)
     return Promise.reject({

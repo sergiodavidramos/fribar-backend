@@ -209,21 +209,37 @@ async function updateProductDB(newProduct, id) {
   });
 }
 //
-async function updateStockProductDB(desStock, id) {
-  return Product.findByIdAndUpdate(
-    id,
-    {
-      $inc: {
-        stock: desStock,
-        cantidadVendidos: desStock > 0 ? 0 : desStock * -1,
+async function updateStockProductDB(desStock, id, movimiento) {
+  if (movimiento) {
+    return Product.findByIdAndUpdate(
+      id,
+      {
+        $inc: {
+          stock: desStock,
+        },
       },
-    },
-    {
-      new: true,
-      runValidators: true,
-      context: "query",
-    }
-  );
+      {
+        new: true,
+        runValidators: true,
+        context: "query",
+      }
+    );
+  } else {
+    return Product.findByIdAndUpdate(
+      id,
+      {
+        $inc: {
+          stock: desStock,
+          cantidadVendidos: desStock > 0 ? 0 : desStock * -1,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+        context: "query",
+      }
+    );
+  }
 }
 async function addOfertaProductoDB(idProducto, descuento, agregar) {
   if (agregar === true)

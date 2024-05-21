@@ -54,33 +54,22 @@ async function addProductoInventarioDB({
       idSucursal,
     });
   }
-  console.log("ESTOYY", newProducto);
   return newProducto.save();
 }
 async function getProductoInventarioPaginateDB(idSucursal, des) {
   return Promise.all([
-    Inventario.find(idSucursal, {
-      allProducts: { $slice: [(des - 1) * 10, 10 * des] },
-    })
-      .populate("allProducts.producto", "img name category status")
-      .populate({
-        path: "allProducts",
-        populate: {
-          path: "producto",
-          model: "productos",
-          populate: {
-            path: "category",
-            model: "categorias",
-          },
-        },
-      }),
+    Inventario.find(idSucursal)
+      .limit(10)
+      .skip((des - 1) * 10)
+      .populate("producto", "name status img code")
+      .populate("stockLotes.lote"),
     Inventario.aggregate([
       {
-        $unwind: "$allProducts",
+        $unwind: "$idSucursal",
       },
       {
         $group: {
-          _id: "allProducts",
+          _id: "idSucursal",
           totalProductos: { $sum: 1 },
         },
       },
@@ -130,12 +119,12 @@ async function getProductoIdInvetarioIdDB(idProducto, idSucursal) {
 async function getProductoWithTerminoDB(termino, id) {
   return Inventario.aggregate([
     {
-      $unwind: "$allProducts",
+      $unwind: "$producto",
     },
     {
       $lookup: {
         from: "productos",
-        localField: "allProducts.producto",
+        localField: "producto",
         foreignField: "_id",
         as: "producto",
       },
@@ -143,23 +132,59 @@ async function getProductoWithTerminoDB(termino, id) {
     {
       $match: { $and: [{ "producto.name": termino }, { idSucursal: id }] },
     },
+    {
+      $lookup: {
+        from: "lotes",
+        localField: "stockLotes.lote",
+        foreignField: "_id",
+        as: "stockLotes",
+      },
+    },
   ]);
 }
+// async function getProductWithCodigoDB(code, id) {
+//   return Inventario.aggregate([
+//     {
+//       $unwind: "$allProducts",
+//     },
+//     {
+//       $lookup: {
+//         from: "productos",
+//         localField: "allProducts.producto",
+//         foreignField: "_id",
+//         as: "producto",
+//       },
+//     },
+//     {
+//       $match: { $and: [{ "producto.code": code }, { idSucursal: id }] },
+//     },
+//     {
+//       $lookup: {
+//         from: "categorias",
+//         localField: "producto.category",
+//         foreignField: "_id",
+//         as: "category",
+//       },
+//     },
+//   ]);
+// }
 async function getProductWithCodigoDB(code, id) {
   return Inventario.aggregate([
     {
-      $unwind: "$allProducts",
+      $unwind: "$producto",
     },
     {
       $lookup: {
         from: "productos",
-        localField: "allProducts.producto",
+        localField: "producto",
         foreignField: "_id",
         as: "producto",
       },
     },
     {
-      $match: { $and: [{ "producto.code": code }, { idSucursal: id }] },
+      $match: {
+        $and: [{ "producto.code": code, idSucursal: id }],
+      },
     },
     {
       $lookup: {
@@ -167,6 +192,14 @@ async function getProductWithCodigoDB(code, id) {
         localField: "producto.category",
         foreignField: "_id",
         as: "category",
+      },
+    },
+    {
+      $lookup: {
+        from: "lotes",
+        localField: "stockLotes.lote",
+        foreignField: "_id",
+        as: "stockLotes",
       },
     },
   ]);
@@ -190,6 +223,101 @@ async function updateStockProductDB(idProducto, idSucursal, cambios) {
     cambios
   );
 }
+
+// TODO REPORTES
+// Reporte para inventario
+async function getInventarioDB(idSucursal) {
+  return Inventario.find({ idSucursal: idSucursal })
+    .populate("producto", "code name precioVenta")
+    .populate("stockLotes.lote");
+}
+
+// Reporte para obtener productos pronto a vencer
+async function getProductosCaducidadDB(idSucursal, dias) {
+  return Inventario.aggregate([
+    {
+      $lookup: {
+        from: "productos",
+        localField: "producto",
+        foreignField: "_id",
+        as: "producto",
+      },
+    },
+    {
+      $lookup: {
+        from: "lotes",
+        localField: "stockLotes.lote",
+        foreignField: "_id",
+        as: "stockLotes",
+      },
+    },
+    {
+      $unwind: "$producto",
+    },
+    {
+      $unwind: "$stockLotes",
+    },
+    {
+      $match: {
+        $and: [
+          {
+            idSucursal: idSucursal,
+            "stockLotes.fechaVencimiento": { $lt: dias },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        "producto.detail": 0,
+        "producto.fechaCaducidad": 0,
+        "producto.proveedor": 0,
+      },
+    },
+  ]);
+}
+
+// Reporte de productos con poco stock de una sucursal
+function getProductosPocaCantidadDB(idSucursal, cantidad) {
+  return Inventario.aggregate([
+    {
+      $lookup: {
+        from: "productos",
+        localField: "producto",
+        foreignField: "_id",
+        as: "producto",
+      },
+    },
+    {
+      $lookup: {
+        from: "lotes",
+        localField: "stockLotes.lote",
+        foreignField: "_id",
+        as: "stockLotes",
+      },
+    },
+    {
+      $unwind: "$producto",
+    },
+    {
+      $match: {
+        $and: [
+          {
+            idSucursal: idSucursal,
+            stockTotal: { $lt: cantidad },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        "producto.detail": 0,
+        "producto.fechaCaducidad": 0,
+        "producto.proveedor": 0,
+      },
+    },
+  ]);
+}
 module.exports = {
   getProductoInventarioPaginateDB,
   getProductoIdDB,
@@ -199,4 +327,7 @@ module.exports = {
   getProductoWithTerminoDB,
   getProductWithCodigoDB,
   getProductoIdInvetarioIdDB,
+  getInventarioDB,
+  getProductosCaducidadDB,
+  getProductosPocaCantidadDB,
 };

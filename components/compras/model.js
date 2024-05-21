@@ -11,10 +11,14 @@ const compraSchema = new Schema({
     ref: "usuarios",
     required: [true, "El usuario es necesario"],
   },
+  detalleTexto: {
+    type: String,
+    required: false,
+  },
   detalleCompra: {
     type: Schema.Types.ObjectId,
     ref: "detallecompraventas",
-    required: [true, "El detalle de la compra es necesario"],
+    required: [false, "El detalle de la compra es necesario"],
   },
   fecha: {
     type: Date,
@@ -23,7 +27,7 @@ const compraSchema = new Schema({
   proveedor: {
     type: Schema.Types.ObjectId,
     ref: "proveedor",
-    required: [true, "El proveedor es necesario"],
+    required: [false, "El proveedor es necesario"],
   },
   numeroFacturaCompra: {
     type: Number,

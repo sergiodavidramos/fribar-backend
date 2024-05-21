@@ -7,6 +7,9 @@ const {
   getProductWithCodigoDB,
   updateStockProductDB,
   getProductoIdInvetarioIdDB,
+  getInventarioDB,
+  getProductosCaducidadDB,
+  getProductosPocaCantidadDB,
 } = require("./store");
 ObjectId = require("mongodb").ObjectID;
 const fetch = require("node-fetch");
@@ -113,7 +116,7 @@ function getProductosInventarioPaginate(id, pagina) {
   const desde = Number(pagina) || 1;
   if (!id)
     return Promise.reject({ message: "El id del inventario es requerido" });
-  return getProductoInventarioPaginateDB({ idSucursal: id }, desde);
+  return getProductoInventarioPaginateDB({ idSucursal: ObjectId(id) }, desde);
 }
 
 function getProductoId(id) {
@@ -166,17 +169,24 @@ async function updateStockProduct(
           ObjectId(idProducto),
           ObjectId(idSucursal)
         );
-        const arrayLotesId = res[0].stockLotes;
+        const res2 = await getProductoIdInvetarioIdDB(
+          ObjectId(idProducto),
+          ObjectId(idSucursal)
+        );
+        let arrayLotesId = res2[0].stockLotes;
         const productoInvetario = await res[0]
           .populate("stockLotes.lote")
           .execPopulate();
-        const cantidadVenta = newDatos.stockTotal;
+        let cantidadVenta = newDatos.stockTotal;
+        const cantidadParaActualizar = newDatos.stockTotal;
         if (productoInvetario.stockLotes.length > 0) {
-          for (let lote of productoInvetario.stockLotes) {
-            if (cantidadVenta <= 0) break;
-            if (lote.lote.stock >= cantidadVenta) {
+          for (let l = 0; l < productoInvetario.stockLotes.length; l++) {
+            if (cantidadVenta <= 0) {
+              break;
+            }
+            if (productoInvetario.stockLotes[l].lote.stock >= cantidadVenta) {
               const res = await fetch(
-                `${process.env.API_URL}/lotes/actualizar/stock/${lote.lote._id}`,
+                `${process.env.API_URL}/lotes/actualizar/stock/${productoInvetario.stockLotes[l].lote._id}`,
                 {
                   method: "PATCH",
                   body: JSON.stringify({
@@ -189,16 +199,21 @@ async function updateStockProduct(
                 }
               );
               const loteActualizado = await res.json();
-              if (loteActualizado.body.stock <= 0) {
-                arrayLotesId.shift();
+              if (loteActualizado.error) {
+                console.log("fetch1", loteActualizado);
               }
-              cantidadVenta -= lote.lote.stock;
+              if (loteActualizado.body.stock <= 0) {
+                arrayLotesId.splice(l, 1);
+              }
+              cantidadVenta =
+                cantidadVenta - productoInvetario.stockLotes[l].lote.stock;
             } else {
               const banCantidad = cantidadVenta;
-              cantidadVenta -= lote.lote.stock;
+              cantidadVenta =
+                cantidadVenta - productoInvetario.stockLotes[l].lote.stock;
               const restado = banCantidad - cantidadVenta;
               const res = await fetch(
-                `${process.env.API_URL}/lotes/actualizar/stock/${lote.lote._id}`,
+                `${process.env.API_URL}/lotes/actualizar/stock/${productoInvetario.stockLotes[l].lote._id}`,
                 {
                   method: "PATCH",
                   body: JSON.stringify({
@@ -211,14 +226,17 @@ async function updateStockProduct(
                 }
               );
               const loteActualizado = await res.json();
+              if (loteActualizado.error) {
+                console.log("fetch2", loteActualizado);
+              }
               if (loteActualizado.body.stock <= 0) {
-                arrayLotesId.shift();
+                arrayLotesId.splice(l, 1);
               }
             }
           }
           return resolve(
             updateStockProductDB(idProducto, idSucursal, {
-              stockTotal: productoInvetario.stockTotal - cantidadVenta,
+              stockTotal: productoInvetario.stockTotal - cantidadParaActualizar,
               stockLotes: arrayLotesId,
             })
           );
@@ -236,6 +254,36 @@ async function updateStockProduct(
   });
 }
 
+// REPORTES
+function getInventario(idSucursal) {
+  let idSu = idSucursal;
+  if (!idSucursal)
+    return Promise.reject({ message: "El id de la sucursal es necesario" });
+  idSu = ObjectId(idSucursal);
+  return getInventarioDB(idSu);
+}
+
+// reporte productos en caducidad
+function getProductosCaducidad(idSucursal, dias = 30) {
+  let idSu = ObjectId(idSucursal);
+  let fecha = new Date();
+  let d = parseInt(dias);
+  fecha.setDate(fecha.getDate() + d);
+  if (!idSucursal)
+    return Promise.reject({ message: "El id de la sucursal es necesaria" });
+  idSu = ObjectId(idSucursal);
+  return getProductosCaducidadDB(idSu, fecha);
+}
+
+// Reporte de productos con poco stock de una sucursal
+function getProductosPocoStock(idSucursal, cantidad = 5) {
+  let idSu = ObjectId(idSucursal);
+  let cant = parseInt(cantidad);
+  if (!idSucursal)
+    return Promise.reject({ message: "El id de la sucursal es necesaria" });
+  idSu = ObjectId(idSucursal);
+  return getProductosPocaCantidadDB(idSu, cant);
+}
 module.exports = {
   addNewInventario,
   getProductosInventarioPaginate,
@@ -245,4 +293,7 @@ module.exports = {
   getProductWithCodigo,
   updateStockProduct,
   getProductoIdInvetarioId,
+  getInventario,
+  getProductosCaducidad,
+  getProductosPocoStock,
 };

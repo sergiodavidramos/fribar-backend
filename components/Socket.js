@@ -10,10 +10,14 @@ function EscucharPedido(pedido) {
 }
 
 function actualizasEstadoPedido(pedido) {
-  socket.io.emit(`actualizar-${pedido.cliente}`, {
+  socket.io.emit(`actualizar-${pedido.cliente._id}`, {
     idPedido: pedido._id,
     state: pedido.state,
   });
+
+  if (pedido.state === 1) {
+    socket.io.emit(`pedido-delivery`, pedido);
+  }
 }
 async function tableroPedidos() {
   try {
@@ -31,7 +35,12 @@ async function tableroPedidos() {
 
 async function escucharSockets() {
   socket.io.on("connection", (cliente) => {
-    console.log("cliente conectado", cliente.id);
+    cliente.on("delivery-mover", (marcador) => {
+      cliente.broadcast.emit(`delivery-${marcador._id}`, {
+        latitud: marcador.latitud,
+        longitud: marcador.longitud,
+      });
+    });
   });
 }
 

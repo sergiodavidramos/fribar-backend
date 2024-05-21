@@ -111,4 +111,36 @@ router.patch(
       .catch(next);
   }
 );
+
+// TODO: REPORTES
+// reporte para obtener cantidad de pedidos por hora del dia de hoy
+router.get(
+  "/reporte/hoy/hora/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    const idSucursal = req.params.idSucursal;
+    controller
+      .getCantidadPedidosHoy(idSucursal)
+      .then((pedidos) => response.success(res, pedidos))
+      .catch(next);
+  }
+);
+
+// Reporte para obtener los productos mas vendidos de una sucursal con el margen de ganancia
+router.get(
+  "/reporte/productos-mas-vendidos/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    controller
+      .getProductosVendidos(
+        req.params.idSucursal,
+        req.query.fechaInicio,
+        req.query.fechaFin
+      )
+      .then((productos) => response.success(res, productos))
+      .catch(next);
+  }
+);
 module.exports = router;

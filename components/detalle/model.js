@@ -15,12 +15,21 @@ const detalleCompraVenta = new Schema({
         type: String,
         required: false,
       },
+      tipoVenta: { type: String, required: false },
+      precioVenta: { type: Number, required: false },
+      descuento: { type: Number, required: false },
+      idSucursal: {
+        type: Schema.Types.ObjectId,
+        ref: "sucursales",
+        required: true,
+      },
     },
   ],
   venta: {
     type: Boolean,
     default: true,
   },
+  fecha: { type: Date, required: true },
 });
 
 module.exports = mongoose.model("detallecompraventas", detalleCompraVenta);

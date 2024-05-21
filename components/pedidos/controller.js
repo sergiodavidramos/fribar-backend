@@ -6,8 +6,12 @@ const {
   getEstadoDB,
   getPedidoClienteIdDB,
   getFiltroFechaDB,
+  getCantidadPedidosHoyDB,
+  getProductosVendidosDB,
 } = require("./store");
+const moment = require("moment");
 const fetch = require("node-fetch");
+ObjectId = require("mongodb").ObjectID;
 require("dotenv").config();
 async function addPedido(body, user, token) {
   if (!body.detalleVenta || !body.direccion)
@@ -65,8 +69,9 @@ async function addPedido(body, user, token) {
                   method: "PATCH",
                   body: JSON.stringify({
                     idProducto: dat.producto._id,
-                    datos: { stockTotal: -dat.cantidad },
+                    datos: { stockTotal: dat.cantidad },
                     idSucursal: body.idSucursal,
+                    venta: true,
                   }),
                   headers: {
                     Authorization: token,
@@ -100,9 +105,19 @@ function getFiltroFecha(estado, fechaInicio, fechaFin) {
 }
 function getPedidosDia(fecha) {
   const fechaInicial = fecha;
-  const fechaFinal = fechaInicial
-    .substring(0, 8)
-    .concat(Number(fechaInicial.substring(8)) + 1);
+  let fechaFinal;
+  if (
+    Number(fechaInicial.substring(8)) === 31 ||
+    Number(fechaInicial.substring(8)) === 30
+  ) {
+    const ban = fechaInicial.split("-");
+    fechaFinal = `${ban[0]}-${Number(ban[1]) + 1}-${1}`;
+  } else {
+    fechaFinal = fechaInicial
+      .substring(0, 8)
+      .concat(Number(fechaInicial.substring(8)) + 2);
+  }
+  console.log(fechaInicial, fechaFinal);
   return getPedidosDiaDB(fechaInicial, fechaFinal);
 }
 function getPedidoId(id) {
@@ -163,6 +178,27 @@ function updatePedido(id, newPedido, token) {
     }
   });
 }
+
+// TODO Reportes
+
+function getCantidadPedidosHoy(idSucursal) {
+  let idSu = idSucursal;
+  if (!idSu)
+    return Promise.reject({ message: "El id de la sucursal es necesario" });
+  else {
+    idSu = ObjectId(idSucursal);
+  }
+  const fechaHoyInicio = moment().format("yyyy-MM-DD");
+  const fechaHoyFin = moment().format();
+  return getCantidadPedidosHoyDB(idSu, fechaHoyInicio, fechaHoyFin);
+}
+
+function getProductosVendidos(idSucursal, fechaInicio, fechaFin) {
+  if (!idSucursal || !fechaInicio || !fechaFin)
+    return Promise.reject({ message: "Todos los datos son necesarios" });
+  let idSu = ObjectId(idSucursal);
+  return getProductosVendidosDB(idSu, fechaInicio, fechaFin);
+}
 module.exports = {
   addPedido,
   getPedidosDia,
@@ -171,4 +207,6 @@ module.exports = {
   getEstado,
   getPedidoClienteId,
   getFiltroFecha,
+  getCantidadPedidosHoy,
+  getProductosVendidos,
 };

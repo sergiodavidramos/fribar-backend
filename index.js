@@ -8,7 +8,10 @@ const cors = require("cors");
 const server = require("http").Server(app);
 const socket = require("./socket");
 const errors = require("./network/errors");
-const { escucharSockets } = require("./components/Socket");
+const {
+  escucharSockets,
+  escucharMapaDelivery,
+} = require("./components/Socket");
 
 socket.connect(server);
 require("dotenv").config();
@@ -28,7 +31,7 @@ app.use(express.static(path.resolve(__dirname, "./public")));
 
 router(app);
 
-// escucharSockets();
+escucharSockets();
 app.use(errors);
 server.listen(process.env.PORT, () => {
   console.log("Server listen en the PORT: ", process.env.PORT);

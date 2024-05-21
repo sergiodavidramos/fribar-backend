@@ -19,6 +19,7 @@ const proveedor = require("../components/proveedor/network");
 const costodelivery = require("../components/costoEnvio/network");
 const lote = require("../components/lote/network");
 const compras = require("../components/compras/network");
+const movimientoProductos = require("../components/movimientoProductos/network");
 const router = (server) => {
   server.use("/login", auth);
   server.use("/person", person);
@@ -41,5 +42,6 @@ const router = (server) => {
   server.use("/costo-envio", costodelivery);
   server.use("/lotes", lote);
   server.use("/compras", compras);
+  server.use("/movimiento-productos", movimientoProductos);
 };
 module.exports = router;

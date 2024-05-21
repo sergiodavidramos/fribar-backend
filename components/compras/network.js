@@ -17,7 +17,20 @@ router.post(
       .catch(next);
   }
 );
-// obtiene ona compra por ID
+
+// registra un egreso
+router.post(
+  "/registrar-egreso",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationsHandler(["GERENTE-ROLE", "ADMIN-ROLE", "USER-ROLE"]),
+  (req, res, next) => {
+    controller
+      .addEgreso(req.body, req.user)
+      .then((datos) => response.success(res, datos))
+      .catch(next);
+  }
+);
+// obtiene una compra por ID
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
@@ -59,4 +72,21 @@ router.patch(
   }
 );
 
+// REPORTES
+// Reporte para obtener todos los egresos de una sucursal
+router.get(
+  "/reporte/egresos/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationsHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    controller
+      .getReporteEgresos(
+        req.params.idSucursal,
+        req.query.fechaInicio,
+        req.query.fechaFin
+      )
+      .then((productos) => response.success(res, productos))
+      .catch(next);
+  }
+);
 module.exports = router;

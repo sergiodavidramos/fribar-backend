@@ -87,7 +87,13 @@ router.patch(
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
     controller
-      .updateProduct(req.body.desStock, req.body.like, req.body, req.params.id)
+      .updateProduct(
+        req.body.desStock,
+        req.body.like,
+        req.body.movimiento,
+        req.body,
+        req.params.id
+      )
       .then((product) => response.success(res, product, 200))
       .catch(next);
   }

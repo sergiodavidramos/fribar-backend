@@ -1,4 +1,9 @@
-const { addCompraDB } = require("./store");
+const {
+  addCompraDB,
+  getCompraIdDB,
+  addEgresoDB,
+  getReporteEgresosDB,
+} = require("./store");
 const fetch = require("node-fetch");
 require("dotenv").config();
 
@@ -97,6 +102,43 @@ async function addCompra(body, user, userToken) {
   }
 }
 
+// registra un egreso
+async function addEgreso(body, user) {
+  if (!body.detalleTexto || !body.idSucursal || !body.total)
+    return Promise.reject({ message: "Todos los campos son obligatorios" });
+  try {
+    const compra = {
+      idSucursal: body.idSucursal,
+      user: user._id,
+      detalleTexto: body.detalleTexto,
+      fecha: new Date(),
+      total: body.total,
+    };
+    if (body.numeroFacturaCompra)
+      compra.numeroFacturaCompra = body.numeroFacturaCompra;
+    return addEgresoDB(compra);
+  } catch (err) {
+    console.log("ERROR", err);
+    return Promise.reject({ message: err.error });
+  }
+}
+async function getCompraId(id) {
+  if (!id)
+    return Promise.reject({ message: "El Id de la compra es necesario" });
+  return getCompraIdDB(id);
+}
+
+// Reporte para obtener todos los egresos de una sucursal
+function getReporteEgresos(idSucursal, fechaInicio, fechaFin) {
+  if (!idSucursal || !fechaInicio || !fechaFin)
+    return Promise.reject({ message: "Todos los datos son necesarios" });
+  let idSu = ObjectId(idSucursal);
+  return getReporteEgresosDB(idSu, fechaInicio, fechaFin);
+}
+
 module.exports = {
   addCompra,
+  getCompraId,
+  addEgreso,
+  getReporteEgresos,
 };

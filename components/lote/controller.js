@@ -17,10 +17,16 @@ function buscarLoteNumero(numeroLote) {
   return buscarLoteNumeroDB(numeroLote);
 }
 function actualizarStock(id, stock) {
-  if (!id || !stock)
+  if (!id) {
     return Promise.reject({
       message: "Todos los datos son resqueridos para actualizar el stock",
     });
+  }
+  if (!stock) {
+    return Promise.reject({
+      message: "Todos los datos son resqueridos para actualizar el stock",
+    });
+  }
   return actualizarStockDB(id, stock);
 }
 module.exports = {

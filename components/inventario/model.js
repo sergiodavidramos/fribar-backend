@@ -5,8 +5,8 @@ const inventarioSchema = new Schema({
   producto: {
     type: Schema.Types.ObjectId,
     ref: "productos",
-    unique: true,
     required: true,
+    unique: false,
   },
   stockLotes: [
     {
@@ -14,7 +14,7 @@ const inventarioSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "lotes",
         required: false,
-        unique: true,
+        unique: false,
       },
     },
   ],

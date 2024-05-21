@@ -3,10 +3,13 @@ const {
   getVentaIdDB,
   getVentaFechaDB,
   actualizarVentaDB,
+  getCantidadVentasHoyDB,
 } = require("./store");
 const pdf = require("html-pdf");
 const fs = require("fs");
 const fetch = require("node-fetch");
+ObjectId = require("mongodb").ObjectID;
+const moment = require("moment");
 
 require("dotenv").config();
 
@@ -146,8 +149,9 @@ async function addVenta(body, user, userToken) {
                   method: "PATCH",
                   body: JSON.stringify({
                     idProducto: dat.producto._id,
-                    stock: -dat.cantidad,
+                    datos: { stockTotal: dat.cantidad },
                     idSucursal: user.idSucursal,
+                    venta: true,
                   }),
                   headers: {
                     Authorization: userToken,
@@ -405,9 +409,22 @@ async function actualizarVenta(id, newVenta, token) {
     }
   });
 }
+
+// TODO Reportes
+
+function getCantidadVentasHoy(idSucursal) {
+  let idSu = idSucursal;
+  if (!idSu)
+    return Promise.reject({ message: "El id de la sucursal es necesario" });
+  else idSu = ObjectId(idSucursal);
+  const fechaHoyInicio = moment().format("yyyy-MM-DD");
+  const fehcaHoyFin = moment().format();
+  return getCantidadVentasHoyDB(idSu, fechaHoyInicio, fehcaHoyFin);
+}
 module.exports = {
   addVenta,
   getVentaId,
   getVentaFecha,
   actualizarVenta,
+  getCantidadVentasHoy,
 };

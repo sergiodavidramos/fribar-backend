@@ -20,10 +20,14 @@ function getSucursalIdDB(id) {
     .populate({
       path: "administrador",
       populate: { path: "idPersona" },
+    })
+    .populate({
+      path: "administrador",
+      populate: { path: "direccion" },
     });
 }
 function updateSucursalDB(newSucursal, id) {
-  return Sucursal.findOneAndUpdate(id, newSucursal, {
+  return Sucursal.findOneAndUpdate({ _id: id }, newSucursal, {
     new: true,
     runValidators: true,
     context: "query",

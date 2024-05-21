@@ -58,4 +58,19 @@ router.patch(
       .catch(next);
   }
 );
+
+// Todo REPORTES
+// reporte para obtener cantidad de pedidos por hora del dia de hoy
+router.get(
+  "/reporte/hoy/hora/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    const idSucursal = req.params.idSucursal;
+    controller
+      .getCantidadVentasHoy(idSucursal)
+      .then((pedidos) => response.success(res, pedidos))
+      .catch(next);
+  }
+);
 module.exports = router;

@@ -75,7 +75,6 @@ function getSucursalId(id) {
 }
 
 function updateSucursal(id, sucursal, user) {
-  //   console.log(sucursal);
   const datosDireccion = {
     direccion: sucursal.direccion,
     lat: sucursal.lat,
@@ -96,7 +95,6 @@ function updateSucursal(id, sucursal, user) {
     datosSucursal = {
       img: sucursal.img,
     };
-    console.log("entro iMG", datosSucursal);
   }
   var updateDireccion = fetch(
     `${process.env.API_URL}/direction/${sucursal.idDireccion}`,

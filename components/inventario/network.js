@@ -61,7 +61,7 @@ router.get(
       .catch(next);
   }
 );
-// Obtiene un producto por ID de un inventario en espesifico mandando la ID
+// Obtiene un producto por ID de un inventario en espesifico mandando la ID la la sucursal
 router.get(
   "/buscar/producto-sucursal",
   passport.authenticate("jwt", { session: false }),
@@ -103,8 +103,58 @@ router.patch(
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
     controller
-      .updateStockProduct(req.body)
+      .updateStockProduct(
+        req.body.idProducto,
+        req.body.idSucursal,
+        req.body.datos,
+        req.body.venta,
+        req.headers.authorization
+      )
       .then((producto) => response.success(res, producto))
+      .catch(next);
+  }
+);
+
+// TODO REPORTES
+
+// Reportes para hacer inventario de una sucursal
+router.get(
+  "/reporte/inventario/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    const idSucursal = req.params.idSucursal;
+    controller
+      .getInventario(idSucursal)
+      .then((inventario) => response.success(res, inventario))
+      .catch(next);
+  }
+);
+
+// Reporte de productos prontos a vencer de una sucursal
+router.get(
+  "/reporte/productos/caducidad/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    const idSucursal = req.params.idSucursal;
+    controller
+      .getProductosCaducidad(idSucursal, req.query.dias)
+      .then((productos) => response.success(res, productos))
+      .catch(next);
+  }
+);
+
+// Reporte de productos con poco stock de una sucursal
+router.get(
+  "/reporte/productos-poco-stock/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    const idSucursal = req.params.idSucursal;
+    controller
+      .getProductosPocoStock(idSucursal, req.query.cantidad)
+      .then((productos) => response.success(res, productos))
       .catch(next);
   }
 );
