@@ -2,9 +2,10 @@ const {
   addMovimientoDB,
   movimientosPendientesDB,
   confirmarMovimientoDB,
+  getMovimientosDB,
 } = require("./store");
 const fetch = require("node-fetch");
-
+ObjectId = require("mongodb").ObjectID;
 function addMovimiento(datos, user) {
   if (!datos.movimiento || datos.movimiento.length <= 0) {
     return Promise.reject({ message: "Todos los datos son necesarios" });
@@ -77,8 +78,16 @@ function confirmarMovimiento(idMovimiento, datos, user, userToken) {
     return Promise.reject({ message: "Error al confirmar un traslado" });
   }
 }
+// Reporte para obtener los mivimientos de los productos entre sucursales
+function getMovimientos(idSucursal, fechaInicio, fechaFin) {
+  if (!idSucursal || !fechaInicio || !fechaFin)
+    return Promise.reject({ message: "Todos los datos son necesarios" });
+  let idSu = ObjectId(idSucursal);
+  return getMovimientosDB(idSu, fechaInicio, fechaFin);
+}
 module.exports = {
   addMovimiento,
   movimientosPendientes,
   confirmarMovimiento,
+  getMovimientos,
 };

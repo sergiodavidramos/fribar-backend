@@ -64,6 +64,15 @@ function getReporteEgresosDB(idSucursal, fechaInicio, fechaFin) {
         as: "productos",
       },
     },
+
+    {
+      $lookup: {
+        from: "usuarios",
+        localField: "user",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
     {
       $project: {
         "productos.detail": 0,
@@ -73,6 +82,13 @@ function getReporteEgresosDB(idSucursal, fechaInicio, fechaFin) {
         "productos.img": 0,
         "productos.like": 0,
         "productos.cantidadVendidos": 0,
+        "user.direccion": 0,
+        "user.favoritos": 0,
+        "user.cuenta": 0,
+        "user.facebook": 0,
+        "user.google": 0,
+        "user.personal": 0,
+        "user.img": 0,
       },
     },
   ]);

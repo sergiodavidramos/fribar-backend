@@ -48,4 +48,21 @@ router.patch(
   }
 );
 
+// REPORTES
+// Reporte de traslado de productos
+router.get(
+  "/reporte/movimiento/:idSucursal",
+  passport.authenticate("jwt", { session: false }),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  (req, res, next) => {
+    controller
+      .getMovimientos(
+        req.params.idSucursal,
+        req.query.fechaInicio,
+        req.query.fechaFin
+      )
+      .then((mivimientos) => response.success(res, mivimientos))
+      .catch(next);
+  }
+);
 module.exports = router;
