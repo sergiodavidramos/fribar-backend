@@ -72,7 +72,7 @@ router.get(
   scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     controller
-      .getVentasMes(req.params.idSucursal)
+      .getVentasMes(req.params.idSucursal, req.query.añoAnterior)
       .then((ventas) => response.success(res, ventas))
       .catch(next);
   }

@@ -65,7 +65,12 @@ router.get(
 router.get(
   "/buscar/producto-sucursal",
   passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE", "USER-ROLE"]),
+  scopeValidatorHandler([
+    "GERENTE-ROLE",
+    "ADMIN-ROLE",
+    "USER-ROLE",
+    "CLIENT-ROLE",
+  ]),
   (req, res, next) => {
     controller
       .getProductoIdInvetarioId(req.query.idProducto, req.query.idSucursal)

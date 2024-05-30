@@ -17,13 +17,48 @@ const {
 } = require("./store");
 ObjectId = require("mongodb").ObjectID;
 
-function getFilterIdAndPaginateProduct(id, des, limit) {
+function getFilterIdAndPaginateProduct(id, des, limit, orden = false) {
   let filterProduct = {};
   //   = { stock: { $gt: 0 } };
   const desde = Number(des) || 0;
   const lim = Number(limit) || 12;
   if (id !== null) filterProduct._id = id;
-  return getFilterIdAndPaginateProductDB(filterProduct, desde, lim);
+  if (orden === false || orden === "")
+    return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+      _id: -1,
+    });
+  else {
+    switch (orden) {
+      case "0":
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          like: -1,
+        });
+      case "1":
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          precioVenta: 1,
+        });
+      case "2":
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          precioVenta: -1,
+        });
+      case "3":
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          name: 1,
+        });
+      case "4":
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          descuento: -1,
+        });
+      case "5":
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          descuento: 1,
+        });
+      default:
+        return getFilterIdAndPaginateProductDB(filterProduct, desde, lim, {
+          _id: -1,
+        });
+    }
+  }
 }
 function getAllProduct() {
   return getAllProductDB();
@@ -32,13 +67,51 @@ function findProduct(ter) {
   const termino = new RegExp(ter, "i");
   return findProductDB(termino);
 }
-function findCategoriaProduct(categoria, pagina) {
-  return findCategoriaProductDB(categoria, pagina);
+function findCategoriaProduct(categoria, pagina, orden = false) {
+  if (orden === false || orden === "")
+    return findCategoriaProductDB(categoria, pagina, {});
+  else {
+    switch (orden) {
+      case "0":
+        return findCategoriaProductDB(categoria, pagina, { like: -1 });
+      case "1":
+        return findCategoriaProductDB(categoria, pagina, { precioVenta: 1 });
+      case "2":
+        return findCategoriaProductDB(categoria, pagina, { precioVenta: -1 });
+      case "3":
+        return findCategoriaProductDB(categoria, pagina, { name: 1 });
+      case "4":
+        return findCategoriaProductDB(categoria, pagina, { descuento: -1 });
+      case "5":
+        return findCategoriaProductDB(categoria, pagina, { descuento: 1 });
+      default:
+        return findCategoriaProductDB(categoria, pagina, {});
+    }
+  }
 }
-function findDestacadosPrincipales(pagina = false) {
-  return findDestacadosPrincipalesDB(pagina);
+function findDestacadosPrincipales(pagina = false, orden = false) {
+  if (orden === false || orden === "")
+    return findDestacadosPrincipalesDB(pagina, { cantidadVendidos: -1 });
+  else {
+    switch (orden) {
+      case "0":
+        return findDestacadosPrincipalesDB(pagina, { like: -1 });
+      case "1":
+        return findDestacadosPrincipalesDB(pagina, { precioVenta: 1 });
+      case "2":
+        return findDestacadosPrincipalesDB(pagina, { precioVenta: -1 });
+      case "3":
+        return findDestacadosPrincipalesDB(pagina, { name: 1 });
+      case "4":
+        return findDestacadosPrincipalesDB(pagina, { descuento: -1 });
+      case "5":
+        return findDestacadosPrincipalesDB(pagina, { descuento: 1 });
+      default:
+        return findDestacadosPrincipalesDB(pagina, { cantidadVendidos: -1 });
+    }
+  }
 }
-function informacionFiltro({ categoria = "" }) {
+function informacionFiltro({ categoria = false }) {
   let category = false;
   if (categoria) category = ObjectId(categoria);
   return informacionFiltroDB(category);

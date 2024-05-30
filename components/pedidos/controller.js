@@ -6,7 +6,7 @@ const {
   getEstadoDB,
   getPedidoClienteIdDB,
   getFiltroFechaDB,
-  getCantidadPedidosHoyDB,
+  getCantidadPedidosDB,
   getProductosVendidosDB,
 } = require("./store");
 const moment = require("moment");
@@ -100,10 +100,11 @@ function getFiltroFecha(estado, fechaInicio, fechaFin) {
   estado = estado === "false" ? false : estado;
   if (!fechaInicio || !fechaFin)
     return Promise.reject({ message: "El rango de fecha es obligatorio" });
-
   return getFiltroFechaDB(estado, fechaInicio, fechaFin);
 }
-function getPedidosDia(fecha) {
+function getPedidosDia(fecha, idSucursal) {
+  if (!idSucursal)
+    return Promise.reject({ message: "El id de la Sucursal es necesario" });
   const fechaInicial = fecha;
   let fechaFinal;
   if (
@@ -117,8 +118,7 @@ function getPedidosDia(fecha) {
       .substring(0, 8)
       .concat(Number(fechaInicial.substring(8)) + 2);
   }
-  console.log(fechaInicial, fechaFinal);
-  return getPedidosDiaDB(fechaInicial, fechaFinal);
+  return getPedidosDiaDB(fechaInicial, fechaFinal, idSucursal);
 }
 function getPedidoId(id) {
   if (!id) return Promise.reject({ message: "EL id Es requerido" });
@@ -180,17 +180,16 @@ function updatePedido(id, newPedido, token) {
 }
 
 // TODO Reportes
-
-function getCantidadPedidosHoy(idSucursal) {
+// reporte para obtener lodas las ventas online
+function getCantidadPedidos(idSucursal) {
   let idSu = idSucursal;
   if (!idSu)
     return Promise.reject({ message: "El id de la sucursal es necesario" });
   else {
     idSu = ObjectId(idSucursal);
   }
-  const fechaHoyInicio = moment().format("yyyy-MM-DD");
-  const fechaHoyFin = moment().format();
-  return getCantidadPedidosHoyDB(idSu, fechaHoyInicio, fechaHoyFin);
+
+  return getCantidadPedidosDB(idSu);
 }
 
 function getProductosVendidos(idSucursal, fechaInicio, fechaFin) {
@@ -207,6 +206,6 @@ module.exports = {
   getEstado,
   getPedidoClienteId,
   getFiltroFecha,
-  getCantidadPedidosHoy,
+  getCantidadPedidos,
   getProductosVendidos,
 };

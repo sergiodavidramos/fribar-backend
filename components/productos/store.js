@@ -3,10 +3,10 @@ const Product = require("./model");
 async function getAllProductDB() {
   return Product.find();
 }
-function getFilterIdAndPaginateProductDB(filter, des, limit) {
+function getFilterIdAndPaginateProductDB(filter, des, limit, orden) {
   return Promise.all([
     Product.find(filter)
-      .sort({ _id: -1 })
+      .sort(orden)
       .limit(limit)
       .skip(des)
       .populate("category"),
@@ -17,19 +17,20 @@ function getFilterIdAndPaginateProductDB(filter, des, limit) {
 async function findProductDB(data) {
   return Product.find({ name: data }).populate("category");
 }
-async function findCategoriaProductDB(categoria, pagina) {
+async function findCategoriaProductDB(categoria, pagina, orden) {
   return Product.find({ category: categoria, stock: { $gt: 0 } })
+    .sort(orden)
     .limit(12)
     .skip((pagina - 1) * 12)
     .populate("category");
 }
-async function findDestacadosPrincipalesDB(pagina) {
+async function findDestacadosPrincipalesDB(pagina, orden) {
   if (pagina)
     return Product.find({ stock: { $gt: 0 } })
-      .sort({ cantidadVendidos: -1 })
+      .sort(orden)
       .limit(12)
       .skip((pagina - 1) * 12);
-  else return Product.find().sort({ cantidadVendidos: -1 }).limit(8);
+  else return Product.find().sort(orden).limit(8);
 }
 
 // muestra la informacion de la cantidad de productos existen segun el precio de venta y el descuento depende de la categoria

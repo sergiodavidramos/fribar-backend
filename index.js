@@ -8,16 +8,17 @@ const cors = require("cors");
 const server = require("http").Server(app);
 const socket = require("./socket");
 const errors = require("./network/errors");
-const {
-  escucharSockets,
-  escucharMapaDelivery,
-} = require("./components/Socket");
+const { escucharSockets } = require("./components/Socket");
 
 socket.connect(server);
+
+const allowedOrigins = process.env.CORS || "";
+const allowedOriginsArray = allowedOrigins
+  .split(",")
+  .map((item) => item.trim());
 require("dotenv").config();
-//   origin: ["http://localhost:3000", "http://localhost:3002"],
 var corsOptions = {
-  origin: "*",
+  origin: allowedOriginsArray,
   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
   preflightContinue: false,
   optionsSuccessStatus: 204,

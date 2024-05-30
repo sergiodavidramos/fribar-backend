@@ -3,7 +3,9 @@ const fetch = require("node-fetch");
 require("dotenv").config();
 function EscucharPedido(pedido) {
   pedido
-    .then((data) => socket.io.emit(`pedido-${data.idSucursal}`, data))
+    .then((data) => {
+      socket.io.emit(`pedido-${data.idSucursal}`, data);
+    })
     .catch((error) => {
       console.log("EL ERROR", error);
     });

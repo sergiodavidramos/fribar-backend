@@ -119,14 +119,20 @@ function getVentasDia(idSucursal) {
 }
 
 // reportes de la cantidad de ventas y pedidos del mes y el total
-function getVentasMes(idSucursal) {
+function getVentasMes(idSucursal, añoAnterior = "no") {
   let idSu;
   if (!idSucursal)
     return Promise.reject({ message: "Todos los datos son necesarios" });
   idSu = ObjectId(idSucursal);
-  const fechaHoyInicio = moment().format(`${moment().format("YYYY")}-01-1`);
-  const fechaHoyFin = moment().format();
-  return getVentasMesDB(idSu, fechaHoyInicio, fechaHoyFin);
+  if (añoAnterior === "no") {
+    const fechaHoyInicio = moment().format(`${moment().year()}-01-1`);
+    const fechaHoyFin = moment().format();
+    return getVentasMesDB(idSu, fechaHoyInicio, fechaHoyFin);
+  } else {
+    const fechaHoyInicio = moment().format(`${moment().year() - 1}-01-1`);
+    const fechaHoyFin = moment().format();
+    return getVentasMesDB(idSu, fechaHoyInicio, fechaHoyFin);
+  }
 }
 
 // reportes de la cantidad de ventas y pedidos de cada sucursal

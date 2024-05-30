@@ -1,6 +1,6 @@
 const Pedido = require("./model");
 
-function getPedidosDiaDB(fechaInicial, fechaFinal) {
+function getPedidosDiaDB(fechaInicial, fechaFinal, idSucursal) {
   return Pedido.find({
     $and: [
       {
@@ -9,6 +9,7 @@ function getPedidosDiaDB(fechaInicial, fechaFinal) {
       { fecha: { $lt: new Date(fechaFinal) } },
       { state: { $ne: 3 } },
       { state: { $ne: 4 } },
+      { idSucursal: idSucursal },
     ],
   })
     .populate({
@@ -18,7 +19,7 @@ function getPedidosDiaDB(fechaInicial, fechaFinal) {
     .populate("direction");
 }
 async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
-  if (estado)
+  if (estado) {
     return Pedido.find({
       $and: [
         {
@@ -31,7 +32,7 @@ async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
             $lt: new Date(fechaFin),
           },
         },
-        { state: { $eq: estado } },
+        { $or: [{ state: estado }, { state: 2 }] },
       ],
     })
       .populate({
@@ -48,17 +49,24 @@ async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
           path: "ciudad",
           select: "nombre",
         },
-        select: "nombre",
       })
       .populate({
         path: "cliente",
-        select: "idPersona phone email",
+        select: "idPersona phone email img",
         populate: {
           path: "idPersona",
           select: "nombre_comp",
         },
+      })
+      .populate({
+        path: "idSucursal",
+        populate: {
+          path: "direccion",
+          select: "lon lat",
+        },
+        select: "nombre",
       });
-  else
+  } else
     return Pedido.find({
       $and: [
         {
@@ -68,6 +76,14 @@ async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
       ],
     })
       .populate({
+        path: "cliente",
+        select: "idPersona phone email img",
+        populate: {
+          path: "idPersona",
+          select: "nombre_comp",
+        },
+      })
+      .populate({
         path: "detallePedido",
         populate: {
           path: "detalle.producto",
@@ -80,6 +96,13 @@ async function getFiltroFechaDB(estado, fechaInicio, fechaFin) {
         populate: {
           path: "ciudad",
           select: "nombre",
+        },
+      })
+      .populate({
+        path: "idSucursal",
+        populate: {
+          path: "direccion",
+          select: "lon lat",
         },
         select: "nombre",
       });
@@ -116,15 +139,23 @@ function getPedidoClienteIdDB(id, pagina) {
           select: "name tipoVenta total costoDelivery fecha",
         },
       })
+      .populate("cliente", "img")
       .populate({
         path: "idSucursal",
         populate: {
           path: "ciudad",
           select: "nombre",
         },
-        select: "nombre",
       })
-      .populate("direction");
+      .populate("direction")
+      .populate({
+        path: "idSucursal",
+        populate: {
+          path: "direccion",
+          select: "lat lon",
+        },
+        select: "nombre",
+      });
   } else
     return Pedido.find({ cliente: id })
       .sort({ _id: -1 })
@@ -195,18 +226,27 @@ function updatePedidoDB(id, newPedido) {
     })
     .populate({
       path: "cliente",
-      select: "idPersona phone email",
+      select: "idPersona phone email img",
       populate: {
         path: "idPersona",
         select: "nombre_comp",
       },
     })
-    .populate("direction");
+    .populate("direction")
+    .populate({
+      path: "idSucursal",
+      populate: {
+        path: "direccion",
+        select: "lon lat",
+      },
+      select: "nombre",
+    });
 }
 
 // TODO Reportes
+// reporte para obtener lodas las ventas online
 
-function getCantidadPedidosHoyDB(idSucursal, fechaHoyInicio, fechaHoyFin) {
+function getCantidadPedidosDB(idSucursal) {
   return Pedido.aggregate([
     {
       $match: {
@@ -216,17 +256,12 @@ function getCantidadPedidosHoyDB(idSucursal, fechaHoyInicio, fechaHoyFin) {
         state: {
           $eq: 3,
         },
-        fecha: {
-          $gte: new Date(fechaHoyInicio),
-          $lte: new Date(fechaHoyFin),
-        },
       },
     },
     {
       $group: {
-        _id: { $dateToString: { format: "%Y-%m-%dT%H", date: "$fecha" } },
+        _id: { $dateToString: { format: "%Y", date: "$fecha" } },
         pedidosTotales: { $sum: "$total" },
-        count: { $sum: 1 },
       },
     },
     {
@@ -288,6 +323,6 @@ module.exports = {
   getEstadoDB,
   getPedidoClienteIdDB,
   getFiltroFechaDB,
-  getCantidadPedidosHoyDB,
+  getCantidadPedidosDB,
   getProductosVendidosDB,
 };

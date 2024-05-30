@@ -3,7 +3,7 @@ const {
   getVentaIdDB,
   getVentaFechaDB,
   actualizarVentaDB,
-  getCantidadVentasHoyDB,
+  getCantidadVentasDB,
 } = require("./store");
 const pdf = require("html-pdf");
 const fs = require("fs");
@@ -411,20 +411,18 @@ async function actualizarVenta(id, newVenta, token) {
 }
 
 // TODO Reportes
-
-function getCantidadVentasHoy(idSucursal) {
+// reporte para obtener cantidad de ventas presenciales los año
+function getCantidadVentas(idSucursal) {
   let idSu = idSucursal;
   if (!idSu)
     return Promise.reject({ message: "El id de la sucursal es necesario" });
   else idSu = ObjectId(idSucursal);
-  const fechaHoyInicio = moment().format("yyyy-MM-DD");
-  const fehcaHoyFin = moment().format();
-  return getCantidadVentasHoyDB(idSu, fechaHoyInicio, fehcaHoyFin);
+  return getCantidadVentasDB(idSu);
 }
 module.exports = {
   addVenta,
   getVentaId,
   getVentaFecha,
   actualizarVenta,
-  getCantidadVentasHoy,
+  getCantidadVentas,
 };

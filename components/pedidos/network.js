@@ -11,14 +11,14 @@ const {
   actualizasEstadoPedido,
 } = require("../Socket");
 
-// obtiene los pedio del dia
+// obtiene los pedio del dia de una sucursal
 router.get(
-  "/:fecha",
+  "/pedidos-dia/:fecha/:idSucursal",
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
     const fecha = req.params.fecha;
     controller
-      .getPedidosDia(fecha)
+      .getPedidosDia(fecha, req.params.idSucursal)
       .then((pedidos) => response.success(res, pedidos))
       .catch(next);
   }
@@ -115,13 +115,13 @@ router.patch(
 // TODO: REPORTES
 // reporte para obtener cantidad de pedidos por hora del dia de hoy
 router.get(
-  "/reporte/hoy/hora/:idSucursal",
+  "/reporte/pedidos-online/:idSucursal",
   passport.authenticate("jwt", { session: false }),
   scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     const idSucursal = req.params.idSucursal;
     controller
-      .getCantidadPedidosHoy(idSucursal)
+      .getCantidadPedidos(idSucursal)
       .then((pedidos) => response.success(res, pedidos))
       .catch(next);
   }

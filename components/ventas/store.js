@@ -81,7 +81,8 @@ async function actualizarVentaDB(id, newVenta) {
 }
 
 // TODO REPORTES
-function getCantidadVentasHoyDB(idSucursal, fechaHoyInicio, fechaHoyFin) {
+// reporte para obtener cantidad de ventas presenciales los año
+function getCantidadVentasDB(idSucursal) {
   return Venta.aggregate([
     {
       $match: {
@@ -91,17 +92,12 @@ function getCantidadVentasHoyDB(idSucursal, fechaHoyInicio, fechaHoyFin) {
         state: {
           $eq: true,
         },
-        fecha: {
-          $gte: new Date(fechaHoyInicio),
-          $lte: new Date(fechaHoyFin),
-        },
       },
     },
     {
       $group: {
-        _id: { $dateToString: { format: "%Y-%m-%dT%H", date: "$fecha" } },
+        _id: { $dateToString: { format: "%Y", date: "$fecha" } },
         ventasTotales: { $sum: "$total" },
-        count: { $sum: 1 },
       },
     },
     {
@@ -114,5 +110,5 @@ module.exports = {
   getVentaIdDB,
   getVentaFechaDB,
   actualizarVentaDB,
-  getCantidadVentasHoyDB,
+  getCantidadVentasDB,
 };

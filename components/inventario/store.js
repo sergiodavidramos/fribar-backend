@@ -65,11 +65,11 @@ async function getProductoInventarioPaginateDB(idSucursal, des) {
       .populate("stockLotes.lote"),
     Inventario.aggregate([
       {
-        $unwind: "$idSucursal",
+        $match: { idSucursal: idSucursal.idSucursal },
       },
       {
         $group: {
-          _id: "idSucursal",
+          _id: "producto",
           totalProductos: { $sum: 1 },
         },
       },
