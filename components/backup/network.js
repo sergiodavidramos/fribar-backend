@@ -8,8 +8,8 @@ require("../../utils/strategies/jwt");
 const router = express.Router();
 router.get(
   "/",
-  passport.authenticate("jwt", { session: false }),
-  scopeValidation(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  //   passport.authenticate("jwt", { session: false }),
+  //   scopeValidation(["GERENTE-ROLE", "ADMIN-ROLE"]),
   (req, res, next) => {
     controller
       .copiaSeguridad(req.query.restaurar)
