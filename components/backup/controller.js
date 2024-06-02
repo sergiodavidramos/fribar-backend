@@ -9,7 +9,7 @@ async function copiaSeguridad(restore = false) {
       connection: { uri: process.env.DB_URI, dbname: process.env.NAMEDB },
     });
     const localfile_connector = new BKP.LocalFileSystemDuplexConnector({
-      connection: { path: "./components/backup/files/backup.tar" },
+      connection: { path: "./files/backup.tar" },
     });
     const transferer = restore
       ? new BKP.MongoTransferer({
