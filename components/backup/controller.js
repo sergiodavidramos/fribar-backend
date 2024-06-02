@@ -25,13 +25,14 @@ async function copiaSeguridad(restore = false) {
     const pathBack = path.join(__dirname, `./files/backup.tar`);
     if (!restore) {
       if (fs.existsSync(pathBack)) {
-        console.log(pathBack);
         return path.resolve(pathBack);
       }
     } else {
-      return { s1: path.join(__dirname, `./files/backup.tar`), s2: pathBack };
+      return true;
     }
-  } catch (error) {}
+  } catch (error) {
+    return Promise.reject({ message: error });
+  }
 }
 module.exports = {
   copiaSeguridad,
