@@ -22,7 +22,15 @@ function getUser(id, state, ci, des, limit) {
 }
 function getUserRole(role) {
   let filterRole = {
-    role: { $in: ["ADMIN-ROLE", "USER-ROLE", "DELIVERY-ROLE", "GERENTE-ROLE"] },
+    role: {
+      $in: [
+        "ADMIN-ROLE",
+        "USER-ROLE",
+        "DELIVERY-ROLE",
+        "GERENTE-ROLE",
+        "ALMACEN-ROLE",
+      ],
+    },
   };
   if (role !== null) filterRole = { role: role };
   return getUserRoleDB(filterRole);

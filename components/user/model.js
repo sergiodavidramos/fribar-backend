@@ -11,7 +11,7 @@ const roleValidator = {
     "ALMACEN-ROLE",
     "USER-ROLE",
   ],
-  message: "{VALUE} is not a role valid",
+  message: "{VALUE} el rol asignado no es valido",
 };
 const Schema = mongoose.Schema;
 const userSchema = new Schema({

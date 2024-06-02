@@ -10,7 +10,7 @@ const router = express.Router();
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE", "ALMACEN-ROLE"]),
   (req, res, next) => {
     controller
       .addMovimiento(req.body, req.user)
@@ -22,7 +22,7 @@ router.post(
 router.get(
   "/pendientes/:idSucursal",
   passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE", "ALMACEN-ROLE"]),
   (req, res, next) => {
     controller
       .movimientosPendientes(req.params.idSucursal)
@@ -34,7 +34,7 @@ router.get(
 router.patch(
   "/confirmar-movimiento/:idMovimiento",
   passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
+  scopeValidatorHandler(["GERENTE-ROLE", "ADMIN-ROLE", "ALMACEN-ROLE"]),
   (req, res, next) => {
     controller
       .confirmarMovimiento(

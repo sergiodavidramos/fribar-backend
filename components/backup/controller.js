@@ -23,8 +23,12 @@ async function copiaSeguridad(restore = false) {
     for await (const { total, write } of transferer) {
     }
     const pathBack = path.join(__dirname, `./files/backup.tar`);
-    if (fs.existsSync(pathBack)) {
-      return pathBack;
+    if (!restore) {
+      if (fs.existsSync(pathBack)) {
+        return pathBack;
+      }
+    } else {
+      return true;
     }
   } catch (error) {}
 }

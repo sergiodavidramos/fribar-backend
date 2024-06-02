@@ -25,7 +25,7 @@ router.get("/", (req, res, next) => {
 router.get(
   "/codigoproducto",
   passport.authenticate("jwt", { session: false }),
-  scopeValidation(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
+  scopeValidation(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE", "ALMACEN-ROLE"]),
   (req, res, next) => {
     const code = req.query.code || null;
     controller
@@ -86,7 +86,7 @@ router.get("/filtrados/descuento", (erq, res, next) => {
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
-  scopeValidation(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
+  scopeValidation(["ALMACEN-ROLE", "ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
     const client = algoliasearch(
       process.env.IDAPPLICATION,
@@ -152,7 +152,7 @@ router.delete(
 router.patch(
   "/agregar-oferta-producto/:id",
   passport.authenticate("jwt", { session: false }),
-  scopeValidation(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
+  scopeValidation(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE", "ALMACEN-ROLE"]),
   (req, res, next) => {
     controller
       .addOfertaProducto(req.params.id, req.body.descuento, req.query.agregar)

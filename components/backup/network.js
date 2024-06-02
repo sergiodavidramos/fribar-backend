@@ -13,7 +13,11 @@ router.get(
   (req, res, next) => {
     controller
       .copiaSeguridad(req.query.restaurar)
-      .then((file) => res.sendFile(file))
+      .then((file) => {
+        if (file === true) {
+          response.success(res, file);
+        } else res.sendFile(file);
+      })
       .catch(next);
   }
 );
