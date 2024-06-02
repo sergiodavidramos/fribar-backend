@@ -14,9 +14,12 @@ router.get(
     controller
       .copiaSeguridad(req.query.restaurar)
       .then((file) => {
-        if (file === true) {
+        if (file.solucion === 1) {
           response.success(res, file);
-        } else res.sendFile(file);
+        } else {
+          console.log("--->", file);
+          res.sendFile(file.path);
+        }
       })
       .catch(next);
   }

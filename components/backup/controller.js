@@ -25,10 +25,10 @@ async function copiaSeguridad(restore = false) {
     const pathBack = path.join(__dirname, `./files/backup.tar`);
     if (!restore) {
       if (fs.existsSync(pathBack)) {
-        return path.resolve(pathBack);
+        return Promise.resolve({ path: pathBack, solucion: 0 });
       }
     } else {
-      return true;
+      return Promise.resolve({ path: "se restauro", solucion: 1 });
     }
   } catch (error) {
     return Promise.reject({ message: error });
