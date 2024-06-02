@@ -2,4 +2,4 @@
 # /uploads
 .env
 .prettierrc
-/components/backup/files
+./components/backup/files

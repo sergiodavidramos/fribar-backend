@@ -9,7 +9,7 @@ async function copiaSeguridad(restore = false) {
       connection: { uri: process.env.DB_URI, dbname: process.env.NAMEDB },
     });
     const localfile_connector = new BKP.LocalFileSystemDuplexConnector({
-      connection: { path: "./files/backup.tar" },
+      connection: { path: "./components/backup/files/backup.tar" },
     });
     const transferer = restore
       ? new BKP.MongoTransferer({
@@ -25,7 +25,7 @@ async function copiaSeguridad(restore = false) {
     const pathBack = path.join(__dirname, `./files/backup.tar`);
     if (!restore) {
       if (fs.existsSync(pathBack)) {
-        return pathBack;
+        return path.resolve(pathBack);
       }
     } else {
       return true;
