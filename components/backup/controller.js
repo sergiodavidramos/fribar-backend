@@ -29,7 +29,7 @@ async function copiaSeguridad(restore = false) {
         return path.resolve(pathBack);
       }
     } else {
-      return true;
+      return { s1: path.join(__dirname, `./files/backup.tar`), s2: pathBack };
     }
   } catch (error) {}
 }
