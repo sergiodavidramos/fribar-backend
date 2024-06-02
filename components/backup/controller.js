@@ -6,7 +6,7 @@ async function copiaSeguridad(restore = false) {
   restore = restore === "true" ? true : false;
   try {
     const mongo_connector = new BKP.MongoDBDuplexConnector({
-      connection: { uri: process.env.DB_URi, dbname: process.env.NAMEDB },
+      connection: { uri: process.env.DB_URI, dbname: process.env.NAMEDB },
     });
     const localfile_connector = new BKP.LocalFileSystemDuplexConnector({
       connection: { path: "./components/backup/files/backup.tar" },
