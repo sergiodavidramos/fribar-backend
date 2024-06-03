@@ -17,7 +17,6 @@ router.get(
         if (file.solucion === 1) {
           response.success(res, file);
         } else {
-          console.log("--->", file);
           res.sendFile(file.path);
         }
       })
