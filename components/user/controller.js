@@ -174,13 +174,24 @@ function addClient({ nombre_comp, ci, email, password, phone }) {
   });
 }
 
-function updateUser(newUser, idUser, userToken) {
+function updateUser(
+  newUser,
+  idUser,
+  userToken,
+  bodyPhone = false,
+  userPhone = false
+) {
   if (Object.keys(newUser).length === 0)
     return Promise.reject({
       message: "Los datos son requeridos para ser actualizados",
     });
   if (newUser.password) {
     newUser.password = bcrypt.hashSync(newUser.password, 5);
+  }
+  if (bodyPhone) {
+    if (parseInt(newUser.phone) !== userPhone) {
+      newUser.numeroCelularVerificado = false;
+    }
   }
   return new Promise(async (resolve, reject) => {
     if (newUser.nombre_comp || newUser.ci) {

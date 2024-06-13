@@ -50,7 +50,7 @@ const userSchema = new Schema({
   },
   phone: {
     type: Number,
-    unique: true,
+    unique: false,
     // required: [true, 'El número de celular en necesario'],
   },
   img: { type: String, require: false },
@@ -59,6 +59,7 @@ const userSchema = new Schema({
   role: { type: String, default: "CLIENT-ROLE", enum: roleValidator },
   personal: { type: Boolean, default: false },
   status: { type: Boolean, default: true },
+  numeroCelularVerificado: { type: Boolean, default: false },
 });
 userSchema.methods.toJSON = function () {
   const user = this;

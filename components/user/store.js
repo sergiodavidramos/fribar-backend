@@ -34,6 +34,7 @@ function getUserDB(filterUser, desde, limit) {
           { role: "DELIVERY-ROLE" },
           { role: "GERENTE-ROLE" },
           { role: "CLIENT-ROLE" },
+          { role: "ALMACEN-ROLE" },
         ],
       })
         .limit(limit)

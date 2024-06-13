@@ -10,7 +10,12 @@ const router = express.Router();
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE", "USER-ROLE"]),
+  scopeValidationHandler([
+    "GERENTE-ROLE",
+    "ADMIN-ROLE",
+    "USER-ROLE",
+    "CLIENT-ROLE",
+  ]),
   (req, res, next) => {
     const id = req.query.id || null;
     const state = req.query.state || null;
@@ -96,6 +101,7 @@ router.patch(
         "idSucursal",
         "idPersona",
         "favoritos",
+        "numeroCelularVerificado",
       ]);
     } else {
       if (req.user._id == req.params.id) {
@@ -106,8 +112,9 @@ router.patch(
           "phone",
           "favoritos",
           "direccion",
+          "numeroCelularVerificado",
         ]);
-        body = { ...body, idPersona: req.user.idPersona };
+        body = { ...body, idPersona: req.user.idPersona._id };
       } else
         response.error(res, {
           message: "No se permite editar la cuenta de otra persona",
@@ -119,7 +126,13 @@ router.patch(
     if (body.role === "CLIENT-ROLE" || body.personal === false)
       delete body.idSucursal;
     controller
-      .updateUser(body, id, req.headers.authorization)
+      .updateUser(
+        body,
+        id,
+        req.headers.authorization,
+        body.phone,
+        req.user.phone
+      )
       .then(async (user) =>
         response.success(
           res,
