@@ -23,7 +23,7 @@ function getVentaFecha(fechaInicio, fechaFin) {
 }
 
 async function addVenta(body, user, userToken) {
-  const ubicacionPlantilla = require.resolve("../ventas/static/factura.html");
+  const ubicacionPlantilla = require.resolve("./static/factura.html");
   let contenidoHtml = fs.readFileSync(ubicacionPlantilla, "utf8");
   const fechaHoy = new Date();
   let tabla = "";

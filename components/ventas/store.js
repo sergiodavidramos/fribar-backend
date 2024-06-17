@@ -32,8 +32,8 @@ function getVentaFechaDB(start, end) {
     $and: [
       {
         fecha: {
-          $gte: new Date(start).toLocaleDateString("en-GB"),
-          $lt: new Date(end).toLocaleDateString("en-GB"),
+          $gte: new Date(start),
+          $lt: new Date(end),
         },
       },
     ],
