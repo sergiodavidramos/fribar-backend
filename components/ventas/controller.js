@@ -163,11 +163,13 @@ async function addVenta(body, user, userToken) {
           } catch (err) {
             return reject({ message: err.message });
           }
+
           var options = {
             paginationOffset: 1,
             width: "80mm",
             height: `${altura}mm`,
             zoomFactor: "94",
+            phantomPath: "./node_modules/phantomjs/bin/phantomjs",
           };
           pdf.create(contenidoHtml, options).toStream((error, stream) => {
             if (error) {
