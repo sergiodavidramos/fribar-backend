@@ -80,6 +80,15 @@ async function addPedido(body, user, token) {
                 }),
               ]);
             }
+            console.log(user);
+            // fetch(`${process.env.API_URL}/person/${user.idPersona}`, {
+            //   method: "PATCH",
+            //   body: JSON.stringify(newUser),
+            //   headers: {
+            //     "Content-type": "application/json",
+            //     Authorization: userToken,
+            //   },
+            // });
 
             return resolve(pedidoAgregado);
           } catch (error) {

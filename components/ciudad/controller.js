@@ -5,13 +5,16 @@ const {
   getCiudadDB,
 } = require("./store");
 
-function addCiudad({ nombre }) {
+function addCiudad({ nombre, status, lat, lon }) {
   if (!nombre)
     return Promise.reject({
       message: "El nombre de la ciudad es necesario",
     });
   return addCiudadDB({
     nombre: nombre.replace(/\b\w/g, (l) => l.toUpperCase()),
+    status,
+    lat,
+    lon,
   });
 }
 

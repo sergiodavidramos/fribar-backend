@@ -50,10 +50,10 @@ router.patch(
   (req, res, next) => {
     const id = req.params.id;
     let body = {};
-    if (true) {
-      body = _.pick(req.body, ["nombre_comp", "ci", "compras", "puntos"]);
+    if (req.body.compra) {
+      body = _.pick(req.body, ["compras", "puntos"]);
     } else {
-      body = _.pick(req.body, ["nombre_comp", "ci", "phone", "direccion"]);
+      body = _.pick(req.body, ["nombre_comp", "ci"]);
     }
     controller
       .updatePerson(body, id)

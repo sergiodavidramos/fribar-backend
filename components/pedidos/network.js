@@ -61,17 +61,12 @@ router.get(
   }
 );
 // obtine la informacion de los pedidos para el tablero
-router.get(
-  "/estado/tablero",
-  passport.authenticate("jwt", { session: false }),
-  scopeValidationHandler(["GERENTE-ROLE", "ADMIN-ROLE"]),
-  (req, res, next) => {
-    controller
-      .getEstado()
-      .then((pedidos) => response.success(res, pedidos))
-      .catch(next);
-  }
-);
+router.get("/estado/tablero", (req, res, next) => {
+  controller
+    .getEstado()
+    .then((pedidos) => response.success(res, pedidos))
+    .catch(next);
+});
 // Crea un pedido
 router.post(
   "/",
