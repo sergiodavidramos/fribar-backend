@@ -5,12 +5,10 @@ const {
   actualizarVentaDB,
   getCantidadVentasDB,
 } = require("./store");
-const pdf = require("html-pdf");
+var html_to_pdf = require("html-pdf-node");
 const fs = require("fs");
 const fetch = require("node-fetch");
 ObjectId = require("mongodb").ObjectID;
-const moment = require("moment");
-
 require("dotenv").config();
 
 function getVentaId(id) {
@@ -25,6 +23,7 @@ function getVentaFecha(fechaInicio, fechaFin) {
 async function addVenta(body, user, userToken) {
   const ubicacionPlantilla = require.resolve("./static/factura.html");
   let contenidoHtml = fs.readFileSync(ubicacionPlantilla, "utf8");
+
   const fechaHoy = new Date();
   let tabla = "";
   let subtotal = 0;
@@ -117,7 +116,6 @@ async function addVenta(body, user, userToken) {
       (parseFloat(body.efectivo) - total).toFixed(2)
     );
     const efectivoCambiado = parseFloat(body.efectivo);
-
     return new Promise(async (resolve, reject) => {
       const venta = {
         user: user._id,
@@ -133,7 +131,7 @@ async function addVenta(body, user, userToken) {
       };
       const altura = (((700 + contarPixeles) * 2.54) / 96) * 10;
       addVentaDB(venta)
-        .then((datos) => {
+        .then(async (datos) => {
           try {
             for (const dat of detalle.body.detalle) {
               Promise.all([
@@ -169,14 +167,11 @@ async function addVenta(body, user, userToken) {
             width: "80mm",
             height: `${altura}mm`,
             zoomFactor: "94",
-            phantomPath: "./node_modules/phantomjs/bin/phantomjs",
           };
-          pdf.create(contenidoHtml, options).toStream((error, stream) => {
-            if (error) {
-              return reject({ message: "Error creando PDF: " + error });
-            } else {
-              return resolve(stream);
-            }
+
+          let file = { content: contenidoHtml };
+          html_to_pdf.generatePdf(file, options).then((pdfBuffer) => {
+            return resolve(pdfBuffer);
           });
         })
         .catch((err) => {

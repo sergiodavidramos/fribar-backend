@@ -7,5 +7,6 @@ exports.error = (res, error = "Internal server error", status = 500) => {
 };
 exports.pdf = (res, message = "All Correct", status = 200) => {
   res.setHeader("Content-Type", "application/pdf");
-  message.pipe(res);
+  res.send(message);
+  //   message.pipe(res);
 };
