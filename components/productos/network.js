@@ -125,6 +125,11 @@ router.patch(
   "/:id",
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
+    const client = algoliasearch(
+      process.env.IDAPPLICATION,
+      process.env.API_KEY_ALGOLIA
+    );
+    const index = client.initIndex(process.env.INDEX);
     controller
       .updateProduct(
         req.body.desStock,
@@ -133,7 +138,28 @@ router.patch(
         req.body,
         req.params.id
       )
-      .then((product) => response.success(res, product, 200))
+      .then((product) => {
+        index.saveObjects(
+          [
+            {
+              img: product.img,
+              status: product.status,
+              objectID: "665d13b5fe0a48cee47de112",
+              code: product.code,
+              name: product.name,
+              detail: product.detail,
+              precioCompra: product.precioCompra,
+              precioVenta: product.precioVenta,
+              category: product.category,
+              proveedor: product.proveedor,
+              tipoVenta: product.tipoVenta,
+              __v: 0,
+            },
+          ],
+          { autoGenerateObjectIDIfNotExist: true }
+        );
+        response.success(res, product, 200);
+      })
       .catch(next);
   }
 );
