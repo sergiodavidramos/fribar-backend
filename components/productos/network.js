@@ -144,7 +144,7 @@ router.patch(
             {
               img: product.img,
               status: product.status,
-              objectID: "665d13b5fe0a48cee47de112",
+              objectID: product._id,
               code: product.code,
               name: product.name,
               detail: product.detail,
