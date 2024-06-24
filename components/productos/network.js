@@ -9,6 +9,11 @@ const algoliasearch = require("algoliasearch");
 require("dotenv").config();
 
 const router = express.Router();
+const client = algoliasearch(
+  process.env.IDAPPLICATION,
+  process.env.API_KEY_ALGOLIA
+);
+const index = client.initIndex(process.env.INDEX);
 
 router.get("/", (req, res, next) => {
   const id = req.query.id || null;
@@ -88,18 +93,13 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   scopeValidation(["ALMACEN-ROLE", "ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
-    const client = algoliasearch(
-      process.env.IDAPPLICATION,
-      process.env.API_KEY_ALGOLIA
-    );
-    const index = client.initIndex(process.env.INDEX);
     controller
       .addProduct(req.body)
       .then((product) => {
         index.saveObjects(
           [
             {
-              ventaOnline: true,
+              ventaOnline: product.ventaOnline,
               img: [],
               status: product.status,
               objectID: product._id,
@@ -111,6 +111,8 @@ router.post(
               category: product.category,
               proveedor: product.proveedor,
               tipoVenta: product.tipoVenta,
+              descuento: product.descuento,
+              stock: product.stock,
               __v: 0,
             },
           ],
@@ -125,11 +127,6 @@ router.patch(
   "/:id",
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
-    const client = algoliasearch(
-      process.env.IDAPPLICATION,
-      process.env.API_KEY_ALGOLIA
-    );
-    const index = client.initIndex(process.env.INDEX);
     controller
       .updateProduct(
         req.body.desStock,
@@ -153,6 +150,8 @@ router.patch(
               category: product.category,
               proveedor: product.proveedor,
               tipoVenta: product.tipoVenta,
+              descuento: product.descuento,
+              stock: product.stock,
               __v: 0,
             },
           ],
@@ -182,7 +181,30 @@ router.patch(
   (req, res, next) => {
     controller
       .addOfertaProducto(req.params.id, req.body.descuento, req.query.agregar)
-      .then((product) => response.success(res, product, 200))
+      .then((product) => {
+        index.saveObjects(
+          [
+            {
+              img: product.img,
+              status: product.status,
+              objectID: product._id,
+              code: product.code,
+              name: product.name,
+              detail: product.detail,
+              precioCompra: product.precioCompra,
+              precioVenta: product.precioVenta,
+              category: product.category,
+              proveedor: product.proveedor,
+              tipoVenta: product.tipoVenta,
+              descuento: product.descuento,
+              stock: product.stock,
+              __v: 0,
+            },
+          ],
+          { autoGenerateObjectIDIfNotExist: true }
+        );
+        response.success(res, product, 200);
+      })
       .catch(next);
   }
 );
