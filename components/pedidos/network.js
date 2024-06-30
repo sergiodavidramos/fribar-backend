@@ -127,6 +127,18 @@ router.get(
   }
 );
 
+// End point para los metodos de pagos
+router.post(
+  "/pago-electronico/:tipoPago",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    controller
+      .pagoElectronico(req.body, req.params.tipoPago, req.user)
+      .then((respuesta) => response.success(res, respuesta))
+      .catch(next);
+  }
+);
+
 // Reporte para obtener los productos mas vendidos de una sucursal con el margen de ganancia
 router.get(
   "/reporte/productos-mas-vendidos/:idSucursal",

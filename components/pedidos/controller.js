@@ -11,6 +11,7 @@ const {
 } = require("./store");
 const moment = require("moment");
 const fetch = require("node-fetch");
+const soap = require("soap");
 ObjectId = require("mongodb").ObjectID;
 require("dotenv").config();
 async function addPedido(body, user, token) {
@@ -80,7 +81,8 @@ async function addPedido(body, user, token) {
                 }),
               ]);
             }
-            console.log(user);
+            // aqui para sumar los puntos de los clientes al realizar una ompra
+            // console.log(user);
             // fetch(`${process.env.API_URL}/person/${user.idPersona}`, {
             //   method: "PATCH",
             //   body: JSON.stringify(newUser),
@@ -188,6 +190,221 @@ function updatePedido(id, newPedido, token) {
   });
 }
 
+// End point para los metodos de pagos
+function pagoElectronico(body, tipoPago, cliente) {
+  const fechaLocal = new Date();
+  const auxHora = fechaLocal.getHours().toString().padStart(2, "0");
+  const minutos = fechaLocal.getMinutes().toString().padStart(2, "0");
+  const segundo = fechaLocal.getSeconds().toString().padStart(2, "0");
+
+  if (!body.total)
+    return Promise.reject({
+      message: "Todos los datos son necesarios para generar el metodo de pago",
+    });
+  const url = process.env.URLPAGOSNET;
+
+  const categoriaProducto = tipoPago === "qr" ? 7 : 3;
+  const codigoComprador = `${cliente._id}`.slice(0, 12);
+  const codigoRecaudacion =
+    body.total +
+    "D" +
+    fechaLocal.getDate() +
+    "M" +
+    fechaLocal.getMonth() +
+    1 +
+    "A" +
+    fechaLocal.getFullYear() +
+    "G" +
+    body.generarQR;
+  const correoElectronico = cliente.email;
+  const descripcionRecaudacion = "Prueba pago";
+  const documentoIdentidadComprador = cliente.ci ? cliente.ci : "---";
+  const fecha = parseInt(
+    `${fechaLocal.getFullYear()}${
+      fechaLocal.getMonth() + 1 < 10
+        ? `0${fechaLocal.getMonth() + 1}`
+        : fechaLocal.getMonth() + 1
+    }${
+      fechaLocal.getDate() < 10
+        ? `0${fechaLocal.getDate()}`
+        : fechaLocal.getDate()
+    }`
+  );
+  const fechaVencimiento = 0;
+  const hora = parseInt(auxHora + minutos + segundo);
+  const horaVencimiento = 0;
+  const moneda = "BS";
+  const nombreComprador = cliente.idPersona.nombre_comp;
+
+  const descripcion = "Pago de prueba";
+  const montoCreditoFiscal = 0;
+  const montoPago = body.total;
+  const nitFactura = 0;
+  const nombreFactura = "CONDARGO";
+  const numeroPago = 1;
+
+  const planillas = {
+    descripcion: descripcion,
+    montoCreditoFiscal: montoCreditoFiscal,
+    montoPago: montoPago,
+    nitFactura: nitFactura,
+    nombreFactura: nombreFactura,
+    numeroPago: numeroPago,
+  };
+
+  const precedenciaCobro = "N";
+  const transaccion = "A";
+  const cuenta = process.env.PAGOCUENTA;
+  const password = process.env.PAGOPASSWORD;
+
+  const datos = {
+    categoriaProducto: categoriaProducto,
+    codigoComprador: codigoComprador,
+    codigoRecaudacion: codigoRecaudacion,
+    correoElectronico: correoElectronico,
+    descripcionRecaudacion: descripcionRecaudacion,
+    documentoIdentidadComprador: documentoIdentidadComprador,
+    fecha: fecha,
+    fechaVencimiento: fechaVencimiento,
+    hora: hora,
+    horaVencimiento: horaVencimiento,
+    moneda: moneda,
+    nombreComprador: nombreComprador,
+    planillas: planillas,
+    precedenciaCobro: precedenciaCobro,
+    transaccion: transaccion,
+  };
+
+  const params = {
+    datos: datos,
+    cuenta: cuenta,
+    password: password,
+  };
+
+  try {
+    return new Promise((resolve, reject) => {
+      soap.createClient(
+        url,
+        { connection: "keep-alive" },
+        function (err, client) {
+          client.registroPlan(params, function (err, result) {
+            if (err) {
+              return reject({
+                message: "Error al registrar el pago",
+              });
+            } else {
+              if (tipoPago === "qr") {
+                return resolve(result.return);
+              } else {
+                const nombresCliente = cliente.idPersona.nombre_comp.split(" ");
+                const nombres =
+                  nombresCliente.length >= 4
+                    ? nombresCliente[0] + " " + nombresCliente[1]
+                    : nombresCliente[0];
+                const apellidos =
+                  nombresCliente.length >= 4
+                    ? nombresCliente[2] + " " + nombresCliente[3]
+                    : nombresCliente[1] + " " + nombresCliente[2];
+                if (result.return.codigoError === 0) {
+                  const datosTarjetaHabiente = {
+                    transaccion: transaccion,
+                    nombre: nombres,
+                    apellido: apellidos,
+                    correoElectronico: correoElectronico,
+                    telefono: cliente.phone,
+                    pais: "Bolivia",
+                    departamento: body.ciudad,
+                    ciudad: body.ciudad,
+                    direccion: body.direccion,
+                    idTransaccion: result.return.idTransaccion,
+                  };
+                  const paramsTarjetaHabiente = {
+                    datos: datosTarjetaHabiente,
+                    cuenta: cuenta,
+                    password: password,
+                  };
+                  client.registroTarjetaHabiente(
+                    paramsTarjetaHabiente,
+                    function (err, resulTarjetaHabiente) {
+                      if (err) {
+                        return reject({
+                          message: "Error al registrar el pago",
+                        });
+                      } else {
+                        const mdd = {
+                          entry: [
+                            {
+                              key: "merchant_defined_data1",
+                              value: "SI",
+                            },
+                            {
+                              key: "merchant_defined_data3",
+                              value: "-",
+                            },
+                            {
+                              key: "merchant_defined_data6",
+                              value: "SI",
+                            },
+                            {
+                              key: "merchant_defined_data11",
+                              value: cliente.ci ? cliente.ci : "---",
+                            },
+                            {
+                              key: "merchant_defined_data17",
+                              value: "SI",
+                            },
+                            {
+                              key: "merchant_defined_data18",
+                              value: cliente.idPersona.nombre_comp,
+                            },
+                          ],
+                        };
+                        const datosMdd = {
+                          transaccion: transaccion,
+                          id: result.return.idTransaccion,
+                          vertical: "SERVICIO",
+                          comercioId: "903",
+                          idTransaccion: result.return.idTransaccion,
+                          mdd: mdd,
+                        };
+
+                        const paramsRegistroMdd = {
+                          datos: datosMdd,
+                          cuenta: cuenta,
+                          password: password,
+                        };
+
+                        client.registroMdd(
+                          paramsRegistroMdd,
+                          function (err, resulMdd) {
+                            if (err) {
+                              return reject({
+                                message: "Error al registrar el pago",
+                              });
+                            } else {
+                              return resolve(result.return);
+                            }
+                          }
+                        );
+                      }
+                    }
+                  );
+                }
+              }
+            }
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.log(error);
+    return Promise.reject({
+      message:
+        "Error en el servidor al realizar la comunicacion con la pasarela de pagos",
+    });
+  }
+}
+
 // TODO Reportes
 // reporte para obtener lodas las ventas online
 function getCantidadPedidos(idSucursal) {
@@ -217,4 +434,5 @@ module.exports = {
   getFiltroFecha,
   getCantidadPedidos,
   getProductosVendidos,
+  pagoElectronico,
 };

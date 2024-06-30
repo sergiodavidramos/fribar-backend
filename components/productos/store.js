@@ -18,7 +18,7 @@ async function findProductDB(data) {
   return Product.find({ name: data }).populate("category");
 }
 async function findCategoriaProductDB(categoria, pagina, orden) {
-  return Product.find({ category: categoria, stock: { $gt: 0 } })
+  return Product.find({ category: categoria })
     .sort(orden)
     .limit(12)
     .skip((pagina - 1) * 12)
