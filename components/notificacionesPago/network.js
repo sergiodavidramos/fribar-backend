@@ -13,9 +13,15 @@ router.post("/", (req, res, next) => {
     .addNotificacion(req.body)
     .then((respuesta) => {
       EscucharTransacciones(respuesta);
-      return response.success(res, respuesta, 200);
+      return response.success(
+        res,
+        { codError: 0, descripcion: "Sin Errores" },
+        200
+      );
     })
-    .catch(next);
+    .catch((error) =>
+      res.status(500).send({ codError: 1, descripcion: error })
+    );
 });
 // obtiene las transacciones del dia de una sucursal
 router.get(
