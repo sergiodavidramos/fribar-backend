@@ -13,11 +13,7 @@ router.post("/", (req, res, next) => {
     .addNotificacion(req.body)
     .then((respuesta) => {
       EscucharTransacciones(respuesta);
-      return response.success(
-        res,
-        { codError: 0, descripcion: "Sin Errores" },
-        200
-      );
+      return res.status(200).send({ codError: 0, descripcion: "Sin Errores" });
     })
     .catch((error) =>
       res.status(500).send({ codError: 1, descripcion: error })
