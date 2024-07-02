@@ -206,14 +206,13 @@ function pagoElectronico(body, tipoPago, cliente) {
   const categoriaProducto = tipoPago === "qr" ? 7 : 3;
   const codigoComprador = `${cliente._id}`.slice(0, 12);
   const codigoRecaudacion =
-    body.total +
+    parseInt(body.total) +
     "D" +
     fechaLocal.getDate() +
     "M" +
-    fechaLocal.getMonth() +
-    1 +
+    (fechaLocal.getMonth() + 1) +
     "A" +
-    fechaLocal.getFullYear() +
+    String(fechaLocal.getFullYear()).substr(2) +
     "G" +
     body.generarQR;
   const correoElectronico = cliente.email;

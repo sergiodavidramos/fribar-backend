@@ -36,7 +36,7 @@ const notificacionSchema = new Schema({
   codigoAutorizacion: { type: String },
   codigoControl: { type: String },
   nitFacturar: { type: String },
-  transaccion: { typr: String },
+  transaccion: { type: String },
   fechaRegistro: {
     type: Date,
     required: [true, "La fecha de vencimeinto es necesario"],
