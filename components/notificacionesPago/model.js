@@ -37,5 +37,9 @@ const notificacionSchema = new Schema({
   codigoControl: { type: String },
   nitFacturar: { type: String },
   transaccion: { typr: String },
+  fechaRegistro: {
+    type: Date,
+    required: [true, "La fecha de vencimeinto es necesario"],
+  },
 });
 module.exports = mongoose.model("transacciones", notificacionSchema);

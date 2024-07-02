@@ -10,6 +10,9 @@ function EscucharPedido(pedido) {
       console.log("EL ERROR", error);
     });
 }
+function EscucharTransacciones(pago) {
+  socket.io.emit(`transacciones-pago`, pago);
+}
 
 function actualizasEstadoPedido(pedido) {
   socket.io.emit(`actualizar-${pedido.cliente._id}`, {
@@ -51,4 +54,5 @@ module.exports = {
   EscucharPedido,
   tableroPedidos,
   actualizasEstadoPedido,
+  EscucharTransacciones,
 };
