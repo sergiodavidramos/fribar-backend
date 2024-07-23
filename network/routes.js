@@ -22,6 +22,7 @@ const compras = require("../components/compras/network");
 const movimientoProductos = require("../components/movimientoProductos/network");
 const backup = require("../components/backup/network");
 const notificacion = require("../components/notificacionesPago/network");
+const comunicado = require("../components/comunicado/network");
 const router = (server) => {
   server.use("/login", auth);
   server.use("/person", person);
@@ -47,5 +48,6 @@ const router = (server) => {
   server.use("/movimiento-productos", movimientoProductos);
   server.use("/backup", backup);
   server.use("/notificacion-transaccion", notificacion);
+  server.use("/comunicado", comunicado);
 };
 module.exports = router;

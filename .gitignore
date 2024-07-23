@@ -1,5 +1,9 @@
 /node_modules
-/uploads
+/uploads/categoria
+/uploads/oferta
+/uploads/producto
+/uploads/sucursal
+/uploads/user
 .env
 .prettierrc
 ./components/backup/files
