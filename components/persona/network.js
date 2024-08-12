@@ -10,7 +10,6 @@ const router = express.Router();
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  scopeValidatorHandler(["ADMIN-ROLE", "USER-ROLE", "GERENTE-ROLE"]),
   (req, res, next) => {
     const id = req.query.id || null;
     const state = req.query.state || null;
@@ -50,11 +49,7 @@ router.patch(
   (req, res, next) => {
     const id = req.params.id;
     let body = {};
-    if (req.body.compra) {
-      body = _.pick(req.body, ["compras", "puntos"]);
-    } else {
-      body = _.pick(req.body, ["nombre_comp", "ci"]);
-    }
+    body = _.pick(req.body, ["nombre_comp", "ci", "puntos"]);
     controller
       .updatePerson(body, id)
       .then((user) => response.success(res, user))

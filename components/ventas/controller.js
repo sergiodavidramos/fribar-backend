@@ -48,7 +48,7 @@ async function addVenta(body, user, userToken) {
       const totalProducto = producto.cantidad * producto.precioVenta;
       subtotal += totalProducto;
       descuento += producto.subTotal - totalProducto;
-      contarPixeles += 20;
+      contarPixeles += 24;
       tabla += `<tr>
           <td>${producto.cantidad}</td>
           <td>${producto.nombreProducto}</td>
@@ -158,6 +158,40 @@ async function addVenta(body, user, userToken) {
                 }),
               ]);
             }
+            if (total + deliveryFees > 10 && total + deliveryFees < 25)
+              fetch(`${process.env.API_URL}/person/${body.client.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  puntos: 2,
+                }),
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: token,
+                },
+              });
+
+            if (total + deliveryFees > 25 && total + deliveryFees < 50)
+              fetch(`${process.env.API_URL}/person/${body.client.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  puntos: 4,
+                }),
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: token,
+                },
+              });
+            if (total + deliveryFees > 50)
+              fetch(`${process.env.API_URL}/person/${body.client.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  puntos: 6,
+                }),
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: token,
+                },
+              });
           } catch (err) {
             return reject({ message: err.message });
           }

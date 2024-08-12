@@ -81,16 +81,40 @@ async function addPedido(body, user, token) {
                 }),
               ]);
             }
-            // aqui para sumar los puntos de los clientes al realizar una ompra
-            // console.log(user);
-            // fetch(`${process.env.API_URL}/person/${user.idPersona}`, {
-            //   method: "PATCH",
-            //   body: JSON.stringify(newUser),
-            //   headers: {
-            //     "Content-type": "application/json",
-            //     Authorization: userToken,
-            //   },
-            // });
+            if (total + deliveryFees > 10 && total + deliveryFees < 25)
+              fetch(`${process.env.API_URL}/person/${user.idPersona._id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  puntos: 2,
+                }),
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: token,
+                },
+              });
+
+            if (total + deliveryFees > 25 && total + deliveryFees < 50)
+              fetch(`${process.env.API_URL}/person/${user.idPersona._id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  puntos: 4,
+                }),
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: token,
+                },
+              });
+            if (total + deliveryFees > 50)
+              fetch(`${process.env.API_URL}/person/${user.idPersona._id}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  puntos: 6,
+                }),
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: token,
+                },
+              });
 
             return resolve(pedidoAgregado);
           } catch (error) {
@@ -149,13 +173,18 @@ function getEstado() {
     .concat(Number(fechaInicial.substring(8)) + 1);
   return getEstadoDB(fechaInicial, fechaFinal);
 }
-function updatePedido(id, newPedido, token) {
+function updatePedido(id, newPedido, token, user) {
   if (Object.keys(newPedido).length === 0 && !id)
     return Promise.reject({
       message: "Todos los datos son requeridos para ser Actualizados",
     });
   return new Promise(async (resolve, reject) => {
     try {
+      if (newPedido.state === 2) {
+        const nombreCompleto = user.idPersona.nombre_comp.split(" ");
+        newPedido.repartidor = nombreCompleto[0];
+        newPedido.numeroRepartidor = user.phone;
+      }
       const pedidoActualizado = await updatePedidoDB(id, newPedido);
       if (pedidoActualizado.state === 4) {
         for (const dat of pedidoActualizado.detallePedido.detalle) {

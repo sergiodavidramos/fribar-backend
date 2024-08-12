@@ -18,6 +18,8 @@ function actualizasEstadoPedido(pedido) {
   socket.io.emit(`actualizar-${pedido.cliente._id}`, {
     idPedido: pedido._id,
     state: pedido.state,
+    repartidor: pedido.repartidor,
+    numeroRepartidor: pedido.numeroRepartidor,
   });
 
   if (pedido.state === 1) {

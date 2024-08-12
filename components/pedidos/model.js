@@ -39,6 +39,14 @@ const pedidoSchema = new Schema({
   total: { type: Number, required: true },
   costoDelivery: { type: Number, required: true },
   state: { type: Number, default: 0, required: true },
+  repartidor: {
+    type: String,
+    required: false,
+  },
+  numeroRepartidor: {
+    type: Number,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("Pedido", pedidoSchema);

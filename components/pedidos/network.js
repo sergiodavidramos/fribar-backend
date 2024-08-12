@@ -102,7 +102,12 @@ router.patch(
   ]),
   (req, res, next) => {
     controller
-      .updatePedido(req.params.id, req.body, req.headers.authorization)
+      .updatePedido(
+        req.params.id,
+        req.body,
+        req.headers.authorization,
+        req.user
+      )
       .then((newPedido) => {
         tableroPedidos();
         actualizasEstadoPedido(newPedido);
