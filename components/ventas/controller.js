@@ -48,7 +48,7 @@ async function addVenta(body, user, userToken) {
       const totalProducto = producto.cantidad * producto.precioVenta;
       subtotal += totalProducto;
       descuento += producto.subTotal - totalProducto;
-      contarPixeles += 24;
+      contarPixeles += 20;
       tabla += `<tr>
           <td>${producto.cantidad}</td>
           <td>${producto.nombreProducto}</td>
