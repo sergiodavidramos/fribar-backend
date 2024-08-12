@@ -42,7 +42,7 @@ router.post(
     controller
       .addVenta(req.body, req.user, req.headers.authorization, res)
       .then((stream) => {
-        response.pdf(res, stream);
+        return response.pdf(res, stream);
       })
       .catch(next);
   }
