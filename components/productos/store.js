@@ -9,7 +9,8 @@ function getFilterIdAndPaginateProductDB(filter, des, limit, orden) {
       .sort(orden)
       .limit(limit)
       .skip(des)
-      .populate("category"),
+      .populate("category")
+      .populate("proveedor", "nombreComercial"),
     Product.countDocuments({ status: true }),
   ]);
 }

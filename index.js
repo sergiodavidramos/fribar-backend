@@ -28,7 +28,7 @@ app.use(cors(corsOptions));
 db(process.env.DB_URL);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static(path.resolve(__dirname, "./public")));
+// app.use(express.static(path.resolve(__dirname, "./public")));
 
 router(app);
 

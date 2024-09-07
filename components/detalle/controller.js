@@ -43,10 +43,9 @@ function addDetalle(detalle, venta = true) {
           mandarDatosDB.push({
             producto: detalle[i].producto,
             cantidad: detalle[i].cantidad,
-            subTotal: (
-              detalle[i].cantidad *
-              expectedRound.round10(precioConDescuento, -1)
-            ).toFixed(2),
+            subTotal: expectedRound
+              .round10(detalle[i].cantidad * precioConDescuento, -1)
+              .toFixed(2),
             tipoVenta: detalle[i].tipoVenta,
             precioVenta: detalle[i].precioVenta,
             descuento: detalle[i].descuento,

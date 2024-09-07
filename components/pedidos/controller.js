@@ -9,7 +9,6 @@ const {
   getCantidadPedidosDB,
   getProductosVendidosDB,
 } = require("./store");
-const moment = require("moment");
 const fetch = require("node-fetch");
 const soap = require("soap");
 ObjectId = require("mongodb").ObjectID;
@@ -245,7 +244,7 @@ function pagoElectronico(body, tipoPago, cliente) {
     "G" +
     body.generarQR;
   const correoElectronico = cliente.email;
-  const descripcionRecaudacion = "Prueba pago";
+  const descripcionRecaudacion = "Pago por la compra de productos";
   const documentoIdentidadComprador = cliente.ci ? cliente.ci : "---";
   const fecha = parseInt(
     `${fechaLocal.getFullYear()}${
@@ -264,7 +263,7 @@ function pagoElectronico(body, tipoPago, cliente) {
   const moneda = "BS";
   const nombreComprador = cliente.idPersona.nombre_comp;
 
-  const descripcion = "Pago de prueba";
+  const descripcion = "Pago por la compra de productos";
   const montoCreditoFiscal = 0;
   const montoPago = body.total;
   const nitFactura = 0;
@@ -315,6 +314,9 @@ function pagoElectronico(body, tipoPago, cliente) {
         url,
         { connection: "keep-alive" },
         function (err, client) {
+          if (err) {
+            return reject(err);
+          }
           client.registroPlan(params, function (err, result) {
             if (err) {
               return reject({
@@ -366,6 +368,22 @@ function pagoElectronico(body, tipoPago, cliente) {
                               value: "SI",
                             },
                             {
+                              key: "merchant_defined_data14",
+                              value: "TIENDAS MISCELANEAS DE COMESTIBLES",
+                            },
+                            {
+                              key: "merchant_defined_data87",
+                              value: "450135",
+                            },
+                            {
+                              key: "merchant_defined_data90",
+                              value: "Tienda Virtual de Comestibles",
+                            },
+                            {
+                              key: "merchant_defined_data95",
+                              value: "https://fribar.bo/pago-seguro",
+                            },
+                            {
                               key: "merchant_defined_data3",
                               value: "-",
                             },
@@ -390,7 +408,7 @@ function pagoElectronico(body, tipoPago, cliente) {
                         const datosMdd = {
                           transaccion: transaccion,
                           id: result.return.idTransaccion,
-                          vertical: "SERVICIO",
+                          vertical: "COMERCIANTE MINORISTA",
                           comercioId: "903",
                           idTransaccion: result.return.idTransaccion,
                           mdd: mdd,

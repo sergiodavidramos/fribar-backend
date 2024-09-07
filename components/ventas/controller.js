@@ -48,7 +48,7 @@ async function addVenta(body, user, userToken) {
       const totalProducto = producto.cantidad * producto.precioVenta;
       subtotal += totalProducto;
       descuento += producto.subTotal - totalProducto;
-      contarPixeles += 20;
+      contarPixeles += 24;
       tabla += `<tr>
           <td>${producto.cantidad}</td>
           <td>${producto.nombreProducto}</td>
@@ -158,7 +158,7 @@ async function addVenta(body, user, userToken) {
                 }),
               ]);
             }
-            if (total + deliveryFees > 10 && total + deliveryFees < 25)
+            if (total > 10 && total < 25)
               fetch(`${process.env.API_URL}/person/${body.client.id}`, {
                 method: "PATCH",
                 body: JSON.stringify({
@@ -166,11 +166,11 @@ async function addVenta(body, user, userToken) {
                 }),
                 headers: {
                   "Content-type": "application/json",
-                  Authorization: token,
+                  Authorization: userToken,
                 },
               });
 
-            if (total + deliveryFees > 25 && total + deliveryFees < 50)
+            if (total > 25 && total < 50)
               fetch(`${process.env.API_URL}/person/${body.client.id}`, {
                 method: "PATCH",
                 body: JSON.stringify({
@@ -178,10 +178,10 @@ async function addVenta(body, user, userToken) {
                 }),
                 headers: {
                   "Content-type": "application/json",
-                  Authorization: token,
+                  Authorization: userToken,
                 },
               });
-            if (total + deliveryFees > 50)
+            if (total > 50)
               fetch(`${process.env.API_URL}/person/${body.client.id}`, {
                 method: "PATCH",
                 body: JSON.stringify({
@@ -189,13 +189,13 @@ async function addVenta(body, user, userToken) {
                 }),
                 headers: {
                   "Content-type": "application/json",
-                  Authorization: token,
+                  Authorization: userToken,
                 },
               });
           } catch (err) {
+            console.log("Error-->", err);
             return reject({ message: err.message });
           }
-
           var options = {
             paginationOffset: 1,
             width: "80mm",
@@ -209,7 +209,7 @@ async function addVenta(body, user, userToken) {
           });
         })
         .catch((err) => {
-          console.log(err);
+          console.log("ERROR", err);
         });
     });
   } catch (err) {
