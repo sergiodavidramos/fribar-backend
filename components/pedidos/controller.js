@@ -311,7 +311,7 @@ function pagoElectronico(body, tipoPago, cliente) {
   try {
     return new Promise((resolve, reject) => {
       soap.createClient(
-        url,
+        "https://web.sintesis.com.bo:8080/WSApp-war/ComelecWS?wsdl",
         { connection: "keep-alive" },
         function (err, client) {
           if (err) {
@@ -319,9 +319,7 @@ function pagoElectronico(body, tipoPago, cliente) {
           }
           client.registroPlan(params, function (err, result) {
             if (err) {
-              return reject({
-                message: "Error al registrar el pago",
-              });
+              return reject(err);
             } else {
               if (tipoPago === "qr") {
                 return resolve(result.return);
@@ -357,9 +355,7 @@ function pagoElectronico(body, tipoPago, cliente) {
                     paramsTarjetaHabiente,
                     function (err, resulTarjetaHabiente) {
                       if (err) {
-                        return reject({
-                          message: "Error al registrar el pago",
-                        });
+                        return reject(err);
                       } else {
                         const mdd = {
                           entry: [
