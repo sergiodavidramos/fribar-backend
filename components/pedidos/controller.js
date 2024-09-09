@@ -13,7 +13,9 @@ const fetch = require("node-fetch");
 const soap = require("soap");
 ObjectId = require("mongodb").ObjectID;
 let fs = require("fs");
+const axios = require("axios");
 require("dotenv").config();
+axios.defaults.baseURL = "http://localhost:8080";
 async function addPedido(body, user, token) {
   if (!body.detalleVenta || !body.direccion)
     return Promise.reject("Los Campos son obligatorios");
@@ -311,27 +313,23 @@ function pagoElectronico(body, tipoPago, cliente) {
   try {
     return new Promise((resolve, reject) => {
       soap.createClient(
-        url,
+        "https://web.sintesis.com.bo:8080/WSApp-war/ComelecWS?wsdl",
         {
           wsdl_options: {
-            // baseURL: "http://localhost:8080",
-            // proxy: false,
             proxy: {
-              protocol: "http",
-              host: "web.sintesis.com.bo",
+              protocol: "https",
+              host: "181.188.150.211",
               port: 8080,
             },
           },
-
-          endpoint: "127.0.0.1:8080",
         },
         function (err, client) {
-          //   client.setSecurity(wsSecurity);
           if (err) {
             return reject(err);
           }
           client.registroPlan(params, function (err, result) {
             if (err) {
+              console.log("Error 2", err);
               return reject(err);
             } else {
               if (tipoPago === "qr") {
