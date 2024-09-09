@@ -11,7 +11,6 @@ const {
 } = require("./store");
 const fetch = require("node-fetch");
 const soap = require("soap");
-const soapRequest = require("easy-soap-request");
 ObjectId = require("mongodb").ObjectID;
 let fs = require("fs");
 require("dotenv").config();
@@ -310,10 +309,6 @@ function pagoElectronico(body, tipoPago, cliente) {
     password: password,
   };
   try {
-    // let privateKey = fs.readFileSync("ssl-cert/printcard.key");
-    // let publicKey = fs.readFileSync("ssl-cert/printcard.csr");
-    var pass = null; // optional password
-    // var wsSecurity = new soap.WSSecurityCert(privateKey, publicKey, pass);
     return new Promise((resolve, reject) => {
       soap.createClient(
         url,
