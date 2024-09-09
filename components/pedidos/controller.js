@@ -310,11 +310,10 @@ function pagoElectronico(body, tipoPago, cliente) {
   try {
     return new Promise((resolve, reject) => {
       soap.createClient(
-        "https://web.sintesis.com.bo:8080/WSApp-war/ComelecWS?wsdl",
+        url,
         {
           wsdl_options: {
             baseURL: "https://web.sintesis.com.bo:8080",
-
             proxy: {
               protocol: "https",
               host: "181.188.150.211",
