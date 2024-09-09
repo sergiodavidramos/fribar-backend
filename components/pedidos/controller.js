@@ -311,7 +311,7 @@ function pagoElectronico(body, tipoPago, cliente) {
   try {
     return new Promise((resolve, reject) => {
       soap.createClient(
-        "https://web.sintesis.com.bo:8080/WSApp-war/ComelecWS?wsdl",
+        "https://web.sintesis.com.bo:80/WSApp-war/ComelecWS?wsdl",
         { connection: "keep-alive" },
         function (err, client) {
           if (err) {
