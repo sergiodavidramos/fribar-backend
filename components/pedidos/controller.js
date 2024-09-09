@@ -313,15 +313,17 @@ function pagoElectronico(body, tipoPago, cliente) {
       soap.createClient(
         url,
         {
-          connection: "keep-alive",
           wsdl_options: {
+            // baseURL: "http://localhost:8080",
+            // proxy: false,
             proxy: {
-              protocol: "https",
-              host: "127.0.0.1",
+              protocol: "http",
+              host: "web.sintesis.com.bo",
               port: 8080,
             },
           },
-          //   endpoint: "https://web.sintesis.com.bo:8080",
+
+          endpoint: "127.0.0.1:8080",
         },
         function (err, client) {
           //   client.setSecurity(wsSecurity);
