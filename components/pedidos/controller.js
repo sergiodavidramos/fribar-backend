@@ -11,7 +11,9 @@ const {
 } = require("./store");
 const fetch = require("node-fetch");
 const soap = require("soap");
+const soapRequest = require("easy-soap-request");
 ObjectId = require("mongodb").ObjectID;
+let fs = require("fs");
 require("dotenv").config();
 async function addPedido(body, user, token) {
   if (!body.detalleVenta || !body.direccion)
@@ -308,13 +310,26 @@ function pagoElectronico(body, tipoPago, cliente) {
     password: password,
   };
   try {
+    // let privateKey = fs.readFileSync("ssl-cert/printcard.key");
+    // let publicKey = fs.readFileSync("ssl-cert/printcard.csr");
+    var pass = null; // optional password
+    // var wsSecurity = new soap.WSSecurityCert(privateKey, publicKey, pass);
     return new Promise((resolve, reject) => {
       soap.createClient(
         url,
         {
-          //   connection: "keep-alive",
+          connection: "keep-alive",
+          wsdl_options: {
+            proxy: {
+              protocol: "https",
+              host: "127.0.0.1",
+              port: 8080,
+            },
+          },
+          //   endpoint: "https://web.sintesis.com.bo:8080",
         },
         function (err, client) {
+          //   client.setSecurity(wsSecurity);
           if (err) {
             return reject(err);
           }
