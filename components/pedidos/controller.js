@@ -12,10 +12,7 @@ const {
 const fetch = require("node-fetch");
 const soap = require("soap");
 ObjectId = require("mongodb").ObjectID;
-let fs = require("fs");
-const axios = require("axios");
 require("dotenv").config();
-axios.defaults.baseURL = "http://localhost:8080";
 async function addPedido(body, user, token) {
   if (!body.detalleVenta || !body.direccion)
     return Promise.reject("Los Campos son obligatorios");
@@ -316,6 +313,8 @@ function pagoElectronico(body, tipoPago, cliente) {
         "https://web.sintesis.com.bo:8080/WSApp-war/ComelecWS?wsdl",
         {
           wsdl_options: {
+            baseURL: "https://web.sintesis.com.bo:8080",
+
             proxy: {
               protocol: "https",
               host: "181.188.150.211",
