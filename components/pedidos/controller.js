@@ -307,14 +307,12 @@ function pagoElectronico(body, tipoPago, cliente) {
     cuenta: cuenta,
     password: password,
   };
-
   try {
     return new Promise((resolve, reject) => {
       soap.createClient(
         url,
         {
-          connection: "keep-alive",
-          endpoint: "https://web.sintesis.com.bo:8080/WSApp-war/ComelecWS?wsdl",
+          //   connection: "keep-alive",
         },
         function (err, client) {
           if (err) {
