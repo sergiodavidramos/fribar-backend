@@ -13,6 +13,8 @@ const fetch = require("node-fetch");
 const soap = require("soap");
 ObjectId = require("mongodb").ObjectID;
 require("dotenv").config();
+const axios = require("axios");
+axios.defaults.baseURL = "http://localhost:8080";
 async function addPedido(body, user, token) {
   if (!body.detalleVenta || !body.direccion)
     return Promise.reject("Los Campos son obligatorios");
