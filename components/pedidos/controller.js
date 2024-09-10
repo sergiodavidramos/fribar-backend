@@ -313,15 +313,16 @@ function pagoElectronico(body, tipoPago, cliente) {
         url,
         {
           wsdl_options: {
-            baseURL: "https://web.sintesis.com.bo:8080",
+            baseURL: "http://localhost:8080",
             proxy: {
               protocol: "https",
-              host: "181.188.150.211",
-              port: 8080,
+              host: "web.sintesis.com.bo",
+              port: "8080",
             },
           },
         },
         function (err, client) {
+          console.log("------->", client);
           if (err) {
             return reject(err);
           }
