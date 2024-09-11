@@ -336,7 +336,7 @@ function pagoElectronico(body, tipoPago, cliente) {
                   apellido: apellidos,
                   correoElectronico: correoElectronico,
                   telefono: cliente.phone,
-                  pais: "B",
+                  pais: "BO",
                   departamento: body.ciudad.substr(0, 1),
                   ciudad: body.ciudad,
                   direccion: body.direccion,
@@ -360,7 +360,6 @@ function pagoElectronico(body, tipoPago, cliente) {
                             key: "merchant_defined_data1",
                             value: "Si",
                           },
-
                           {
                             key: "merchant_defined_data4",
                             value: fecha,
