@@ -360,10 +360,7 @@ function pagoElectronico(body, tipoPago, cliente) {
                             key: "merchant_defined_data1",
                             value: "Si",
                           },
-                          {
-                            key: "merchant_defined_data3",
-                            value: "-",
-                          },
+
                           {
                             key: "merchant_defined_data4",
                             value: fecha,
@@ -408,10 +405,6 @@ function pagoElectronico(body, tipoPago, cliente) {
                           {
                             key: "merchant_defined_data18",
                             value: cliente.idPersona.nombre_comp,
-                          },
-                          {
-                            key: "merchant_defined_data24",
-                            value: "",
                           },
                         ],
                       };
