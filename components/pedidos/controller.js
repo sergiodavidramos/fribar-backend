@@ -336,8 +336,8 @@ function pagoElectronico(body, tipoPago, cliente) {
                   apellido: apellidos,
                   correoElectronico: correoElectronico,
                   telefono: cliente.phone,
-                  pais: "Bolivia",
-                  departamento: body.ciudad,
+                  pais: "B",
+                  departamento: body.ciudad.substr(0, 1),
                   ciudad: body.ciudad,
                   direccion: body.direccion,
                   ZipCode: "0000",
@@ -411,7 +411,7 @@ function pagoElectronico(body, tipoPago, cliente) {
                           },
                           {
                             key: "merchant_defined_data24",
-                            value: "-",
+                            value: "",
                           },
                         ],
                       };
@@ -420,7 +420,7 @@ function pagoElectronico(body, tipoPago, cliente) {
                         id: result.return.idTransaccion,
                         vertical: "COMERCIANTE MINORISTA",
                         comercioId: "360",
-                        idTransaccion: result.return.idTransaccion,
+                        transactionId: result.return.idTransaccion,
                         mdd: mdd,
                       };
 
