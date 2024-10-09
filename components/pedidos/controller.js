@@ -32,7 +32,6 @@ async function addPedido(body, user, token) {
     let total = null;
     let deliveryFees = 0;
     const detalle = await det.json();
-
     for (let i of detalle.body.detalle) {
       total += parseFloat(i.subTotal);
     }

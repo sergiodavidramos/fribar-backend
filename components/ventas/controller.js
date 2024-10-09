@@ -50,7 +50,7 @@ async function addVenta(body, user, userToken) {
       descuento += producto.subTotal - totalProducto;
       contarPixeles += 24;
       tabla += `<tr>
-          <td>${producto.cantidad}</td>
+          <td>${producto.cantidad.toFixed(2)}</td>
           <td>${producto.nombreProducto}</td>
           <td>${`${producto.precioVenta.toFixed(2)}${
             producto.descuento > 0
@@ -86,7 +86,7 @@ async function addVenta(body, user, userToken) {
     );
     contenidoHtml = contenidoHtml.replace(
       "{{totalEnLetras}}",
-      numeroALetras(total)
+      numeroALetras(total.toFixed(2))
     );
     var nombrecortado = user.idPersona.nombre_comp.split(" ");
     contenidoHtml = contenidoHtml.replace("{{userNombre}}", nombrecortado[0]);
