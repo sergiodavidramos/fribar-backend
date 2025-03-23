@@ -7,32 +7,61 @@ const coprocapSchema = new Schema({
     type: Number,
     required: true,
   },
+  flete: {
+    type: Number,
+    required: true,
+  },
+  capital: {
+    type: Number,
+    required: true,
+  },
+  precioCompraGanado: {
+    type: Number,
+    required: true,
+  },
+  precioVentaCarne: {
+    type: Number,
+    required: true,
+  },
+  ventaLibreGanado: {
+    type: Boolean,
+    default: false,
+  },
+  sociedad: {
+    type: Schema.Types.ObjectId,
+    ref: "personas",
+    required: false,
+  },
+  fechaFaineo: { type: Date, required: true },
   pesos: [
+    {
+      pesosCarne: {
+        type: Schema.Types.ObjectId,
+        ref: "pesos",
+        required: false,
+      },
+    },
+  ],
+  pesosSociedad: [
     {
       numeroRegistro: {
         type: Number,
-        required: true,
+        required: false,
       },
       pesoCC: {
         type: Number,
-        required: false,
-      },
-      destinoCC: {
-        type: Schema.Types.ObjectId,
-        ref: "personas",
         required: false,
       },
       pesoSC: {
         type: Number,
         required: false,
       },
-      destinoSC: {
-        type: Schema.Types.ObjectId,
-        ref: "personas",
-        require: false,
-      },
     },
   ],
+  ajusteLote: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 coprocapSchema.plugin(uniqueValidator, "{PATH} debe ser único");

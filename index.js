@@ -9,6 +9,7 @@ const server = require("http").Server(app);
 const socket = require("./socket");
 const errors = require("./network/errors");
 const { escucharSockets } = require("./components/Socket");
+require("dotenv").config();
 
 socket.connect(server);
 
@@ -16,7 +17,6 @@ const allowedOrigins = process.env.CORS || "";
 const allowedOriginsArray = allowedOrigins
   .split(",")
   .map((item) => item.trim());
-require("dotenv").config();
 var corsOptions = {
   origin: allowedOriginsArray,
   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
