@@ -319,7 +319,7 @@ function pagoElectronico(body, tipoPago, cliente) {
             return reject(err);
           } else {
             if (tipoPago === "qr") {
-              console.log("--->", ressult);
+              console.log("--->", result);
               return resolve(result.return);
             } else {
               const nombresCliente = cliente.idPersona.nombre_comp.split(" ");
