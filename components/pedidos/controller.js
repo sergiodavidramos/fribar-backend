@@ -310,10 +310,12 @@ function pagoElectronico(body, tipoPago, cliente) {
     return new Promise((resolve, reject) => {
       soap.createClient(soapXML.xml, {}, function (err, client) {
         if (err) {
+          console.log("Error al crear XML-->", err);
           return reject(err);
         }
         client.registroPlan(params, function (err, result) {
           if (err) {
+            console.log("Error al registrar plan -->", err);
             return reject(err);
           } else {
             if (tipoPago === "qr") {
