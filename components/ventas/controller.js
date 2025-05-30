@@ -21,16 +21,23 @@ function getVentaFecha(fechaInicio, fechaFin) {
 }
 
 async function addVenta(body, user, userToken) {
-  const ubicacionPlantilla = require.resolve("./static/factura.html");
-  let contenidoHtml = fs.readFileSync(ubicacionPlantilla, "utf8");
-
-  const fechaHoy = new Date();
-  let tabla = "";
-  let subtotal = 0;
-  if (!body.detalleVenta || !body.client)
-    return Promise.reject("Los Campos son obligatorios");
   try {
-    const det = await fetch(`${process.env.API_URL}/detalle`, {
+    const ubicacionPlantilla = require.resolve("./static/factura.html");
+    const contenidoHtmlOriginal = fs.readFileSync(ubicacionPlantilla, "utf8");
+
+    const fechaHoy = new Date();
+    let tabla = "";
+    let subtotal = 0;
+    let total = 0;
+    let descuento = 0;
+    let contarPixeles = 0;
+
+    if (!body.detalleVenta || !body.client) {
+      throw new Error("Los campos son obligatorios");
+    }
+
+    // Crear el detalle de venta
+    const detRes = await fetch(`${process.env.API_URL}/detalle`, {
       method: "POST",
       body: JSON.stringify({ detalle: body.detalleVenta }),
       headers: {
@@ -38,183 +45,133 @@ async function addVenta(body, user, userToken) {
         Authorization: userToken,
       },
     });
-    let total = 0;
-    let descuento = 0;
-    let contarPixeles = 0;
-    const detalle = await det.json();
-    if (detalle.error) return Promise.reject({ message: detalle.body });
-    for (let producto of body.detalleVenta) {
+
+    const detalle = await detRes.json();
+    if (detalle.error) {
+      throw new Error(detalle.body || "Error al crear detalle de venta");
+    }
+
+    // Procesar los productos
+    for (const producto of body.detalleVenta) {
       total += parseFloat(producto.subTotal);
       const totalProducto = producto.cantidad * producto.precioVenta;
       subtotal += totalProducto;
       descuento += producto.subTotal - totalProducto;
       contarPixeles += 24;
-      tabla += `<tr>
+      tabla += `
+        <tr>
           <td>${producto.cantidad.toFixed(2)}</td>
           <td>${producto.nombreProducto}</td>
-          <td>${`${producto.precioVenta.toFixed(2)}${
-            producto.descuento > 0
-              ? " - Desc.(" + producto.descuento + "%)"
-              : ""
-          }`}</td>
+          <td>${producto.precioVenta.toFixed(2)}${
+        producto.descuento > 0 ? " - Desc.(" + producto.descuento + "%)" : ""
+      }</td>
           <td>${totalProducto.toFixed(2)}</td>
-          </tr>`;
+        </tr>`;
     }
 
-    // Remplazar el valor {{tablaProductos}} por el verdadero valor
-    contenidoHtml = contenidoHtml.replace("{{tablaProductos}}", tabla);
+    // Reemplazar contenido HTML
+    let contenidoHtml = contenidoHtmlOriginal
+      .replace("{{tablaProductos}}", tabla)
+      .replace("{{subtotal}}", subtotal.toFixed(2))
+      .replace("{{descuento}}", descuento.toFixed(2))
+      .replace("{{subtotalConDescuento}}", total.toFixed(2))
+      .replace(
+        "{{fechaVenta}}",
+        `${fechaHoy.getDate()}-${
+          fechaHoy.getMonth() + 1
+        }-${fechaHoy.getFullYear()}`
+      )
+      .replace("{{ciCliente}}", body.client.ci)
+      .replace("{{nombreCliente}}", body.client.nombre)
+      .replace("{{totalEnLetras}}", numeroALetras(total.toFixed(2)))
+      .replace("{{userNombre}}", user.idPersona.nombre_comp.split(" ")[0])
+      .replace(
+        "{{horaVenta}}",
+        `${fechaHoy.getHours()}:${fechaHoy.getMinutes()}:${fechaHoy.getSeconds()}`
+      )
+      .replace("{{idDetalle}}", detalle.body._id)
+      .replace("{{nombreSucursal}}", body.sucursal.nombre)
+      .replace("{{direccionSucursal}}", body.sucursal.direccion.direccion)
+      .replace("{{ciudadSucursal}}", body.sucursal.ciudad.nombre)
+      .replace(
+        "{{efectivo}}",
+        body.efectivo === "" ? "0.00" : parseFloat(body.efectivo).toFixed(2)
+      )
+      .replace(
+        "{{cambioEfectivo}}",
+        (parseFloat(body.efectivo) - total).toFixed(2)
+      );
 
-    contenidoHtml = contenidoHtml.replace("{{subtotal}}", subtotal.toFixed(2));
-    contenidoHtml = contenidoHtml.replace(
-      "{{descuento}}",
-      descuento.toFixed(2)
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{subtotalConDescuento}}",
-      total.toFixed(2)
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{fechaVenta}}",
-      `${fechaHoy.getDate()}-${
-        fechaHoy.getMonth() + 1
-      }-${fechaHoy.getFullYear()}`
-    );
-    contenidoHtml = contenidoHtml.replace("{{ciCliente}}", body.client.ci);
-    contenidoHtml = contenidoHtml.replace(
-      "{{nombreCliente}}",
-      body.client.nombre
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{totalEnLetras}}",
-      numeroALetras(total.toFixed(2))
-    );
-    var nombrecortado = user.idPersona.nombre_comp.split(" ");
-    contenidoHtml = contenidoHtml.replace("{{userNombre}}", nombrecortado[0]);
-    contenidoHtml = contenidoHtml.replace(
-      "{{horaVenta}}",
-      `${fechaHoy.getHours()}:${fechaHoy.getMinutes()}:${fechaHoy.getSeconds()}`
-    );
-    contenidoHtml = contenidoHtml.replace("{{idDetalle}}", detalle.body._id);
-    contenidoHtml = contenidoHtml.replace(
-      "{{nombreSucursal}}",
-      body.sucursal.nombre
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{direccionSucursal}}",
-      body.sucursal.direccion.direccion
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{ciudadSucursal}}",
-      body.sucursal.ciudad.nombre
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{efectivo}}",
-      body.efectivo === "" ? 0 : parseFloat(body.efectivo).toFixed(2)
-    );
-    contenidoHtml = contenidoHtml.replace(
-      "{{cambioEfectivo}}",
-      (parseFloat(body.efectivo) - total).toFixed(2)
-    );
-    const efectivoCambiado = parseFloat(body.efectivo);
-    return new Promise(async (resolve, reject) => {
-      const venta = {
-        user: user._id,
-        idSucursal: user.idSucursal,
-        client: body.client.id,
-        detalleVenta: detalle.body._id,
-        fecha: new Date(),
-        total: total.toFixed(2),
-        efectivo: body.efectivo,
-        cambio: Number.isFinite(efectivoCambiado)
-          ? (efectivoCambiado - total).toFixed(2)
-          : 0,
-      };
-      const altura = (((700 + contarPixeles) * 2.54) / 96) * 10;
-      addVentaDB(venta)
-        .then(async (datos) => {
-          try {
-            for (const dat of detalle.body.detalle) {
-              Promise.all([
-                fetch(`${process.env.API_URL}/productos/${dat.producto._id}`, {
-                  method: "PATCH",
-                  body: JSON.stringify({ desStock: -dat.cantidad }),
-                  headers: {
-                    Authorization: userToken,
-                    "Content-Type": "application/json",
-                  },
-                }),
-                fetch(`${process.env.API_URL}/inventario/actualiza-stock`, {
-                  method: "PATCH",
-                  body: JSON.stringify({
-                    idProducto: dat.producto._id,
-                    datos: { stockTotal: dat.cantidad },
-                    idSucursal: user.idSucursal,
-                    venta: true,
-                  }),
-                  headers: {
-                    Authorization: userToken,
-                    "Content-Type": "application/json",
-                  },
-                }),
-              ]);
-            }
-            if (total > 10 && total < 25)
-              fetch(`${process.env.API_URL}/person/${body.client.id}`, {
-                method: "PATCH",
-                body: JSON.stringify({
-                  puntos: 2,
-                }),
-                headers: {
-                  "Content-type": "application/json",
-                  Authorization: userToken,
-                },
-              });
+    const venta = {
+      user: user._id,
+      idSucursal: user.idSucursal,
+      client: body.client.id,
+      detalleVenta: detalle.body._id,
+      fecha: new Date(),
+      total: total.toFixed(2),
+      efectivo: body.efectivo,
+      cambio: Number.isFinite(parseFloat(body.efectivo))
+        ? (parseFloat(body.efectivo) - total).toFixed(2)
+        : 0,
+    };
 
-            if (total > 25 && total < 50)
-              fetch(`${process.env.API_URL}/person/${body.client.id}`, {
-                method: "PATCH",
-                body: JSON.stringify({
-                  puntos: 4,
-                }),
-                headers: {
-                  "Content-type": "application/json",
-                  Authorization: userToken,
-                },
-              });
-            if (total > 50)
-              fetch(`${process.env.API_URL}/person/${body.client.id}`, {
-                method: "PATCH",
-                body: JSON.stringify({
-                  puntos: 6,
-                }),
-                headers: {
-                  "Content-type": "application/json",
-                  Authorization: userToken,
-                },
-              });
-          } catch (err) {
-            console.log("Error-->", err);
-            return reject({ message: err.message });
-          }
-          var options = {
-            paginationOffset: 1,
-            width: "80mm",
-            height: `${altura}mm`,
-            zoomFactor: "94",
-          };
+    // Guardar la venta
+    const datosVenta = await addVentaDB(venta);
 
-          let file = { content: contenidoHtml };
-          html_to_pdf.generatePdf(file, options).then((pdfBuffer) => {
-            return resolve(pdfBuffer);
-          });
-        })
-        .catch((err) => {
-          console.log("ERROR", err);
-        });
+    // Actualizar stock
+    for (const dat of detalle.body.detalle) {
+      await Promise.all([
+        fetch(`${process.env.API_URL}/productos/${dat.producto._id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ desStock: -dat.cantidad }),
+          headers: {
+            Authorization: userToken,
+            "Content-Type": "application/json",
+          },
+        }),
+        fetch(`${process.env.API_URL}/inventario/actualiza-stock`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            idProducto: dat.producto._id,
+            datos: { stockTotal: dat.cantidad },
+            idSucursal: user.idSucursal,
+            venta: true,
+          }),
+          headers: {
+            Authorization: userToken,
+            "Content-Type": "application/json",
+          },
+        }),
+      ]);
+    }
+
+    // Actualizar puntos del cliente
+    fetch(`${process.env.API_URL}/person/${body.client.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        puntos: Math.floor(total / 10),
+      }),
+      headers: {
+        "Content-type": "application/json",
+        Authorization: userToken,
+      },
     });
-  } catch (err) {
-    console.log("ERORRR", err);
-    return Promise.reject({ message: err });
+
+    // Generar el PDF
+    const altura = (((700 + contarPixeles) * 2.54) / 96) * 10;
+    const pdfBuffer = await html_to_pdf.generatePdf(
+      { content: contenidoHtml },
+      {
+        paginationOffset: 1,
+        width: "80mm",
+        height: `${altura}mm`,
+        zoomFactor: "94",
+      }
+    );
+    return pdfBuffer;
+  } catch (error) {
+    console.error("Error en addVenta:", error);
+    throw new Error(error.message || "Error interno al procesar la venta");
   }
 }
 

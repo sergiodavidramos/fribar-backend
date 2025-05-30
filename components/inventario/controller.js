@@ -161,10 +161,10 @@ async function updateStockProduct(
     });
 
   return new Promise(async (resolve, reject) => {
-    try {
-      if (venta === false) {
-        return resolve(updateStockProductDB(idProducto, idSucursal, newDatos));
-      } else {
+    if (venta === false) {
+      return resolve(updateStockProductDB(idProducto, idSucursal, newDatos));
+    } else {
+      try {
         const res = await getProductoIdInvetarioIdDB(
           ObjectId(idProducto),
           ObjectId(idSucursal)
@@ -247,9 +247,9 @@ async function updateStockProduct(
             })
           );
         }
+      } catch (error) {
+        return reject(error);
       }
-    } catch (error) {
-      return reject(error);
     }
   });
 }

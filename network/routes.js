@@ -25,6 +25,8 @@ const notificacion = require("../components/notificacionesPago/network");
 const comunicado = require("../components/comunicado/network");
 const solicitud = require("../components/solicitudServicioCliente/network");
 const ganadoCoprocap = require("../components/coprocap/network");
+const valorPuntos = require("../components/puntos/network");
+
 const router = (server) => {
   server.use("/login", auth);
   server.use("/person", person);
@@ -53,5 +55,6 @@ const router = (server) => {
   server.use("/comunicado", comunicado);
   server.use("/solicitud", solicitud);
   server.use("/ganado", ganadoCoprocap);
+  server.use("/puntos", valorPuntos);
 };
 module.exports = router;

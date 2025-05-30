@@ -136,27 +136,31 @@ router.patch(
         req.params.id
       )
       .then((product) => {
-        index.saveObjects(
-          [
-            {
-              img: product.img,
-              status: product.status,
-              objectID: product._id,
-              code: product.code,
-              name: product.name,
-              detail: product.detail,
-              precioCompra: product.precioCompra,
-              precioVenta: product.precioVenta,
-              category: product.category,
-              proveedor: product.proveedor,
-              tipoVenta: product.tipoVenta,
-              descuento: product.descuento,
-              stock: product.stock,
-              __v: 0,
-            },
-          ],
-          { autoGenerateObjectIDIfNotExist: true }
-        );
+        index
+          .saveObjects(
+            [
+              {
+                img: product.img,
+                status: product.status,
+                objectID: product._id,
+                code: product.code,
+                name: product.name,
+                detail: product.detail,
+                precioCompra: product.precioCompra,
+                precioVenta: product.precioVenta,
+                category: product.category,
+                proveedor: product.proveedor,
+                tipoVenta: product.tipoVenta,
+                descuento: product.descuento,
+                stock: product.stock,
+                __v: 0,
+              },
+            ],
+            { autoGenerateObjectIDIfNotExist: true }
+          )
+          .catch((err) => {
+            console.error("Error al guardar en Algolia:");
+          });
         response.success(res, product, 200);
       })
       .catch(next);
